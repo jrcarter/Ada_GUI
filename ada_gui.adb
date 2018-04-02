@@ -22,13 +22,18 @@ package body Ada_GUI is
 
    function Program_Finished return Boolean is (Ended);
 
-   type Widget_Info (Kind : Widget_Kind_ID := Text_Box) is record
+   type Widget_Info (Kind : Widget_Kind_ID := Button) is record
       case Kind is
-      when Text_Box =>
-         Box   : Gnoga.Gui.Element.Form.Text_Access;
-         Label : Gnoga.Gui.Element.Form.Label_Access;
       when Button =>
          Switch : Gnoga.Gui.Element.Common.Button_Access;
+      when Check_Box =>
+         Check       : Gnoga.Gui.Element.Form.Check_Box_Access;
+         Check_Label : Gnoga.Gui.Element.Form.Label_Access;
+      when Text_Area =>
+         Area : Gnoga.Gui.Element.Form.Text_Area_Access;
+      when Text_Box =>
+         Box       : Gnoga.Gui.Element.Form.Text_Access;
+         Box_Label : Gnoga.Gui.Element.Form.Label_Access;
       end case;
    end record;
 
@@ -56,32 +61,79 @@ package body Ada_GUI is
       Event_Queue.Enqueue (New_Item => Event);
    end On_Click;
 
-   function New_Item (Kind : Widget_Kind_ID; Text : in String; Break_Before : Boolean := False; Label : in String := "")
+   procedure Break (Desired : Boolean) is
+      -- Empty
+   begin -- Break
+      if Desired then
+         Form.New_Line;
+      end if;
+   end Break;
+
+   function New_Button (Text : in String; Break_Before : Boolean := False) return Widget_ID is
+      ID : constant Widget_ID := Widget_ID (Widget_List.Last_Index + 1);
+
+      Widget : Widget_Info (Kind => Button);
+   begin -- New_Button
+      Break (Desired => Break_Before);
+      Widget.Switch := new Gnoga.Gui.Element.Common.Button_Type;
+      Widget.Switch.Create (Parent => Form, Content => Text, ID => ID'Image);
+      Widget.Switch.On_Click_Handler (Handler => On_Click'Access);
+      Widget_List.Append (New_Item => Widget);
+
+      return ID;
+   end New_Button;
+
+   function New_Check_Box (Label : String; Break_Before : Boolean := False; Active : Boolean := False) return Widget_ID is
+      ID : constant Widget_ID := Widget_ID (Widget_List.Last_Index + 1);
+
+      Widget : Widget_Info (Kind => Check_Box);
+   begin -- New_Check_Box
+      Break (Desired => Break_Before);
+      Widget.Check := new Gnoga.Gui.Element.Form.Check_Box_Type;
+      Widget.Check.Create (Form => Form);
+      Widget.Check.Checked (Value => Active);
+      Widget.Check_Label := new Gnoga.Gui.Element.Form. Label_Type;
+      Widget.Check_Label.Create (Form => Form, Label_For => Widget.Check.all, Content => Label, Auto_Place => False);
+      Widget_List.Append (New_Item => Widget);
+
+      return ID;
+   end New_Check_Box;
+
+   function New_Text_Area (Text : String := ""; Break_Before : Boolean := False; Width : Positive := 20; Height : Positive := 2)
    return Widget_ID is
       ID : constant Widget_ID := Widget_ID (Widget_List.Last_Index + 1);
 
-      Widget : Widget_Info (Kind => Kind);
-   begin -- New_Item
-      if Break_Before then
-         Form.New_Line;
-      end if;
+      Widget : Widget_Info (Kind => Text_Area);
+   begin -- New_Text_Area
+      Break (Desired => Break_Before);
+      Widget.Area := new Gnoga.Gui.Element.Form.Text_Area_Type;
+      Widget.Area.Create (Form => Form, Columns => Width, Rows => Height, Value => Text);
+      Widget_List.Append (New_Item => Widget);
 
-      case Kind is
-      when Text_Box =>
-         Widget.Box := new Gnoga.Gui.Element.Form.Text_Type;
-         Widget.Box.Create (Form => Form, Value => Text, ID => ID'Image);
-         Widget.Label := new Gnoga.Gui.Element.Form.Label_Type;
-         Widget.Label.Create (Form => Form, Label_For => Widget.Box.all, Content => Label);
-      when Button =>
-         Widget.Switch := new Gnoga.Gui.Element.Common.Button_Type;
-         Widget.Switch.Create (Parent => Form, Content => Text, ID => ID'Image);
-         Widget.Switch.On_Click_Handler (Handler => On_Click'Access);
-      end case;
+      return ID;
+   end New_Text_Area;
+
+   function New_Text_Box
+      (Text : String; Break_Before : Boolean := False; Label : String := ""; Placeholder : String := ""; Width : Positive := 20)
+   return Widget_ID is
+      ID : constant Widget_ID := Widget_ID (Widget_List.Last_Index + 1);
+
+      Widget : Widget_Info (Kind => Text_Box);
+   begin -- New_Text_Box
+      Break (Desired => Break_Before);
+      Widget.Box := new Gnoga.Gui.Element.Form.Text_Type;
+      Widget.Box.Create (Form => Form, Size => Width, Value => Text, ID => ID'Image);
+      Widget.Box_Label := new Gnoga.Gui.Element.Form.Label_Type;
+      Widget.Box_Label.Create (Form => Form, Label_For => Widget.Box.all, Content => Label);
+
+      if Placeholder /= "" then
+         Widget.Box.Place_Holder (Value => Placeholder);
+      end if;
 
       Widget_List.Append (New_Item => Widget);
 
       return ID;
-   end New_Item;
+   end New_Text_Box;
 
    procedure Set_Title (Title : in String) is
       -- Empty
@@ -107,10 +159,14 @@ package body Ada_GUI is
       Widget : Widget_Info := Widget_List (Natural (ID) );
    begin -- Set_Text
       case Widget.Kind is
-      when Text_Box =>
-         Widget.Box.Value (Value => Text);
       when Button =>
          Widget.Switch.Text (Value => Text);
+      when Text_Area =>
+         Widget.Area.Value (Value => Text);
+      when Text_Box =>
+         Widget.Box.Value (Value => Text);
+      when others =>
+         raise Program_Error;
       end case;
    end Set_Text;
 
@@ -118,12 +174,38 @@ package body Ada_GUI is
       Widget : constant Widget_Info := Widget_List (Natural (ID) );
    begin -- Text
       case Widget.Kind is
-      when Text_Box =>
-         return Widget.Box.Value;
       when Button =>
          return Widget.Switch.Text;
+      when Text_Area =>
+         return Widget.Area.Value;
+      when Text_Box =>
+         return Widget.Box.Value;
+      when others =>
+         raise Program_Error;
       end case;
    end Text;
+
+   procedure Set_Active (ID : in Widget_ID; Active : in Boolean) is
+      Widget : Widget_Info := Widget_List (Natural (ID) );
+   begin -- Set_Active
+      case Widget.Kind is
+      when Check_Box =>
+         Widget.Check.Checked (Value => Active);
+      when others =>
+         raise Program_Error;
+      end case;
+   end Set_Active;
+
+   function Active (ID : Widget_ID) return Boolean is
+      Widget : constant Widget_Info := Widget_List (Natural (ID) );
+   begin -- Active
+      case Widget.Kind is
+      when Check_Box =>
+         return Widget.Check.Checked;
+      when others =>
+         raise Program_Error;
+      end case;
+   end Active;
 
    procedure End_GUI is
       View : Gnoga.Gui.Element.Form.Form_Type;
@@ -147,6 +229,7 @@ package body Ada_GUI is
       Gnoga.Application.HTML_On_Close (HTML => "Application ended");
       Form.Create (Parent => Window);
       Form.Text_Alignment (Value => Gnoga.Gui.Element.Center);
+      Form.Overflow (Value => Gnoga.Gui.Element.Scroll);
       Set_Up := True;
       Gnoga.Application.Singleton.Message_Loop;
    end GUI_Thread;
