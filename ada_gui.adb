@@ -16,15 +16,40 @@ with Gnoga.Gui.Element.Canvas.Context_2D;
 with Gnoga.Gui.Element.Common;
 with Gnoga.Gui.Element.Form;
 with Gnoga.Gui.Element.Multimedia;
+with Gnoga.Gui.View.Grid;
 with Gnoga.Gui.Window;
 with Gnoga.Types.Colors;
 
 package body Ada_GUI is
-   Window : Gnoga.Gui.Window.Window_Type;
-   Form   : Gnoga.Gui.Element.Form.Form_Type;
-   Ended  : Boolean := False with Atomic;
+   type Form_Set is array (Positive range <>, Positive range <>) of Gnoga.Gui.Element.Form.Form_Type;
+   type Form_Ptr is access Form_Set;
 
-   function Program_Finished return Boolean is (Ended);
+   Window : Gnoga.Gui.Window.Window_Type;
+   Grid   : Gnoga.Gui.View.Grid.Grid_View_Type;
+   Form   : Form_Ptr;
+   Setup  : Boolean := False with Atomic;
+
+   function Set_Up return Boolean is (Setup);
+
+   procedure Set_Up (Grid : in Grid_Set := (1 => (1 => Center) ) ) is
+      function Convert (Alignment : Alignment_ID) return Gnoga.Gui.Element.Alignment_Type is
+      (case Alignment is
+       when Left   => Gnoga.Gui.Element.Left,
+       when Center => Gnoga.Gui.Element.Center,
+       when Right  => Gnoga.Gui.Element.Right);
+   begin -- Set_Up
+      Ada_GUI.Grid.Create (Parent => Window, Layout => (Grid'Range (1) => (Grid'Range (2) => Gnoga.Gui.View.Grid.COL) ) );
+      Form := new Form_Set (Grid'Range (1), Grid'Range (2) );
+
+      All_Rows : for I in Form'Range (1) loop
+         All_Columns : for J in Form'Range (2) loop
+            Form (I, J).Create (Parent => Ada_GUI.Grid.Panel (I, J).all);
+            Form (I, J).Text_Alignment (Value => Convert (Grid (I, J) ) );
+         end loop All_Columns;
+      end loop All_Rows;
+
+      Setup := True;
+   end Set_Up;
 
    type Radio_Info is record
       Button : Gnoga.Gui.Element.Form.Radio_Button_Type;
@@ -86,79 +111,90 @@ package body Ada_GUI is
       Event_Queue.Enqueue (New_Item => Event);
    end On_Click;
 
-   procedure Break (Desired : Boolean) is
+   procedure Break (Desired : in Boolean; Row : in Positive; Column : in Positive) is
       -- Empty
    begin -- Break
       if Desired then
-         Form.New_Line;
+         Form (Row, Column).New_Line;
       end if;
    end Break;
 
-   function New_Audio_Player (Break_Before : Boolean := False; Source : String := ""; Controls : Boolean := True)
+
+   function New_Audio_Player (Row          : Positive;
+                              Column       : Positive;
+                              Break_Before : Boolean := False;
+                              Source       : String  := "";
+                              Controls     : Boolean := True)
    return Widget_ID is
       ID : constant Widget_ID := (Value => Widget_List.Last_Index + 1);
 
       Widget : Widget_Info (Kind => Audio_Player);
    begin -- New_Audio_Player
-      Break (Desired => Break_Before);
+      Break (Desired => Break_Before, Row => Row, Column => Column);
       Widget.Audio := new Gnoga.Gui.Element.Multimedia.Audio_Type;
-      Widget.Audio.Create (Parent => Form, Source => Source, Controls => Controls, Preload => True, ID => ID.Value'Image);
+      Widget.Audio.Create
+         (Parent => Form (Row, Column), Source => Source, Controls => Controls, Preload => True, ID => ID.Value'Image);
       Widget_List.Append (New_Item => Widget);
 
       return ID;
    end New_Audio_Player;
 
-   function New_Background_Text (Text : in String; Break_Before : Boolean := False) return Widget_ID is
+   function New_Background_Text (Row : Positive; Column : Positive; Text : String; Break_Before : Boolean := False)
+   return Widget_ID is
       ID : constant Widget_ID := (Value => Widget_List.Last_Index + 1);
 
       Widget : Widget_Info (Kind => Background_Text);
    begin -- New_Background_Text
-      Break (Desired => Break_Before);
+      Break (Desired => Break_Before, Row => Row, Column => Column);
       Widget.Background := new Gnoga.Gui.Element.Common.Span_Type;
-      Widget.Background.Create (Parent => Form, Content => Text, ID => ID.Value'Image);
+      Widget.Background.Create (Parent => Form (Row, Column), Content => Text, ID => ID.Value'Image);
       Widget_List.Append (New_Item => Widget);
 
       return ID;
    end New_Background_Text;
 
-   function New_Button (Text : in String; Break_Before : Boolean := False) return Widget_ID is
+   function New_Button (Row : Positive; Column : Positive; Text : String; Break_Before : Boolean := False) return Widget_ID is
       ID : constant Widget_ID := (Value => Widget_List.Last_Index + 1);
 
       Widget : Widget_Info (Kind => Button);
    begin -- New_Button
-      Break (Desired => Break_Before);
+      Break (Desired => Break_Before, Row => Row, Column => Column);
       Widget.Switch := new Gnoga.Gui.Element.Common.Button_Type;
-      Widget.Switch.Create (Parent => Form, Content => Text, ID => ID.Value'Image);
+      Widget.Switch.Create (Parent => Form (Row, Column), Content => Text, ID => ID.Value'Image);
       Widget.Switch.On_Click_Handler (Handler => On_Click'Access);
       Widget_List.Append (New_Item => Widget);
 
       return ID;
    end New_Button;
 
-   function New_Check_Box (Label : String; Break_Before : Boolean := False; Active : Boolean := False) return Widget_ID is
+   function New_Check_Box
+      (Row : Positive; Column : Positive; Label : String; Break_Before : Boolean := False; Active : Boolean := False)
+   return Widget_ID is
       ID : constant Widget_ID := (Value => Widget_List.Last_Index + 1);
 
       Widget : Widget_Info (Kind => Check_Box);
    begin -- New_Check_Box
-      Break (Desired => Break_Before);
+      Break (Desired => Break_Before, Row => Row, Column => Column);
       Widget.Check := new Gnoga.Gui.Element.Form.Check_Box_Type;
-      Widget.Check.Create (Form => Form, ID => ID.Value'Image);
+      Widget.Check.Create (Form => Form (Row, Column), ID => ID.Value'Image);
       Widget.Check.Checked (Value => Active);
       Widget.Check_Label := new Gnoga.Gui.Element.Form.Label_Type;
-      Widget.Check_Label.Create (Form => Form, Label_For => Widget.Check.all, Content => Label, Auto_Place => False);
+      Widget.Check_Label.Create (Form => Form (Row, Column), Label_For => Widget.Check.all, Content => Label, Auto_Place => False);
       Widget_List.Append (New_Item => Widget);
 
       return ID;
    end New_Check_Box;
 
-   function New_Graphic_Area (Width : in Positive; Height : in Positive; Break_Before : Boolean := False) return Widget_ID is
+   function New_Graphic_Area
+      (Row : Positive; Column : Positive; Width : Positive; Height : Positive; Break_Before : Boolean := False)
+   return Widget_ID is
       ID : constant Widget_ID := (Value => Widget_List.Last_Index + 1);
 
       Widget : Widget_Info (Kind => Graphic_Area);
    begin -- New_Graphic_Area
-      Break (Desired => Break_Before);
+      Break (Desired => Break_Before, Row => Row, Column => Column);
       Widget.Canvas := new Gnoga.Gui.Element.Canvas.Canvas_Type;
-      Widget.Canvas.Create (Parent => Form, Width => Width, Height => Height, ID => ID.Value'Image);
+      Widget.Canvas.Create (Parent => Form (Row, Column), Width => Width, Height => Height, ID => ID.Value'Image);
       Widget_List.Append (New_Item => Widget);
 
       return ID;
@@ -168,7 +204,11 @@ package body Ada_GUI is
 
    Next_Button : Positive := 1;
 
-   function New_Radio_Buttons (Label : in Text_List; Break_Before : Boolean := False; Orientation : in Orientation_ID := Vertical)
+   function New_Radio_Buttons (Row          : Positive;
+                               Column       : Positive;
+                               Label        : Text_List;
+                               Break_Before : Boolean        := False;
+                               Orientation  : Orientation_ID := Vertical)
    return Widget_ID is
       ID : constant Widget_ID := (Value => Widget_List.Last_Index + 1);
 
@@ -177,17 +217,19 @@ package body Ada_GUI is
    begin -- New_Radio_Buttons
       Name (Name'First) := 'R';
       Next_Button := Next_Button + 1;
-      Break (Desired => Break_Before);
+      Break (Desired => Break_Before, Row => Row, Column => Column);
       Widget.Radio := new Radio_List (Label'Range);
 
       All_Buttons : for I in Label'Range loop
          Widget.Radio (I).Button.Create
-            (Form => Form, Checked => I = Label'First, Name => Name, ID => I'Image & 'R' & ID.Value'Image);
-         Widget.Radio (I).Label.Create
-            (Form => Form, Label_For => Widget.Radio (I).Button, Content => To_String (Label (I) ), Auto_Place => False);
+            (Form => Form (Row, Column), Checked => I = Label'First, Name => Name, ID => I'Image & 'R' & ID.Value'Image);
+         Widget.Radio (I).Label.Create (Form       => Form (Row, Column),
+                                        Label_For  => Widget.Radio (I).Button,
+                                        Content    => To_String (Label (I) ),
+                                        Auto_Place => False);
 
          if I < Label'Last and Orientation = Vertical then
-            Form.New_Line;
+            Form (Row, Column).New_Line;
          end if;
       end loop All_Buttons;
 
@@ -196,16 +238,21 @@ package body Ada_GUI is
       return ID;
    end New_Radio_Buttons;
 
-   function New_Selection_List
-      (Text : in Text_List; Break_Before : Boolean := False; Height : in Positive := 1; Multiple_Select : in Boolean := False)
+   function New_Selection_List (Row             : Positive;
+                                Column          : Positive;
+                                Text            : Text_List;
+                                Break_Before    : Boolean  := False;
+                                Height          : Positive := 1;
+                                Multiple_Select : Boolean  := False)
    return Widget_ID is
       ID : constant Widget_ID := (Value => Widget_List.Last_Index + 1);
 
       Widget : Widget_Info (Kind => Selection_List);
    begin -- New_Selection_List
-      Break (Desired => Break_Before);
+      Break (Desired => Break_Before, Row => Row, Column => Column);
       Widget.Selector := new Gnoga.Gui.Element.Form.Selection_Type;
-      Widget.Selector.Create (Form => Form, Multiple_Select => Multiple_Select, Visible_Lines => Height, ID => ID.Value'Image);
+      Widget.Selector.Create
+         (Form => Form (Row, Column), Multiple_Select => Multiple_Select, Visible_Lines => Height, ID => ID.Value'Image);
       Widget.Selector.On_Click_Handler (Handler => On_Click'Access);
       Widget.Multi := Multiple_Select;
       Widget_List.Append (New_Item => Widget);
@@ -217,32 +264,42 @@ package body Ada_GUI is
       return ID;
    end New_Selection_List;
 
-   function New_Text_Area (Text : String := ""; Break_Before : Boolean := False; Width : Positive := 20; Height : Positive := 2)
+   function New_Text_Area (Row          : Positive;
+                           Column       : Positive;
+                           Text         : String   := "";
+                           Break_Before : Boolean  := False;
+                           Width        : Positive := 20;
+                           Height       : Positive := 2)
    return Widget_ID is
       ID : constant Widget_ID := (Value => Widget_List.Last_Index + 1);
 
       Widget : Widget_Info (Kind => Text_Area);
    begin -- New_Text_Area
-      Break (Desired => Break_Before);
+      Break (Desired => Break_Before, Row => Row, Column => Column);
       Widget.Area := new Gnoga.Gui.Element.Form.Text_Area_Type;
-      Widget.Area.Create (Form => Form, Columns => Width, Rows => Height, Value => Text, ID => ID.Value'Image);
+      Widget.Area.Create (Form => Form (Row, Column), Columns => Width, Rows => Height, Value => Text, ID => ID.Value'Image);
       Widget_List.Append (New_Item => Widget);
 
       return ID;
    end New_Text_Area;
 
-   function New_Text_Box
-      (Text : String; Break_Before : Boolean := False; Label : String := ""; Placeholder : String := ""; Width : Positive := 20)
+   function New_Text_Box (Row          : Positive;
+                          Column       : Positive;
+                          Text         : String;
+                          Break_Before : Boolean  := False;
+                          Label        : String   := "";
+                          Placeholder  : String   := "";
+                          Width        : Positive := 20)
    return Widget_ID is
       ID : constant Widget_ID := (Value => Widget_List.Last_Index + 1);
 
       Widget : Widget_Info (Kind => Text_Box);
    begin -- New_Text_Box
-      Break (Desired => Break_Before);
+      Break (Desired => Break_Before, Row => Row, Column => Column);
       Widget.Box := new Gnoga.Gui.Element.Form.Text_Type;
-      Widget.Box.Create (Form => Form, Size => Width, Value => Text, ID => ID.Value'Image);
+      Widget.Box.Create (Form => Form (Row, Column), Size => Width, Value => Text, ID => ID.Value'Image);
       Widget.Box_Label := new Gnoga.Gui.Element.Form.Label_Type;
-      Widget.Box_Label.Create (Form => Form, Label_For => Widget.Box.all, Content => Label);
+      Widget.Box_Label.Create (Form => Form (Row, Column), Label_For => Widget.Box.all, Content => Label);
 
       if Placeholder /= "" then
          Widget.Box.Place_Holder (Value => Placeholder);
@@ -618,16 +675,16 @@ package body Ada_GUI is
    procedure End_GUI is
       View : Gnoga.Gui.Element.Form.Form_Type;
    begin -- End_GUI
-      Form.Remove;
+      Grid.Remove;
       View.Create (Parent => Window);
       View.Put_Line (Message => Window.Document.Title & " ended");
       Gnoga.Application.Singleton.End_Application;
-      Ended := True;
+      Setup := False;
    end End_GUI;
 
    task GUI_Thread;
 
-   Set_Up : Boolean := False with Atomic;
+   Gnoga_Running : Boolean := False with Atomic;
 
    task body GUI_Thread is
       -- Empty
@@ -635,15 +692,12 @@ package body Ada_GUI is
       Gnoga.Application.Open_URL;
       Gnoga.Application.Singleton.Initialize (Main_Window => Window);
       Gnoga.Application.HTML_On_Close (HTML => "Application ended");
-      Form.Create (Parent => Window);
-      Form.Text_Alignment (Value => Gnoga.Gui.Element.Center);
-      Form.Overflow (Value => Gnoga.Gui.Element.Scroll);
-      Set_Up := True;
+      Gnoga_Running := True;
       Gnoga.Application.Singleton.Message_Loop;
    end GUI_Thread;
 begin -- Ada_Gui
-   Wait : loop
-      exit Wait when Set_Up;
+   Wait : loop -- Delay environment task until GUI_Thread has initialized Window
+      exit Wait when Gnoga_Running;
 
       delay 0.1;
    end loop Wait;

@@ -12,41 +12,57 @@ package Ada_GUI is
 
    type Widget_ID is tagged private;
 
-   function Program_Finished return Boolean;
-   -- Returns True after End_GUI has been called; False otherwise
+   function Set_Up return Boolean;
+   -- Returns True after Set_Up has been called and before End_GUI has been called; False otherwise
 
-   function Kind (ID : Widget_ID) return Widget_Kind_ID with Pre => not Program_Finished;
+   function Kind (ID : Widget_ID) return Widget_Kind_ID with Pre => Set_Up;
    -- If ID was returned by a call to a New_[Widget] function, returns the kind of widget identified by ID
    -- Raises Constraine_Error otherwise
+
+   type Alignment_ID is (Left, Center, Right);
+
+   type Grid_Set is array (Positive range <>, Positive range <>) of Alignment_ID;
+
+   procedure Set_Up (Grid : in Grid_Set := (1 => (1 => Center) ) ) with Pre => not Set_Up, Post => Set_Up;
+   -- Sets up a grid of Grid'Length (1) rows by Grid'Length (2) Columns of display areas
+   -- Each display area has the alignment given by Grid for its row and column
 
    -- For the New_[Widget] functions below, if Break_Before, the button appears below any existing widgets;
    -- otherwise, it appears to the right of the most recent widget
    -- All New_[Widget] functions return the ID of the new widget
+   -- All New_[Widget] functions take the Row and Column of the display area in which the widget will be created
 
-   function New_Audio_Player (Break_Before : Boolean := False; Source : String := ""; Controls : Boolean := True) return Widget_ID
-   with Pre => not Program_Finished;
+   function New_Audio_Player (Row          : Positive;
+                              Column       : Positive;
+                              Break_Before : Boolean := False;
+                              Source       : String  := "";
+                              Controls     : Boolean := True)
+   return Widget_ID with Pre => Set_Up;
    -- Creates an Audio_Player
    -- Source is the source of audio; if "", then no audio is loaded
    -- Audio sources seem to be relative path names of audio files and URLs
    -- If Controls, then controls are displayed for the player and the user can use them to control the player
    -- Otherwise, no controls are displayed and control of the player must be done by the program
 
-   function New_Background_Text (Text : in String; Break_Before : Boolean := False) return Widget_ID
-   with Pre => not Program_Finished;
+   function New_Background_Text (Row : Positive; Column : Positive; Text : String; Break_Before : Boolean := False)
+   return Widget_ID with Pre => Set_Up;
    -- Creates a new Background_Text with contents Text
    -- Like a label, background text is not in any visible widget; unlike a label, background text is not associated with a widget
 
-   function New_Button (Text : in String; Break_Before : Boolean := False) return Widget_ID with Pre => not Program_Finished;
+   function New_Button (Row : Positive; Column : Positive; Text : String; Break_Before : Boolean := False) return Widget_ID
+   with Pre => Set_Up;
    -- Creates a Button with button label Text.
    -- Left clicks on buttons generate events
 
-   function New_Check_Box (Label : String; Break_Before : Boolean := False; Active : Boolean := False) return Widget_ID
-   with Pre => not Program_Finished;
+   function New_Check_Box
+      (Row : Positive; Column : Positive; Label : String; Break_Before : Boolean := False; Active : Boolean := False)
+   return Widget_ID with Pre => Set_Up;
    -- Creates a new Check_Box with label Label
    -- If Active, the box will be checked; otherwise, it will be unchecked
 
-   function New_Graphic_Area (Width : in Positive; Height : in Positive; Break_Before : Boolean := False) return Widget_ID
-   with Pre => not Program_Finished;
+   function New_Graphic_Area
+      (Row : Positive; Column : Positive; Width : Positive; Height : Positive; Break_Before : Boolean := False)
+   return Widget_ID with Pre => Set_Up;
    -- Creates a new Graphic_Area of Width by Height pixels
    -- (0, 0) is the upper-left corner (Width, Height) is the lower-right corner
 
@@ -54,32 +70,50 @@ package Ada_GUI is
 
    type Orientation_ID is (Horizontal, Vertical);
 
-   function New_Radio_Buttons (Label : in Text_List; Break_Before : Boolean := False; Orientation : in Orientation_ID := Vertical)
-   return Widget_ID with Pre => not Program_Finished;
+   function New_Radio_Buttons (Row          : Positive;
+                               Column       : Positive;
+                               Label        : Text_List;
+                               Break_Before : Boolean        := False;
+                               Orientation  : Orientation_ID := Vertical)
+   return Widget_ID with Pre => Set_Up;
    -- Creates Label'Length radio buttons; Label contains the labels for the buttons
    -- Orientation = Horizontal results in a row of buttons
    --             = Vertical has each button after the 1st below the preceding buttons
    -- The button for Label'First will be active
    -- The operations Set_Active and Active for radio buttons take an Index; Index will refer to the button for Label (Index)
 
-   function New_Selection_List
-      (Text : in Text_List; Break_Before : Boolean := False; Height : in Positive := 1; Multiple_Select : in Boolean := False)
-   return Widget_ID with Pre => not Program_Finished;
+   function New_Selection_List (Row             : Positive;
+                                Column          : Positive;
+                                Text            : Text_List;
+                                Break_Before    : Boolean  := False;
+                                Height          : Positive := 1;
+                                Multiple_Select : Boolean  := False)
+   return Widget_ID with Pre => Set_Up;
    -- Text contains the initial set of options; it may be empty
    -- Height is in lines; 1 results in a drop-down list; otherwise it scrolls if it has more than Height options
    -- If Multiple_Select, the user can select more than one option at a time; otherwise, only one option may be selected at a time
    -- The set of options may be modified later using Insert and Delete
    -- Left clicks on selection lists generate events
 
-   function New_Text_Area (Text : String := ""; Break_Before : Boolean := False; Width : Positive := 20; Height : Positive := 2)
-   return Widget_ID with Pre => not Program_Finished;
+   function New_Text_Area (Row          : Positive;
+                           Column       : Positive;
+                           Text         : String   := "";
+                           Break_Before : Boolean  := False;
+                           Width        : Positive := 20;
+                           Height       : Positive := 2)
+   return Widget_ID with Pre => Set_Up;
    -- Creates a new Text_Box with initial content of Text.
    -- Width is width of area in characters
    -- Height is height of area in lines
 
-   function New_Text_Box
-      (Text : String; Break_Before : Boolean := False; Label : String := ""; Placeholder : String := ""; Width : Positive := 20)
-   return Widget_ID with Pre => not Program_Finished;
+   function New_Text_Box (Row          : Positive;
+                          Column       : Positive;
+                          Text         : String;
+                          Break_Before : Boolean  := False;
+                          Label        : String   := "";
+                          Placeholder  : String   := "";
+                          Width        : Positive := 20)
+   return Widget_ID with Pre => Set_Up;
    -- Creates a new Text_Box with initial content of Text.
    -- Label will appear to the left of the text box
    -- If Placeholder /= "", Placeholder will appear in the text box when it is empty and awaiting input
@@ -106,68 +140,68 @@ package Ada_GUI is
       end case;
    end record;
 
-   procedure Set_Title (Title : in String) with Pre => not Program_Finished;
+   procedure Set_Title (Title : in String) with Pre => Set_Up;
    -- Sets the window title to Title
 
-   procedure Show_Message_Box (Text : in String) with Pre => not Program_Finished;
+   procedure Show_Message_Box (Text : in String) with Pre => Set_Up;
    -- Shows a dialog box with Text and an OK button
 
-   function Next_Event (Timeout : Duration := Duration'Last) return Next_Result_Info with Pre => not Program_Finished;
+   function Next_Event (Timeout : Duration := Duration'Last) return Next_Result_Info with Pre => Set_Up;
    -- Blocks until an event is available, or Timeout seconds have passed, whichever is first
    -- Result is (Timed_Out => True) if Timeout seconds pass before there's an event available
    -- Otherwise, the result R has not R.Timed_Out, and R.Event contains the Event_Info for the event
 
-   procedure Set_Source (ID : in Widget_ID; Source : in String) with Pre => not Program_Finished and Kind (ID) = Audio_Player;
+   procedure Set_Source (ID : in Widget_ID; Source : in String) with Pre => Set_Up and Kind (ID) = Audio_Player;
    -- Makes source the audio source for ID
 
-   function Source (ID : Widget_ID) return String with Pre => not Program_Finished and Kind (ID) = Audio_Player;
+   function Source (ID : Widget_ID) return String with Pre => Set_Up and Kind (ID) = Audio_Player;
    -- Returns the current audio source for ID
 
-   function Ready (ID : Widget_ID) return Boolean with Pre => not Program_Finished and Kind (ID) = Audio_Player;
+   function Ready (ID : Widget_ID) return Boolean with Pre => Set_Up and Kind (ID) = Audio_Player;
    -- Returns True if ID is ready to play its source; False otherwise
    -- There is a perceptable (to a computer) delay between a call to Set_Source and Ready returning True
 
-   procedure Play (ID : in Widget_ID) with Pre => not Program_Finished and Kind (ID) = Audio_Player;
+   procedure Play (ID : in Widget_ID) with Pre => Set_Up and Kind (ID) = Audio_Player;
    -- Plays the current source from the current position for ID
 
-   procedure Pause (ID : in Widget_ID) with Pre => not Program_Finished and Kind (ID) = Audio_Player;
+   procedure Pause (ID : in Widget_ID) with Pre => Set_Up and Kind (ID) = Audio_Player;
    -- Pauses playback for ID
 
-   function Paused (ID : Widget_ID) return Boolean with Pre => not Program_Finished and Kind (ID) = Audio_Player;
+   function Paused (ID : Widget_ID) return Boolean with Pre => Set_Up and Kind (ID) = Audio_Player;
    -- Returns True if playback for ID is paused; False otherwise
 
-   function Playback_Ended (ID : Widget_ID) return Boolean with Pre => not Program_Finished and Kind (ID) = Audio_Player;
+   function Playback_Ended (ID : Widget_ID) return Boolean with Pre => Set_Up and Kind (ID) = Audio_Player;
    -- Returns True if playback for ID has ended; False otherwise
 
-   function Length (ID : Widget_ID) return Float with Pre => not Program_Finished and Kind (ID) = Audio_Player;
+   function Length (ID : Widget_ID) return Float with Pre => Set_Up and Kind (ID) = Audio_Player;
    -- Returns the length of the current source for ID in seconds
 
-   procedure Set_Position (ID : in Widget_ID; Position : in Float) with Pre => not Program_Finished and Kind (ID) = Audio_Player;
+   procedure Set_Position (ID : in Widget_ID; Position : in Float) with Pre => Set_Up and Kind (ID) = Audio_Player;
    -- Sets the current position for ID to Position in seconds
    -- 0.0 is the beginning and Duration (ID) is the end
 
-   function Position (ID : Widget_ID) return Float with Pre => not Program_Finished and Kind (ID) = Audio_Player;
+   function Position (ID : Widget_ID) return Float with Pre => Set_Up and Kind (ID) = Audio_Player;
    -- Returns the current position of ID in seconds
 
    procedure Set_Text (ID : in Widget_ID; Text : in String)
-   with Pre => not Program_Finished and Kind (ID) in Background_Text .. Button | Text_Area .. Text_Box;
+   with Pre => Set_Up and Kind (ID) in Background_Text .. Button | Text_Area .. Text_Box;
    -- Sets the text for ID to Text
    -- For a Text_Area, embedded LFs cause line breaks
 
-   function Multiple_Select (ID : Widget_ID) return Boolean with Pre => not Program_Finished and Kind (ID) = Selection_List;
+   function Multiple_Select (ID : Widget_ID) return Boolean with Pre => Set_Up and Kind (ID) = Selection_List;
    -- Returns the value of Multiple_Select used to create ID
 
    function Text (ID : Widget_ID) return String
-   with Pre => not Program_Finished                                                and
+   with Pre => Set_Up                                                and
                Kind (ID) in Background_Text .. Button | Selection_List .. Text_Box and
                (if Kind (ID) = Selection_List then not Multiple_Select (ID) else True);
    -- Returns the text for ID; for a Selection_List with no selection, returns ""
    -- For a Text_Area, line breaks are encoded as LFs
 
-   procedure Set_Active (ID : in Widget_ID; Active : in Boolean) with Pre => not Program_Finished and Kind (ID) = Check_Box;
+   procedure Set_Active (ID : in Widget_ID; Active : in Boolean) with Pre => Set_Up and Kind (ID) = Check_Box;
    -- If Active, makes ID checked, else makes ID unchecked
 
-   function Active (ID : Widget_ID) return Boolean with Pre => not Program_Finished and Kind (ID) = Check_Box;
+   function Active (ID : Widget_ID) return Boolean with Pre => Set_Up and Kind (ID) = Check_Box;
    -- Returns True if ID is checked; False otherwise
 
    type RGB_Value is mod 256;
@@ -224,11 +258,11 @@ package Ada_GUI is
    -- Graphic_Area operations for which any part of the drawn element is outside the drawing area work; the extra part is not drawn
 
    procedure Set_Pixel (ID : in Widget_ID; X : in Integer; Y : in Integer; Color : in Color_Info := To_Color (Black) )
-   with Pre => not Program_Finished and Kind (ID) = Graphic_Area;
+   with Pre => Set_Up and Kind (ID) = Graphic_Area;
    -- If (X, Y) is in the drawing area, sets it to Color
 
    function Pixel (ID : Widget_ID; X : Integer; Y : Integer) return Color_Info
-   with Pre => not Program_Finished and Kind (ID) = Graphic_Area;
+   with Pre => Set_Up and Kind (ID) = Graphic_Area;
    -- Returns the color of the pixel at (X, Y)
 
    procedure Draw_Line (ID     : in Widget_ID;
@@ -237,7 +271,7 @@ package Ada_GUI is
                         To_X   : in Integer;
                         To_Y   : in Integer;
                         Color  : in Color_Info := To_Color (Black) )
-   with Pre => not Program_Finished and Kind (ID) = Graphic_Area;
+   with Pre => Set_Up and Kind (ID) = Graphic_Area;
    -- Draws a line from (From_X, From_Y) to (To_X, To_Y) in Color
 
    type Optional_Color (None : Boolean) is record
@@ -256,7 +290,7 @@ package Ada_GUI is
                              To_Y       : in Integer;
                              Line_Color : in Optional_Color := (None => False, Color => To_Color (Black) );
                              Fill_Color : in Optional_Color := (None => True) )
-   with Pre => not Program_Finished and Kind (ID) = Graphic_Area;
+   with Pre => Set_Up and Kind (ID) = Graphic_Area;
    -- Draws a rectangle with one corner at (From_x, From_Y) and the opposite corner at (To_X, To_Y)
    -- If not Line_Color.None, the rectangle will have a line around it in Line_Color.Color
    -- If not Fill_Color.None, the rectangle will be filled with Fill_Color.Color
@@ -271,8 +305,8 @@ package Ada_GUI is
                        Counter_Clockwise : in Boolean := False;
                        Line_Color        : in Optional_Color := (None => False, Color => To_Color (Black) );
                        Fill_Color        : in Optional_Color := (None => True) )
-   with Pre => not Program_Finished and Kind (ID) = Graphic_Area;
-   -- Draws an arc with center at (X, Y) and radius Radius from angle Start to angle Stop; angles are in radians
+   with Pre => Set_Up and Kind (ID) = Graphic_Area;
+   -- Draws an arc with center at (X, Y) and radius Radius (in pixels) from angle Start to angle Stop; angles are in radians
    -- If Counter_Clockwise, draws an arc counter-clockwise from Start to Stop; otherwise, draws clockwise
    -- If not Line_Color.None, the arc will have a line along it in Line_Color.Color; if not Fill_Color.None as well, there will also
    -- be lines between the ends of the arc and the center point
@@ -280,47 +314,47 @@ package Ada_GUI is
    -- If Line_Color.None and Fill_Color.None, does nothing
 
    procedure Set_Active (ID : in Widget_ID; Index : in Positive; Active : in Boolean)
-   with Pre => not Program_Finished and Kind (ID) = Radio_Buttons;
+   with Pre => Set_Up and Kind (ID) = Radio_Buttons;
    -- Makes Active (ID, Index) return Active
    -- Raises Constraint_Error if Index not in Label'Range
 
    function Active (ID : Widget_ID; Index : Positive) return Boolean
-   with Pre => not Program_Finished and Kind (ID) = Radio_Buttons;
+   with Pre => Set_Up and Kind (ID) = Radio_Buttons;
    -- Returns True if the button created for Label (Index) is selected; False otherwise
    -- Raises Constraint_Error if Index not in Label'Range
 
-   function Active (ID : Widget_ID) return Positive with Pre => not Program_Finished and Kind (ID) = Radio_Buttons;
+   function Active (ID : Widget_ID) return Positive with Pre => Set_Up and Kind (ID) = Radio_Buttons;
    -- Returns the index in ID of the active button
 
-   function Length (ID : Widget_ID) return Natural with Pre => not Program_Finished and Kind (ID) = Selection_List;
+   function Length (ID : Widget_ID) return Natural with Pre => Set_Up and Kind (ID) = Selection_List;
    -- Returns the number of options in ID
 
    procedure Set_Selected (ID : in Widget_ID; Index : in Positive; Selected : in Boolean := True)
-   with Pre => not Program_Finished and Kind (ID) = Selection_List and Index in 1 .. Length (ID);
+   with Pre => Set_Up and Kind (ID) = Selection_List and Index in 1 .. Length (ID);
    -- Makes Selected (ID, Index) return Selected
 
    function Selected (ID : Widget_ID) return Natural
-   with Pre => not Program_Finished and Kind (ID) = Selection_List and not Multiple_Select (ID);
+   with Pre => Set_Up and Kind (ID) = Selection_List and not Multiple_Select (ID);
    -- Returns the index of the currently selected option in ID or zero if there is no selection
 
    function Selected (ID : Widget_ID; Index : Positive) return Boolean
-   with Pre => not Program_Finished and Kind (ID) = Selection_List and Index in 1 .. Length (ID);
+   with Pre => Set_Up and Kind (ID) = Selection_List and Index in 1 .. Length (ID);
    -- Returns True if option Index in ID is selected; False otherwise
 
    function Text (ID : Widget_ID; Index : Positive) return String
-   with Pre => not Program_Finished and Kind (ID) = Selection_List and Index in 1 .. Length (ID);
+   with Pre => Set_Up and Kind (ID) = Selection_List and Index in 1 .. Length (ID);
    -- Returns the text of option Index; if there are no options in ID, returns ""
 
    procedure Insert (ID : in Widget_ID; Text : in String; Before : in Positive := Integer'Last)
-   with Pre => not Program_Finished and Kind (ID) = Selection_List;
+   with Pre => Set_Up and Kind (ID) = Selection_List;
    -- if Before > Length (ID), appends Text to the options of ID
    -- Otherwise, inserts Text as the option with index Before, moving up the options previously at Before .. Length (ID)
 
    procedure Delete (ID : in Widget_ID; Index : in Positive)
-   with Pre => not Program_Finished and Kind (ID) = Selection_List and Index in 1 .. Length (ID);
+   with Pre => Set_Up and Kind (ID) = Selection_List and Index in 1 .. Length (ID);
    -- Deletes the option at Index, moving down the options previously at Index + 1 .. Length (ID)
 
-   procedure End_GUI with Pre => not Program_Finished, Post => Program_Finished;
+   procedure End_GUI with Pre => Set_Up, Post => not Set_Up;
    -- Destroys the GUI
 private -- Ada_Gui
    type Widget_ID is tagged record

@@ -21,6 +21,8 @@ package body Random_Int.UI is
    function Ended return Boolean is (Finished);
 
    task Event_Handler is
+      entry Start; -- Delay the task until the GUI is set up
+
       entry Get (Event : out Event_ID);
    end Event_Handler;
 
@@ -32,40 +34,40 @@ package body Random_Int.UI is
       return Result;
    end Next_Event;
 
-   function Min_Text return String Is (Ada_GUI.Text (Min_Entry) );
+   function Min_Text return String Is (Min_Entry.Text);
 
-   function Max_Text return String Is (Ada_GUI.Text (Max_Entry) );
+   function Max_Text return String Is (Max_Entry.Text);
 
    function Image (Value : Integer) return String is (Ada.Strings.Fixed.Trim (Value'Image, Ada.Strings.Both) );
 
    procedure Set_Min (Value : in Integer) is
       -- Empty
    begin -- Set_Min
-      Ada_GUI.Set_Text (ID => Min_Entry, Text => Image (Value) );
+      Min_Entry.Set_Text (Text => Image (Value) );
    end Set_Min;
 
    procedure Set_Max (Value : in Integer) is
       -- Empty
    begin -- Set_Max
-      Ada_GUI.Set_Text (ID => Max_Entry, Text => Image (Value) );
+      Max_Entry.Set_Text (Text => Image (Value) );
    end Set_Max;
 
    procedure Min_Error is
       -- Empty
    begin -- Min_Error
-      Ada_GUI.Set_Text (ID => Min_Entry, Text => "");
+      Min_Entry.Set_Text (Text => "");
    end Min_Error;
 
    procedure Max_Error is
       -- Empty
    begin -- Max_Error
-      Ada_GUI.Set_Text (ID => Max_Entry, Text => "");
+      Max_Entry.Set_Text (Text => "");
    end Max_Error;
 
    procedure Show_Result (Value : in Integer) is
       -- Empty
    begin -- Show_Result
-      Ada_GUI.Set_Text (ID => Result, Text => Image (Value) );
+      Result.Set_Text (Text => Image (Value) );
    end Show_Result;
 
    task body Event_Handler is
@@ -76,6 +78,8 @@ package body Random_Int.UI is
       use type Ada_GUI.Widget_ID;
       use type Ada_GUI.Event_Kind_ID;
    begin -- Event_Handler
+      accept Start;
+
       Forever : loop
          Event := Ada_GUI.Next_Event;
 
@@ -107,10 +111,17 @@ package body Random_Int.UI is
 
    Placeholder : constant String := "Enter an integer";
 begin -- Random_Int.UI
+   Ada_GUI.Set_Up (Grid => (1 => (1 .. 2 => Ada_GUI.Right) ) );
    Ada_GUI.Set_Title (Title => "Random Integers");
-   Min_Entry := Ada_GUI.New_Text_Box (Text => "", Label => "Minimum value", Placeholder => Placeholder);
-   Max_Entry := Ada_GUI.New_Text_Box (Text => "", Break_Before => True, Label => "Maximum value", Placeholder => Placeholder);
-   Result    := Ada_GUI.New_Text_Box (Text => "", Break_Before => True);
-   Generator := Ada_GUI.New_Button (Text => "Generate");
-   Quitter   := Ada_GUI.New_Button (Text => "Quit", Break_Before => True);
+   Min_Entry := Ada_GUI.New_Text_Box (Row => 1, Column => 1, Text => "", Label => "Minimum value", Placeholder => Placeholder);
+   Max_Entry := Ada_GUI.New_Text_Box (Row          => 1,
+                                      Column       => 1,
+                                      Text         => "",
+                                      Break_Before => True,
+                                      Label        => "Maximum value",
+                                      Placeholder  => Placeholder);
+   Result    := Ada_GUI.New_Text_Box (Row => 1, Column => 1, Text => "", Break_Before => True);
+   Generator := Ada_GUI.New_Button (Row => 1, Column => 1, Text => "Generate");
+   Quitter   := Ada_GUI.New_Button (Row => 1, Column => 1, Text => "Quit", Break_Before => True);
+   Event_Handler.Start;
 end Random_Int.UI;
