@@ -1,0 +1,13 @@
+pragma Source_File_Name (GNAT.Sockets.Connection_State_Machine, Spec_File_Name => "gnat-sockets-connection_state_machine.ads");
+pragma Source_File_Name (GNAT.Sockets.Connection_State_Machine, Body_File_Name => "gnat-sockets-connection_state_machine.adb");
+pragma Source_File_Name (GNAT.Sockets.Connection_State_Machine.Big_Endian, Spec_File_Name => "gnat-sockets-connection_state_machine-big_endian.ads");
+pragma Source_File_Name (GNAT.Sockets.Connection_State_Machine.Big_Endian.Unsigneds, Spec_File_Name => "gnat-sockets-connection_state_machine-big_endian-unsigneds.ads");
+pragma Source_File_Name (GNAT.Sockets.Connection_State_Machine.Big_Endian.Unsigneds, Body_File_Name => "gnat-sockets-connection_state_machine-big_endian-unsigneds.adb");
+pragma Source_File_Name (GNAT.Sockets.Connection_State_Machine.Expected_Sequence, Spec_File_Name => "gnat-sockets-connection_state_machine-expected_sequence.ads");
+pragma Source_File_Name (GNAT.Sockets.Connection_State_Machine.Expected_Sequence, Body_File_Name => "gnat-sockets-connection_state_machine-expected_sequence.adb");
+pragma Source_File_Name (GNAT.Sockets.Connection_State_Machine.HTTP_Server, Spec_File_Name => "gnat-sockets-connection_state_machine-http_server.ads");
+pragma Source_File_Name (GNAT.Sockets.Connection_State_Machine.HTTP_Server, Body_File_Name => "gnat-sockets-connection_state_machine-http_server.adb");
+pragma Source_File_Name (GNAT.Sockets.Connection_State_Machine.Terminated_Strings, Spec_File_Name => "gnat-sockets-connection_state_machine-terminated_strings.ads");
+pragma Source_File_Name (GNAT.Sockets.Connection_State_Machine.Terminated_Strings, Body_File_Name => "gnat-sockets-connection_state_machine-terminated_strings.adb");
+pragma Source_File_Name (GNAT.Sockets.Server, Spec_File_Name => "gnat-sockets-server.ads");
+pragma Source_File_Name (GNAT.Sockets.Server, Body_File_Name => "gnat-sockets-server.adb");

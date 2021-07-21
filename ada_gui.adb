@@ -1,50 +1,60 @@
--- Proof of concept of an Ada-oriented GUI interface, with only those things needed to implement Random_Int
--- Quick and dirty implementation on top of Gnoga, not ready for prime time
+-- An Ada-oriented GUI library
+-- Implementation derived from Gnoga
 --
--- Copyright (C) 2018 by PragmAda Software Engineering
+-- Copyright (C) 2021 by PragmAda Software Engineering
 --
 -- Released under the terms of the 3-Clause BSD License. See https://opensource.org/licenses/BSD-3-Clause
 
-with Ada.Containers.Synchronized_Queue_Interfaces;
-with Ada.Containers.Unbounded_Synchronized_Queues;
 with Ada.Containers.Vectors;
+with Ada.Exceptions;
 with Ada.Numerics.Elementary_Functions;
+with Ada.Real_Time;
+with Ada.Strings.Fixed;
 
-with Gnoga.Application.Singleton;
-with Gnoga.Gui.Base;
-with Gnoga.Gui.Element.Canvas.Context_2D;
-with Gnoga.Gui.Element.Common;
-with Gnoga.Gui.Element.Form;
-with Gnoga.Gui.Element.Multimedia;
-with Gnoga.Gui.View.Grid;
-with Gnoga.Gui.Window;
-with Gnoga.Types.Colors;
+with Ada_GUI.Gnoga.Application;
+with Ada_GUI.Gnoga.Gui.Element.Canvas.Context_2D;
+with Ada_GUI.Gnoga.Gui.Element.Common;
+with Ada_GUI.Gnoga.Gui.Element.Form;
+with Ada_GUI.Gnoga.Gui.Element.Multimedia;
+with Ada_GUI.Gnoga.Gui.View.Console;
+with Ada_GUI.Gnoga.Gui.View.Grid;
+with Ada_GUI.Gnoga.Gui.Window;
+with Ada_GUI.Gnoga.Colors;
 
 package body Ada_GUI is
    type Form_Set is array (Positive range <>, Positive range <>) of Gnoga.Gui.Element.Form.Form_Type;
-   type Form_Ptr is access Form_Set;
+   type Form_Ptr is access Form_Set; -- Extensive use of access due to nature of Gnoga
 
    Window : Gnoga.Gui.Window.Window_Type;
+   View   : Gnoga.Gui.View.Console.Console_View_Type;
    Grid   : Gnoga.Gui.View.Grid.Grid_View_Type;
    Form   : Form_Ptr;
    Setup  : Boolean := False with Atomic;
 
    function Set_Up return Boolean is (Setup);
 
-   procedure Set_Up (Grid : in Grid_Set := (1 => (1 => Center) ) ) is
-      function Convert (Alignment : Alignment_ID) return Gnoga.Gui.Element.Alignment_Type is
+   function Converted (Alignment : Alignment_ID) return Gnoga.Gui.Element.Alignment_Type is
       (case Alignment is
        when Left   => Gnoga.Gui.Element.Left,
        when Center => Gnoga.Gui.Element.Center,
        when Right  => Gnoga.Gui.Element.Right);
+
+   procedure Set_Up (Grid  : in Grid_Set := (1 => (1 => Center) );
+                     ID    : in Positive := 8080;
+                     Title : in String   := "Ada-GUI Application";
+                     Icon  : in String   := "favicon.ico")
+   is
+      -- Empty
    begin -- Set_Up
-      Ada_GUI.Grid.Create (Parent => Window, Layout => (Grid'Range (1) => (Grid'Range (2) => Gnoga.Gui.View.Grid.COL) ) );
+      Gnoga.Application.Initialize (Main_Window => Window, ID => ID, Title => Title, Icon => Icon);
+      View.Create (Parent => Window);
+      Ada_GUI.Grid.Create (Parent => View, Layout => (Grid'Range (1) => (Grid'Range (2) => Gnoga.Gui.View.Grid.COL) ) );
       Form := new Form_Set (Grid'Range (1), Grid'Range (2) );
 
       All_Rows : for I in Form'Range (1) loop
          All_Columns : for J in Form'Range (2) loop
             Form (I, J).Create (Parent => Ada_GUI.Grid.Panel (I, J).all);
-            Form (I, J).Text_Alignment (Value => Convert (Grid (I, J) ) );
+            Form (I, J).Text_Alignment (Value => Converted (Grid (I, J) ) );
          end loop All_Columns;
       end loop All_Rows;
 
@@ -57,7 +67,7 @@ package body Ada_GUI is
    end record;
 
    type Radio_List is array (Positive range <>) of Radio_Info;
-   type Radio_List_Ptr is access Radio_List;
+   type Radio_Ptr is access Radio_List;
 
    type Widget_Info (Kind : Widget_Kind_ID := Button) is record
       case Kind is
@@ -72,8 +82,11 @@ package body Ada_GUI is
          Check_Label : Gnoga.Gui.Element.Form.Label_Access;
       when Graphic_Area =>
          Canvas : Gnoga.Gui.Element.Canvas.Canvas_Access;
+      when Password_Box =>
+         Password       : Gnoga.Gui.Element.Form.Password_Access;
+         Password_Label : Gnoga.Gui.Element.Form.Label_Access;
       when Radio_Buttons =>
-         Radio : Radio_List_Ptr;
+         Radio : Radio_Ptr;
       when Selection_List =>
          Selector : Gnoga.Gui.Element.Form.Selection_Access;
          Multi    : Boolean;
@@ -89,27 +102,10 @@ package body Ada_GUI is
 
    Widget_List : Widget_Lists.Vector;
 
-   function Kind (ID : Widget_ID) return Widget_Kind_ID is (Widget_List (ID.Value).Element.Kind);
+   function Kind (ID : Widget_ID) return Widget_Kind_ID is (Widget_List (ID.Value).Kind);
 
-   package Event_Queue_IF is new Ada.Containers.Synchronized_Queue_Interfaces (Element_Type => Event_Info);
-   package Event_Queues is new Ada.Containers.Unbounded_Synchronized_Queues (Queue_Interfaces => Event_Queue_IF);
-
-   Event_Queue : Event_Queues.Queue;
-
-   procedure On_Click (Object : in out Gnoga.Gui.Base.Base_Type'Class) is
-      ID     : constant Widget_ID   := (Value => Integer'Value (Object.ID) );
-      Widget : constant Widget_Info := Widget_List (ID.Value);
-
-      Event : Event_Info (Widget_Kind => Widget.Kind);
-   begin -- On_Click
-      if Widget.Kind not in Button | Selection_List then
-         return;
-      end if;
-
-      Event.ID := ID;
-      Event.Event_Kind := Left_Click;
-      Event_Queue.Enqueue (New_Item => Event);
-   end On_Click;
+   procedure Break (Desired : in Boolean; Row : in Positive; Column : in Positive);
+   -- If Desired, make the next thing declared in Form (Row, Column) appear below existing things there
 
    procedure Break (Desired : in Boolean; Row : in Positive; Column : in Positive) is
       -- Empty
@@ -120,11 +116,11 @@ package body Ada_GUI is
    end Break;
 
 
-   function New_Audio_Player (Row          : Positive;
-                              Column       : Positive;
-                              Break_Before : Boolean := False;
-                              Source       : String  := "";
-                              Controls     : Boolean := True)
+   function New_Audio_Player (Row          : Positive := 1;
+                              Column       : Positive := 1;
+                              Break_Before : Boolean  := False;
+                              Source       : String   := "";
+                              Controls     : Boolean  := True)
    return Widget_ID is
       ID : constant Widget_ID := (Value => Widget_List.Last_Index + 1);
 
@@ -139,7 +135,7 @@ package body Ada_GUI is
       return ID;
    end New_Audio_Player;
 
-   function New_Background_Text (Row : Positive; Column : Positive; Text : String; Break_Before : Boolean := False)
+   function New_Background_Text (Row : Positive := 1; Column : Positive := 1; Text : String := ""; Break_Before : Boolean := False)
    return Widget_ID is
       ID : constant Widget_ID := (Value => Widget_List.Last_Index + 1);
 
@@ -153,7 +149,8 @@ package body Ada_GUI is
       return ID;
    end New_Background_Text;
 
-   function New_Button (Row : Positive; Column : Positive; Text : String; Break_Before : Boolean := False) return Widget_ID is
+   function New_Button (Row : Positive := 1; Column : Positive := 1; Text : String := ""; Break_Before : Boolean := False)
+   return Widget_ID is
       ID : constant Widget_ID := (Value => Widget_List.Last_Index + 1);
 
       Widget : Widget_Info (Kind => Button);
@@ -161,14 +158,16 @@ package body Ada_GUI is
       Break (Desired => Break_Before, Row => Row, Column => Column);
       Widget.Switch := new Gnoga.Gui.Element.Common.Button_Type;
       Widget.Switch.Create (Parent => Form (Row, Column), Content => Text, ID => ID.Value'Image);
-      Widget.Switch.On_Click_Handler (Handler => On_Click'Access);
       Widget_List.Append (New_Item => Widget);
 
       return ID;
    end New_Button;
 
-   function New_Check_Box
-      (Row : Positive; Column : Positive; Label : String; Break_Before : Boolean := False; Active : Boolean := False)
+   function New_Check_Box (Row          : Positive := 1;
+                           Column       : Positive := 1;
+                           Label        : String   := "";
+                           Break_Before : Boolean  := False;
+                           Active       : Boolean  := False)
    return Widget_ID is
       ID : constant Widget_ID := (Value => Widget_List.Last_Index + 1);
 
@@ -186,7 +185,7 @@ package body Ada_GUI is
    end New_Check_Box;
 
    function New_Graphic_Area
-      (Row : Positive; Column : Positive; Width : Positive; Height : Positive; Break_Before : Boolean := False)
+      (Row : Positive := 1; Column : Positive := 1; Width : Positive; Height : Positive; Break_Before : Boolean := False)
    return Widget_ID is
       ID : constant Widget_ID := (Value => Widget_List.Last_Index + 1);
 
@@ -200,12 +199,33 @@ package body Ada_GUI is
       return ID;
    end New_Graphic_Area;
 
+   function New_Password_Box (Row          : Positive := 1;
+                              Column       : Positive := 1;
+                              Text         : String   := "";
+                              Break_Before : Boolean  := False;
+                              Label        : String   := "";
+                              Width        : Positive := 20)
+   return Widget_ID is
+      ID : constant Widget_ID := (Value => Widget_List.Last_Index + 1);
+
+      Widget : Widget_Info (Kind => Password_Box);
+   begin -- New_Password_Box
+      Break (Desired => Break_Before, Row => Row, Column => Column);
+      Widget.Password := new Gnoga.Gui.Element.Form.Password_Type;
+      Widget.Password.Create (Form => Form (Row, Column), Size => Width, Value => Text, ID => ID.Value'Image);
+      Widget.Password_Label := new Gnoga.Gui.Element.Form.Label_Type;
+      Widget.Password_Label.Create (Form => Form (Row, Column), Label_For => Widget.Password.all, Content => Label);
+      Widget_List.Append (New_Item => Widget);
+
+      return ID;
+   end New_Password_Box;
+
    use Ada.Strings.Unbounded;
 
    Next_Button : Positive := 1;
 
-   function New_Radio_Buttons (Row          : Positive;
-                               Column       : Positive;
+   function New_Radio_Buttons (Row          : Positive := 1;
+                               Column       : Positive := 1;
                                Label        : Text_List;
                                Break_Before : Boolean        := False;
                                Orientation  : Orientation_ID := Vertical)
@@ -217,8 +237,8 @@ package body Ada_GUI is
    begin -- New_Radio_Buttons
       Name (Name'First) := 'R';
       Next_Button := Next_Button + 1;
-      Break (Desired => Break_Before, Row => Row, Column => Column);
       Widget.Radio := new Radio_List (Label'Range);
+      Break (Desired => Break_Before, Row => Row, Column => Column);
 
       All_Buttons : for I in Label'Range loop
          Widget.Radio (I).Button.Create
@@ -238,9 +258,9 @@ package body Ada_GUI is
       return ID;
    end New_Radio_Buttons;
 
-   function New_Selection_List (Row             : Positive;
-                                Column          : Positive;
-                                Text            : Text_List;
+   function New_Selection_List (Row             : Positive  := 1;
+                                Column          : Positive  := 1;
+                                Text            : Text_List := (1 .. 0 => <>);
                                 Break_Before    : Boolean  := False;
                                 Height          : Positive := 1;
                                 Multiple_Select : Boolean  := False)
@@ -253,7 +273,6 @@ package body Ada_GUI is
       Widget.Selector := new Gnoga.Gui.Element.Form.Selection_Type;
       Widget.Selector.Create
          (Form => Form (Row, Column), Multiple_Select => Multiple_Select, Visible_Lines => Height, ID => ID.Value'Image);
-      Widget.Selector.On_Click_Handler (Handler => On_Click'Access);
       Widget.Multi := Multiple_Select;
       Widget_List.Append (New_Item => Widget);
 
@@ -264,8 +283,8 @@ package body Ada_GUI is
       return ID;
    end New_Selection_List;
 
-   function New_Text_Area (Row          : Positive;
-                           Column       : Positive;
+   function New_Text_Area (Row          : Positive := 1;
+                           Column       : Positive := 1;
                            Text         : String   := "";
                            Break_Before : Boolean  := False;
                            Width        : Positive := 20;
@@ -283,9 +302,9 @@ package body Ada_GUI is
       return ID;
    end New_Text_Area;
 
-   function New_Text_Box (Row          : Positive;
-                          Column       : Positive;
-                          Text         : String;
+   function New_Text_Box (Row          : Positive := 1;
+                          Column       : Positive := 1;
+                          Text         : String   := "";
                           Break_Before : Boolean  := False;
                           Label        : String   := "";
                           Placeholder  : String   := "";
@@ -310,6 +329,7 @@ package body Ada_GUI is
       return ID;
    end New_Text_Box;
 
+
    procedure Set_Title (Title : in String) is
       -- Empty
    begin -- Set_Title
@@ -323,18 +343,209 @@ package body Ada_GUI is
    end Show_Message_Box;
 
    function Next_Event (Timeout : Duration := Duration'Last) return Next_Result_Info is
-      Event : Event_Info;
+      function Parse_Mouse_Event (Message : String) return Mouse_Event_Info is
+         use Ada.Strings.Fixed;
+
+         Event  : Mouse_Event_Info;
+         S      : Positive := Message'First;
+         F      : Natural  := Message'First - 1;
+         Button : Integer;
+
+         function Split return String;
+         function Split return Integer;
+         function Split return Boolean;
+      --  Split string and extract values
+
+         function Split return String is
+         begin
+            S := F + 1;
+            F := Index (Message, "|", From => S);
+
+            return Message (S .. F - 1);
+         end Split;
+
+         function Split return Integer is
+            S : constant String := Split;
+         begin
+            if Index (S, ".") > 0 then
+               return Integer (Float'Value (S) );
+            else
+               return Integer'Value (S);
+            end if;
+         exception
+            when E : others =>
+               Gnoga.Log (Message => "Error Parse_Mouse_Event converting " & S & " to Integer (forced to 0).");
+               Gnoga.Log (Message => Ada.Exceptions.Exception_Information (E));
+
+               return 0;
+         end Split;
+
+         function Split return Boolean is
+         begin
+            return Split = "true";
+         end Split;
+
+         Left_Button   : constant := 1;
+         Middle_Button : constant := 2;
+         Right_Button  : constant := 3;
+      begin
+         Event.X := Split;
+         Event.Y := Split;
+         Event.Screen_X := Split;
+         Event.Screen_Y := Split;
+
+         Button := Split;
+         Event.Left_Button   := Button = Left_Button;
+         Event.Middle_Button := Button = Middle_Button;
+         Event.Right_Button  := Button = Right_Button;
+
+         Event.Alt     := Split;
+         Event.Control := Split;
+         Event.Shift   := Split;
+         Event.Meta    := Split;
+
+         return Event;
+      end Parse_Mouse_Event;
+
+      function Parse_Keyboard_Event (Message : String) return Keyboard_Event_Info is
+         use Ada.Strings.Fixed;
+
+         Event  : Keyboard_Event_Info;
+         S      : Integer := Message'First;
+         F      : Integer := Message'First - 1;
+
+         function Split return String;
+         function Split return Integer;
+         function Split return Boolean;
+         function Split return Wide_Character;
+
+         function Split return String is
+         begin
+            S := F + 1;
+            F := Index (Message, "|", From => S);
+
+            return Message (S .. (F - 1));
+         end Split;
+
+         function Split return Integer is
+            S : constant String := Split;
+         begin
+            if Index (S, ".") > 0 then
+               return Integer (Float'Value (S));
+            else
+               return Integer'Value (S);
+            end if;
+         exception
+         when E : others =>
+            Gnoga.Log (Message => "Error Parse_Keyboard_Event converting " & S & " to Integer (forced to 0).");
+            Gnoga.Log (Message => Ada.Exceptions.Exception_Information (E));
+
+            return 0;
+         end Split;
+
+         function Split return Boolean is
+         begin
+            return Split = "true";
+         end Split;
+
+         function Split return Wide_Character is
+         begin
+            return Wide_Character'Val (Split);
+         end Split;
+      begin
+         Event.Key_Code := Split;
+         Event.Key_Char := Split;
+         Event.Alt := Split;
+         Event.Control := Split;
+         Event.Shift := Split;
+         Event.Meta := Split;
+
+         return Event;
+      end Parse_Keyboard_Event;
+
+      Left_Text   : constant String := "click";
+      Right_Text  : constant String := "contextmenu";
+      Double_Text : constant String := "dblclick";
+      Key_Text    : constant String := "keypress";
+
+      Final_Time : Ada.Real_Time.Time;
+      Event      : Gnoga.Gui.Event_Info;
+
+      use type Ada.Real_Time.Time;
    begin -- Next_Event
-      select
-         Event_Queue.Dequeue (Element => Event);
+      Get_Final : begin
+         Final_Time := Ada.Real_Time.Clock + Ada.Real_Time.To_Time_Span (Timeout);
+      exception -- Get_Final
+      when others =>
+         Final_Time := Ada.Real_Time.Time_Last;
+      end Get_Final;
 
-         return (Timed_Out => False, Event => Event);
-      or
-         delay Timeout;
+      Skip_Invalid : loop
+         select
+            Gnoga.Gui.Event_Queue.Dequeue (Element => Event);
 
-         return (Timed_Out => True);
-      end select;
+            if Event.Event = Left_Text or Event.Event = Right_Text or Event.Event = Double_Text or Event.Event = Key_Text then
+               Make_Event : declare
+                  Local : Event_Info (Kind => (if Event.Event = Left_Text then Left_Click
+                                               elsif Event.Event = Right_Text then Right_Click
+                                               elsif Event.Event = Double_Text then Double_Click
+                                               else Key_Press) );
+               begin -- Make_Event
+                  Local.ID    := (Value => Integer'Value (Event.Object.ID) );
+                  Local.Data  := Event.Data;
+
+                  if Local.Kind in Left_Click | Right_Click | Double_Click then
+                     Local.Mouse := Parse_Mouse_Event (Ada.Strings.Unbounded.To_String (Event.Data) );
+                  else
+                     Local.Key := Parse_Keyboard_Event (Ada.Strings.Unbounded.To_String (Event.Data) );
+                  end if;
+
+                  return (Timed_Out => False, Event => Local);
+               exception -- Make_Event
+               when others => -- Event.Object.ID is not the image of an ID
+                  null;
+               end Make_Event;
+            end if;
+         or
+            delay until Final_Time;
+
+            return (Timed_Out => True);
+         end select;
+      end loop Skip_Invalid;
    end Next_Event;
+
+   procedure Set_Visibility (ID : in Widget_ID; Visible : in Boolean := True) is
+      Widget : Widget_Info renames Widget_List (ID.Value);
+   begin -- Set_Visibility
+      case Widget.Kind is
+      when Audio_Player =>
+         Widget.Audio.Visible (Value => Visible);
+      when Background_Text =>
+         Widget.Background.Visible (Value => Visible);
+      when Button =>
+         Widget.Switch.Visible (Value => Visible);
+      when Check_Box =>
+         Widget.Check.Visible (Value => Visible);
+         Widget.Check_Label.Visible (Value => Visible);
+      when Graphic_Area =>
+         Widget.Canvas.Visible (Value => Visible);
+      when Password_Box =>
+         Widget.Password.Visible (Value => Visible);
+         Widget.Password_Label.Visible (Value => Visible);
+      when Radio_Buttons =>
+         All_Buttons : for I in Widget.Radio'Range loop
+            Widget.Radio (I).Button.Visible (Value => Visible);
+            Widget.Radio (I).Label.Visible (Value => Visible);
+         end loop All_Buttons;
+      when Selection_List =>
+         Widget.Selector.Visible (Value => Visible);
+      when Text_Area =>
+         Widget.Area.Visible (Value => Visible);
+      when Text_Box =>
+         Widget.Box.Visible (Value => Visible);
+         Widget.Box_Label.Visible (Value => Visible);
+      end case;
+   end Set_Visibility;
 
    procedure Set_Source (ID : in Widget_ID; Source : in String) is
       Widget : Widget_Info := Widget_List (ID.Value);
@@ -404,6 +615,8 @@ package body Ada_GUI is
          Widget.Background.Text (Value => Text);
       when Button =>
          Widget.Switch.Text (Value => Text);
+      when Password_Box =>
+         Widget.Password.Value (Value => Text);
       when Text_Area =>
          Widget.Area.Value (Value => Text);
       when Text_Box =>
@@ -412,6 +625,47 @@ package body Ada_GUI is
          raise Program_Error;
       end case;
    end Set_Text;
+
+   procedure Set_Text_Aligbnment (ID : in Widget_ID; Alignment : in Alignment_ID) is
+      Widget : Widget_Info := Widget_List (ID.Value);
+   begin -- Set_Text_Aligbnment
+      case Widget.Kind is
+      when Background_Text =>
+         Widget.Background.Text_Alignment (Value => Converted (Alignment) );
+      when Button =>
+         Widget.Switch.Text_Alignment (Value => Converted (Alignment) );
+      when Password_Box =>
+         Widget.Password.Text_Alignment (Value => Converted (Alignment) );
+      when Text_Area =>
+         Widget.Area.Text_Alignment (Value => Converted (Alignment) );
+      when Text_Box =>
+         Widget.Box.Text_Alignment (Value => Converted (Alignment) );
+      when others =>
+         raise Program_Error;
+      end case;
+   end Set_Text_Aligbnment;
+
+   procedure Set_Text_Font_Kind (ID : in Widget_ID; Kind : in Font_Kind_ID) is
+      function Family return String is
+         (if Kind = Proportional then "sans-serif" else "monospace");
+
+      Widget : Widget_Info := Widget_List (ID.Value);
+   begin -- Set_Text_Font_Kind
+      case Widget.Kind is
+      when Background_Text =>
+         Widget.Background.Font (Family => Family);
+      when Button =>
+         Widget.Switch.Font (Family => Family);
+      when Password_Box =>
+         Widget.Password.Font (Family => Family);
+      when Text_Area =>
+         Widget.Area.Font (Family => Family);
+      when Text_Box =>
+         Widget.Box.Font (Family => Family);
+      when others =>
+         raise Program_Error;
+      end case;
+   end Set_Text_Font_Kind;
 
    function Multiple_Select (ID : Widget_ID) return Boolean is (Widget_List (ID.Value).Element.Multi);
 
@@ -423,6 +677,8 @@ package body Ada_GUI is
          return Widget.Background.Text;
       when Button =>
          return Widget.Switch.Text;
+      when Password_Box =>
+         return Widget.Password.Value;
       when Selection_List =>
          return Widget.Selector.Value;
       when Text_Area =>
@@ -446,27 +702,110 @@ package body Ada_GUI is
       return Widget.Check.Checked;
    end Active;
 
+   function AG_Color (Color : Gnoga.RGBA_Type) return Color_Info is
+      (Red   => RGB_Value (Color.Red),
+       Green => RGB_Value (Color.Green),
+       Blue  => RGB_Value (Color.Blue),
+       Alpha => Alpha_Value (Color.Alpha) );
+
    function To_Color (Color : Color_ID) return Color_Info is
-      G_Color : constant Gnoga.Types.RGBA_Type :=
-         Gnoga.Types.Colors.To_RGBA (Gnoga.Types.Colors.Color_Enumeration'Val (Color_ID'Pos (Color) ) );
-   begin -- To_Color
-      return (Red => RGB_Value (G_Color.Red), Green => RGB_Value (G_Color.Green), Blue => RGB_Value (G_Color.Blue) );
-   end To_Color;
+      (AG_Color (Gnoga.Colors.To_RGBA (Gnoga.Colors.Color_Enumeration'Val (Color_ID'Pos (Color) ) ) ) );
+
+   function Gnoga_Color (Color : Color_Info) return Gnoga.RGBA_Type is
+      (Red   => Gnoga.Color_Type (Color.Red),
+       Green => Gnoga.Color_Type (Color.Green),
+       Blue  => Gnoga.Color_Type (Color.Blue),
+       Alpha => Gnoga.Alpha_Type (Color.Alpha) );
 
    function To_ID (Color : Color_Info) return Color_ID is
-      G_Color : constant Gnoga.Types.RGBA_Type := (Red   => Gnoga.Types.Color_Type (Color.Red),
-                                                   Green => Gnoga.Types.Color_Type (Color.Green),
-                                                   Blue  => Gnoga.Types.Color_Type (Color.Blue),
-                                                   Alpha => 1.0);
-   begin -- To_ID
-      return Color_ID'Val (Gnoga.Types.Colors.Color_Enumeration'Pos (Gnoga.Types.Colors.To_Color_Enumeration (G_Color) ) );
-   end To_ID;
+      (Color_ID'Val (Gnoga.Colors.Color_Enumeration'Pos (Gnoga.Colors.To_Color_Enumeration (Gnoga_Color (Color) ) ) ) );
+
+   function Gnoga_Pixel (Color : Color_Info) return Gnoga.Pixel_Type is
+      (Red   => Gnoga.Color_Type (Color.Red),
+       Green => Gnoga.Color_Type (Color.Green),
+       Blue  => Gnoga.Color_Type (Color.Blue),
+       Alpha => Gnoga.Color_Type (255.0 * Color.Alpha) );
+
+   procedure Set_Background_Color (Color : in Color_Info) is
+      -- Empty
+   begin -- Set_Background_Color
+      View.Background_Color (RGBA => Gnoga_Color (Color) );
+
+      All_Rows : for Row in Form'Range (1) loop
+         All_Columns : for Column in Form'Range (2) loop
+            Form (Row, Column).Background_Color (RGBA => Gnoga_Color (Color) );
+         end loop All_Columns;
+      end loop All_Rows;
+   end Set_Background_Color;
+
+   procedure Set_Background_Color (ID : Widget_ID; Color : in Color_Info := To_Color (Black) ) is
+     Widget  : Widget_Info := Widget_List (ID.Value);
+   begin -- Set_Background_Color
+      case Widget.Kind is
+      when Audio_Player =>
+         Widget.Audio.Background_Color (RGBA => Gnoga_Color (Color) );
+      when Background_Text =>
+         Widget.Background.Background_Color (RGBA => Gnoga_Color (Color) );
+      when Button =>
+         Widget.Switch.Background_Color (RGBA => Gnoga_Color (Color) );
+      when Check_Box =>
+         Widget.Check.Background_Color (RGBA => Gnoga_Color (Color) );
+         Widget.Check_Label.Background_Color (RGBA => Gnoga_Color (Color) );
+      when Graphic_Area =>
+         Widget.Canvas.Background_Color (RGBA => Gnoga_Color (Color) );
+      when Password_Box =>
+         Widget.Password.Background_Color (RGBA => Gnoga_Color (Color) );
+         Widget.Password_Label.Background_Color (RGBA => Gnoga_Color (Color) );
+      when Radio_Buttons =>
+         All_Buttons : for I in Widget.Radio'Range loop
+            Widget.Radio (I).Button.Background_Color (RGBA => Gnoga_Color (Color) );
+            Widget.Radio (I).Label.Background_Color (RGBA => Gnoga_Color (Color) );
+         end loop All_Buttons;
+      when Selection_List =>
+         Widget.Selector.Background_Color (RGBA => Gnoga_Color (Color) );
+      when Text_Area =>
+         Widget.Area.Background_Color (RGBA => Gnoga_Color (Color) );
+      when Text_Box =>
+          Widget.Box.Background_Color (RGBA => Gnoga_Color (Color) );
+          Widget.Box_Label.Background_Color (RGBA => Gnoga_Color (Color) );
+      end case;
+   end Set_Background_Color;
+
+   procedure Set_Foreground_Color (ID : Widget_ID; Color : in Color_Info := To_Color (Black) ) is
+     Widget  : Widget_Info := Widget_List (ID.Value);
+   begin -- Set_Foreground_Color
+      case Widget.Kind is
+      when Audio_Player =>
+         Widget.Audio.Color (RGBA => Gnoga_Color (Color) );
+      when Background_Text =>
+         Widget.Background.Color (RGBA => Gnoga_Color (Color) );
+      when Button =>
+         Widget.Switch.Color (RGBA => Gnoga_Color (Color) );
+      when Check_Box =>
+         Widget.Check.Color (RGBA => Gnoga_Color (Color) );
+         Widget.Check_Label.Color (RGBA => Gnoga_Color (Color) );
+      when Graphic_Area =>
+         Widget.Canvas.Color (RGBA => Gnoga_Color (Color) );
+      when Password_Box =>
+         Widget.Password.Color (RGBA => Gnoga_Color (Color) );
+         Widget.Password_Label.Color (RGBA => Gnoga_Color (Color) );
+      when Radio_Buttons =>
+         All_Buttons : for I in Widget.Radio'Range loop
+            Widget.Radio (I).Button.Color (RGBA => Gnoga_Color (Color) );
+            Widget.Radio (I).Label.Color (RGBA => Gnoga_Color (Color) );
+         end loop All_Buttons;
+      when Selection_List =>
+         Widget.Selector.Color (RGBA => Gnoga_Color (Color) );
+      when Text_Area =>
+         Widget.Area.Color (RGBA => Gnoga_Color (Color) );
+      when Text_Box =>
+          Widget.Box.Color (RGBA => Gnoga_Color (Color) );
+          Widget.Box_Label.Color (RGBA => Gnoga_Color (Color) );
+      end case;
+   end Set_Foreground_Color;
 
    procedure Set_Pixel (ID : in Widget_ID; X : in Integer; Y : in Integer; Color : in Color_Info := To_Color (Black) ) is
-      G_Color : constant Gnoga.Types.Pixel_Type := (Red   => Gnoga.Types.Color_Type (Color.Red),
-                                                    Green => Gnoga.Types.Color_Type (Color.Green),
-                                                    Blue  => Gnoga.Types.Color_Type (Color.Blue),
-                                                    Alpha => 255);
+      G_Color : constant Gnoga.Pixel_Type := Gnoga_Pixel (Color);
 
       Widget  : Widget_Info := Widget_List (ID.Value);
       Context : Gnoga.Gui.Element.Canvas.Context_2D.Context_2D_Type;
@@ -475,16 +814,22 @@ package body Ada_GUI is
       Context.Pixel (X => X, Y => Y, Color => G_Color);
    end Set_Pixel;
 
+   function AG_Color (Color : Gnoga.Pixel_Type) return Color_Info is
+      (Red   => RGB_Value (Color.Red),
+       Green => RGB_Value (Color.Green),
+       Blue  => RGB_Value (Color.Blue),
+       Alpha => Float (Color.Alpha) / 255.0);
+
    function Pixel (ID : Widget_ID; X : Integer; Y : Integer) return Color_Info is
       Widget : constant Widget_Info := Widget_List (ID.Value);
 
       Context : Gnoga.Gui.Element.Canvas.Context_2D.Context_2D_Type;
-      G_Color : Gnoga.Types.Pixel_Type;
+      G_Color : Gnoga.Pixel_Type;
    begin -- Pixel_Type
       Context.Get_Drawing_Context_2D (Canvas => Widget.Canvas.all);
       G_Color := Context.Pixel (X, Y);
 
-      return (Red => RGB_Value (G_Color.Red), Green => RGB_Value (G_Color.Green), Blue => RGB_Value (G_Color.Blue) );
+      return AG_Color (G_Color);
    end Pixel;
 
    procedure Draw_Line (ID     : in Widget_ID;
@@ -492,18 +837,17 @@ package body Ada_GUI is
                         From_Y : in Integer;
                         To_X   : in Integer;
                         To_Y   : in Integer;
+                        Width  : in Positive := 1;
                         Color  : in Color_Info := To_Color (Black) )
    is
-      G_Color : constant Gnoga.Types.RGBA_Type := (Red   => Gnoga.Types.Color_Type (Color.Red),
-                                                   Green => Gnoga.Types.Color_Type (Color.Green),
-                                                   Blue  => Gnoga.Types.Color_Type (Color.Blue),
-                                                   Alpha => 1.0);
+      G_Color : constant Gnoga.RGBA_Type := Gnoga_Color (Color);
 
       Widget  : Widget_Info := Widget_List (ID.Value);
       Context : Gnoga.Gui.Element.Canvas.Context_2D.Context_2D_Type;
    begin -- Draw_Line
       Context.Get_Drawing_Context_2D (Canvas => Widget.Canvas.all);
       Context.Stroke_Color (Value => G_Color);
+      Context.Line_Width (Value => Width);
       Context.Begin_Path;
       Context.Move_To (X => From_X, Y => From_Y);
       Context.Line_To (X => To_X, Y => To_Y);
@@ -522,6 +866,7 @@ package body Ada_GUI is
       Context : Gnoga.Gui.Element.Canvas.Context_2D.Context_2D_Type;
    begin -- Draw_Rectangle
       Context.Get_Drawing_Context_2D (Canvas => Widget.Canvas.all);
+      Context.Line_Width (Value => 1);
       Context.Begin_Path;
       Context.Rectangle (Rectangle => (X      => Integer'Min (From_X, To_X),
                                        Y      => Integer'Min (From_Y, To_Y),
@@ -530,10 +875,7 @@ package body Ada_GUI is
 
       if not Fill_Color.None then
          Convert_Fill : declare
-            F_Color : constant Gnoga.Types.RGBA_Type := (Red   => Gnoga.Types.Color_Type (Fill_Color.Color.Red),
-                                                         Green => Gnoga.Types.Color_Type (Fill_Color.Color.Green),
-                                                         Blue  => Gnoga.Types.Color_Type (Fill_Color.Color.Blue),
-                                                         Alpha => 1.0);
+            F_Color : constant Gnoga.RGBA_Type := Gnoga_Color (Fill_Color.Color);
          begin -- Convert_Fill
             Context.Fill_Color (Value => F_Color);
             Context.Fill;
@@ -542,10 +884,7 @@ package body Ada_GUI is
 
       if not Line_Color.None then
          Convert_Line : declare
-            L_Color : constant Gnoga.Types.RGBA_Type := (Red   => Gnoga.Types.Color_Type (Line_Color.Color.Red),
-                                                         Green => Gnoga.Types.Color_Type (Line_Color.Color.Green),
-                                                         Blue  => Gnoga.Types.Color_Type (Line_Color.Color.Blue),
-                                                         Alpha => 1.0);
+            L_Color : constant Gnoga.RGBA_Type := Gnoga_Color (Line_Color.Color);
          begin -- Convert_Line
             Context.Stroke_Color (Value => L_Color);
             Context.Stroke;
@@ -567,6 +906,7 @@ package body Ada_GUI is
       Context : Gnoga.Gui.Element.Canvas.Context_2D.Context_2D_Type;
    begin -- Draw_Arc
       Context.Get_Drawing_Context_2D (Canvas => Widget.Canvas.all);
+      Context.Line_Width (Value => 1);
       Context.Begin_Path;
 
       if not Fill_Color.None then
@@ -580,10 +920,7 @@ package body Ada_GUI is
 
       if not Fill_Color.None then
          Convert_Fill : declare
-            F_Color : constant Gnoga.Types.RGBA_Type := (Red   => Gnoga.Types.Color_Type (Fill_Color.Color.Red),
-                                                         Green => Gnoga.Types.Color_Type (Fill_Color.Color.Green),
-                                                         Blue  => Gnoga.Types.Color_Type (Fill_Color.Color.Blue),
-                                                         Alpha => 1.0);
+            F_Color : constant Gnoga.RGBA_Type := Gnoga_Color (Fill_Color.Color);
          begin -- Convert_Fill
             Context.Close_Path;
             Context.Fill_Color (Value => F_Color);
@@ -593,16 +930,58 @@ package body Ada_GUI is
 
       if not Line_Color.None then
          Convert_Line : declare
-            L_Color : constant Gnoga.Types.RGBA_Type := (Red   => Gnoga.Types.Color_Type (Line_Color.Color.Red),
-                                                         Green => Gnoga.Types.Color_Type (Line_Color.Color.Green),
-                                                         Blue  => Gnoga.Types.Color_Type (Line_Color.Color.Blue),
-                                                         Alpha => 1.0);
+            L_Color : constant Gnoga.RGBA_Type := Gnoga_Color (Line_Color.Color);
          begin -- Convert_Line
             Context.Stroke_Color (Value => L_Color);
             Context.Stroke;
          end Convert_Line;
       end if;
    end Draw_Arc;
+
+   procedure Draw_Text (ID         : in Widget_ID;
+                        X          : in Integer;
+                        Y          : in Integer;
+                        Text       : in String;
+                        Height     : in Positive       := 20;
+                        Line_Color : in Optional_Color := (None => True);
+                        Fill_Color : in Optional_Color := (None => False, Color => To_Color (Black) ) )
+   is
+      Widget  : Widget_Info := Widget_List (ID.Value);
+      Context : Gnoga.Gui.Element.Canvas.Context_2D.Context_2D_Type;
+   begin -- Draw_Text
+      Context.Get_Drawing_Context_2D (Canvas => Widget.Canvas.all);
+      Context.Font (Height => Height'Image & "px");
+      Context.Line_Width (Value => 1);
+
+      if not Fill_Color.None then
+         Convert_Fill : declare
+            F_Color : constant Gnoga.RGBA_Type := Gnoga_Color (Fill_Color.Color);
+         begin -- Convert_Fill
+            Context.Fill_Color (Value => F_Color);
+            Context.Fill_Text (Text => Text, X => X, Y => Y);
+         end Convert_Fill;
+      end if;
+
+      if not Line_Color.None then
+         Convert_Line : declare
+            L_Color : constant Gnoga.RGBA_Type := Gnoga_Color (Line_Color.Color);
+         begin -- Convert_Line
+            Context.Stroke_Color (Value => L_Color);
+            Context.Stroke_Text (Text => Text, X => X, Y => Y);
+         end Convert_Line;
+      end if;
+   end Draw_Text;
+
+   procedure Replace_Pixels (ID : in Widget_ID; Image : in Widget_ID; X : in Integer; Y : in Integer) is
+      Widget  : Widget_Info := Widget_List (ID.Value);
+      Context : Gnoga.Gui.Element.Canvas.Context_2D.Context_2D_Type;
+   begin -- Replace_Pixels
+      Context.Get_Drawing_Context_2D (Canvas => Widget.Canvas.all);
+      Context.Draw_Image (Image => Widget_List (Image.Value).Canvas.all, X => X, Y => Y);
+   end Replace_Pixels;
+
+   function Num_Buttons (ID : Widget_ID) return Positive is
+      (Widget_List (ID.Value).Radio'Length);
 
    procedure Set_Active (ID : in Widget_ID; Index : in Positive; Active : in Boolean) is
       Widget : Widget_Info := Widget_List (ID.Value);
@@ -625,7 +1004,7 @@ package body Ada_GUI is
          end if;
       end loop Check;
 
-      return Widget.Radio'Last + 1;
+      return Widget.Radio'Length + 1;
    end Active;
 
    function Length (ID : Widget_ID) return Natural is
@@ -673,32 +1052,9 @@ package body Ada_GUI is
    end Delete;
 
    procedure End_GUI is
-      View : Gnoga.Gui.Element.Form.Form_Type;
+      -- Empty
    begin -- End_GUI
-      Grid.Remove;
-      View.Create (Parent => Window);
-      View.Put_Line (Message => Window.Document.Title & " ended");
-      Gnoga.Application.Singleton.End_Application;
+      Gnoga.Application.End_Application;
       Setup := False;
    end End_GUI;
-
-   task GUI_Thread;
-
-   Gnoga_Running : Boolean := False with Atomic;
-
-   task body GUI_Thread is
-      -- Empty
-   begin -- GUI_Thread
-      Gnoga.Application.Open_URL;
-      Gnoga.Application.Singleton.Initialize (Main_Window => Window);
-      Gnoga.Application.HTML_On_Close (HTML => "Application ended");
-      Gnoga_Running := True;
-      Gnoga.Application.Singleton.Message_Loop;
-   end GUI_Thread;
-begin -- Ada_Gui
-   Wait : loop -- Delay environment task until GUI_Thread has initialized Window
-      exit Wait when Gnoga_Running;
-
-      delay 0.1;
-   end loop Wait;
 end Ada_Gui;
