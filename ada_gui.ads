@@ -243,13 +243,13 @@ package Ada_GUI is
    -- For a Text_Area, embedded LFs cause line breaks
 
    procedure Set_Text_Aligbnment (ID : in Widget_ID; Alignment : in Alignment_ID) with
-      Pre => Set_Up and ID.Kind in Background_Text | Button | Password_Box | Text_Area | Text_Box;
+      Pre => Set_Up and ID.Kind in Background_Text | Button | Password_Box | Selection_List | Text_Area | Text_Box;
    -- Sets the text aligbnmanet for ID to Alignment
 
    type Font_Kind_ID is (Proportional, Monospaced);
 
    procedure Set_Text_Font_Kind (ID : in Widget_ID; Kind : in Font_Kind_ID) with
-      Pre => Set_Up and ID.Kind in Background_Text | Button | Password_Box | Text_Area | Text_Box;
+      Pre => Set_Up and ID.Kind in Background_Text | Button | Password_Box | Selection_List | Text_Area | Text_Box;
    -- Sets the text font kind for ID to Kind
    -- Default is Proportional
 
@@ -257,7 +257,7 @@ package Ada_GUI is
    -- Returns the value of Multiple_Select used to create ID
 
    function Text (ID : Widget_ID) return String with
-      Pre => Set_Up                                                            and
+      Pre => Set_Up                                                                                     and
              ID.Kind in Background_Text | Button | Password_Box | Selection_List | Text_Area | Text_Box and
              (if ID.Kind = Selection_List then not ID.Multiple_Select else True);
    -- Returns the text for ID; for a Selection_List with no selection, returns ""
@@ -428,6 +428,9 @@ package Ada_GUI is
 
    function Length (ID : Widget_ID) return Natural with Pre => Set_Up and ID.Kind = Selection_List;
    -- Returns the number of options in ID
+
+   procedure Clear (ID : in Widget_ID) with Pre => Set_Up and ID.Kind = Selection_List;
+   -- Deletes all options from ID
 
    procedure Set_Selected (ID : in Widget_ID; Index : in Positive; Selected : in Boolean := True) with
       Pre => Set_Up and ID.Kind = Selection_List and Index in 1 .. ID.Length;

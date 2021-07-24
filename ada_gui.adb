@@ -636,6 +636,8 @@ package body Ada_GUI is
          Widget.Switch.Text_Alignment (Value => Converted (Alignment) );
       when Password_Box =>
          Widget.Password.Text_Alignment (Value => Converted (Alignment) );
+      when Selection_List =>
+         Widget.Selector.Text_Alignment (Value => Converted (Alignment) );
       when Text_Area =>
          Widget.Area.Text_Alignment (Value => Converted (Alignment) );
       when Text_Box =>
@@ -658,6 +660,8 @@ package body Ada_GUI is
          Widget.Switch.Font (Family => Family);
       when Password_Box =>
          Widget.Password.Font (Family => Family);
+      when Selection_List =>
+         Widget.Selector.Font (Family => Family);
       when Text_Area =>
          Widget.Area.Font (Family => Family);
       when Text_Box =>
@@ -1012,6 +1016,12 @@ package body Ada_GUI is
    begin -- Length
       return Widget.Selector.Length;
    end Length;
+
+   procedure Clear (ID : in Widget_ID) is
+      Widget : Widget_Info := Widget_List (ID.Value);
+   begin -- Clear
+      Widget.Selector.Empty_Options;
+   end Clear;
 
    procedure Set_Selected (ID : in Widget_ID; Index : in Positive; Selected : in Boolean := True) is
       Widget : Widget_Info := Widget_List (ID.Value);
