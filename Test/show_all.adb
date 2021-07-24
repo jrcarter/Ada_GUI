@@ -77,6 +77,7 @@ begin -- Show_All
                                             Break_Before => True);
    Selection.Set_Background_Color (Color => Ada_GUI.To_Color (Ada_GUI.Yellow) );
    Selection.Set_Foreground_Color (Color => Ada_GUI.To_Color (Ada_GUI.Red) );
+   Selection.Set_Text_Aligbnment (Alignment => Ada_GUI.Right);
    Area := Ada_GUI.New_Text_Area (Text => "Some text" & Ada.Characters.Latin_1.LF & "Another line", Break_Before => True);
    Area.Set_Background_Color (Color => Ada_GUI.To_Color (Ada_GUI.Yellow) );
    Area.Set_Foreground_Color (Color => Ada_GUI.To_Color (Ada_GUI.Red) );
