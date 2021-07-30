@@ -22,13 +22,18 @@ with Ada_GUI.Gnoga.Gui.Window;
 with Ada_GUI.Gnoga.Colors;
 
 package body Ada_GUI is
-   type Form_Set is array (Positive range <>, Positive range <>) of Gnoga.Gui.Element.Form.Form_Type;
-   type Form_Ptr is access Form_Set; -- Extensive use of access due to nature of Gnoga
+   type Form_Set     is array (Positive range <>, Positive range <>) of Gnoga.Gui.Element.Form.Form_Type;
+   type Form_Ptr     is access Form_Set; -- Extensive use of access due to nature of Gnoga
+
+   package Column_Maps is new Ada.Containers.Vectors (Index_Type => Positive, Element_Type => Boolean);
+   package Row_Maps    is new Ada.Containers.Vectors
+      (Index_Type => Positive, Element_Type => Column_Maps.Vector, "=" => Column_Maps."=");
 
    Window : Gnoga.Gui.Window.Window_Type;
    View   : Gnoga.Gui.View.Console.Console_View_Type;
    Grid   : Gnoga.Gui.View.Grid.Grid_View_Type;
    Form   : Form_Ptr;
+   Valid  : Row_Maps.Vector; -- Valid (Row) (Column) is True if (Row, Column) is an Area
    Setup  : Boolean := False with Atomic;
 
    function Set_Up return Boolean is (Setup);
@@ -39,22 +44,33 @@ package body Ada_GUI is
        when Center => Gnoga.Gui.Element.Center,
        when Right  => Gnoga.Gui.Element.Right);
 
-   procedure Set_Up (Grid  : in Grid_Set := (1 => (1 => Center) );
+   procedure Set_Up (Grid  : in Grid_Set := (1 => (1 => (others => <>) ) );
                      ID    : in Positive := 8080;
                      Title : in String   := "Ada-GUI Application";
                      Icon  : in String   := "favicon.ico")
    is
-      -- Empty
+      G_Grid : Gnoga.Gui.View.Grid.Grid_Rows_Type (Grid'Range (1), Grid'Range (2) );
    begin -- Set_Up
+      Fill_Grid : for Row in Grid'Range (1) loop
+         Valid.Append (New_Item => Column_Maps.Empty_Vector);
+
+         Grid_Cols : for Column in Grid'Range (2) loop
+            G_Grid (Row, Column) := (if Grid (Row, Column).Kind = Area then Gnoga.Gui.View.Grid.COL else Gnoga.Gui.View.Grid.SPN);
+            Valid (Row).Append (New_Item =>  Grid (Row, Column).Kind = Area);
+         end loop Grid_Cols;
+      end loop Fill_Grid;
+
       Gnoga.Application.Initialize (Main_Window => Window, ID => ID, Title => Title, Icon => Icon);
       View.Create (Parent => Window);
-      Ada_GUI.Grid.Create (Parent => View, Layout => (Grid'Range (1) => (Grid'Range (2) => Gnoga.Gui.View.Grid.COL) ) );
+      Ada_GUI.Grid.Create (Parent => View, Layout => G_Grid);
       Form := new Form_Set (Grid'Range (1), Grid'Range (2) );
 
       All_Rows : for I in Form'Range (1) loop
          All_Columns : for J in Form'Range (2) loop
-            Form (I, J).Create (Parent => Ada_GUI.Grid.Panel (I, J).all);
-            Form (I, J).Text_Alignment (Value => Converted (Grid (I, J) ) );
+            if Grid (I, J).Kind = Area then
+               Form (I, J).Create (Parent => Ada_GUI.Grid.Panel (I, J).all);
+               Form (I, J).Text_Alignment (Value => Converted (Grid (I, J).Alignment) );
+            end if;
          end loop All_Columns;
       end loop All_Rows;
 
@@ -104,8 +120,22 @@ package body Ada_GUI is
 
    function Kind (ID : Widget_ID) return Widget_Kind_ID is (Widget_List (ID.Value).Kind);
 
+   function Adjusted (Row : in Positive; Column : in Positive) return Positive;
+   -- If (Row, Column) is an Extension, reduces Column until (Row, Column) is an Area
+
    procedure Break (Desired : in Boolean; Row : in Positive; Column : in Positive);
    -- If Desired, make the next thing declared in Form (Row, Column) appear below existing things there
+
+   function Adjusted (Row : in Positive; Column : in Positive) return Positive is
+   begin -- Adjusted
+      Find : for C in reverse 1 .. Column loop
+         if Valid (Row) (C) then
+            return C;
+         end if;
+      end loop Find;
+
+      raise Program_Error;
+   end Adjusted;
 
    procedure Break (Desired : in Boolean; Row : in Positive; Column : in Positive) is
       -- Empty
@@ -126,10 +156,13 @@ package body Ada_GUI is
 
       Widget : Widget_Info (Kind => Audio_Player);
    begin -- New_Audio_Player
-      Break (Desired => Break_Before, Row => Row, Column => Column);
+      Break (Desired => Break_Before, Row => Row, Column => Adjusted (Row, Column) );
       Widget.Audio := new Gnoga.Gui.Element.Multimedia.Audio_Type;
-      Widget.Audio.Create
-         (Parent => Form (Row, Column), Source => Source, Controls => Controls, Preload => True, ID => ID.Value'Image);
+      Widget.Audio.Create (Parent   => Form (Row, Adjusted (Row, Column) ),
+                           Source   => Source,
+                           Controls => Controls,
+                           Preload  => True,
+                           ID       => ID.Value'Image);
       Widget_List.Append (New_Item => Widget);
 
       return ID;
@@ -141,9 +174,9 @@ package body Ada_GUI is
 
       Widget : Widget_Info (Kind => Background_Text);
    begin -- New_Background_Text
-      Break (Desired => Break_Before, Row => Row, Column => Column);
+      Break (Desired => Break_Before, Row => Row, Column => Adjusted (Row, Column) );
       Widget.Background := new Gnoga.Gui.Element.Common.Span_Type;
-      Widget.Background.Create (Parent => Form (Row, Column), Content => Text, ID => ID.Value'Image);
+      Widget.Background.Create (Parent => Form (Row, Adjusted (Row, Column) ), Content => Text, ID => ID.Value'Image);
       Widget_List.Append (New_Item => Widget);
 
       return ID;
@@ -155,9 +188,9 @@ package body Ada_GUI is
 
       Widget : Widget_Info (Kind => Button);
    begin -- New_Button
-      Break (Desired => Break_Before, Row => Row, Column => Column);
+      Break (Desired => Break_Before, Row => Row, Column => Adjusted (Row, Column) );
       Widget.Switch := new Gnoga.Gui.Element.Common.Button_Type;
-      Widget.Switch.Create (Parent => Form (Row, Column), Content => Text, ID => ID.Value'Image);
+      Widget.Switch.Create (Parent => Form (Row, Adjusted (Row, Column) ), Content => Text, ID => ID.Value'Image);
       Widget_List.Append (New_Item => Widget);
 
       return ID;
@@ -173,12 +206,13 @@ package body Ada_GUI is
 
       Widget : Widget_Info (Kind => Check_Box);
    begin -- New_Check_Box
-      Break (Desired => Break_Before, Row => Row, Column => Column);
+      Break (Desired => Break_Before, Row => Row, Column => Adjusted (Row, Column) );
       Widget.Check := new Gnoga.Gui.Element.Form.Check_Box_Type;
-      Widget.Check.Create (Form => Form (Row, Column), ID => ID.Value'Image);
+      Widget.Check.Create (Form => Form (Row, Adjusted (Row, Column) ), ID => ID.Value'Image);
       Widget.Check.Checked (Value => Active);
       Widget.Check_Label := new Gnoga.Gui.Element.Form.Label_Type;
-      Widget.Check_Label.Create (Form => Form (Row, Column), Label_For => Widget.Check.all, Content => Label, Auto_Place => False);
+      Widget.Check_Label.Create
+         (Form => Form (Row, Adjusted (Row, Column) ), Label_For => Widget.Check.all, Content => Label, Auto_Place => False);
       Widget_List.Append (New_Item => Widget);
 
       return ID;
@@ -191,9 +225,9 @@ package body Ada_GUI is
 
       Widget : Widget_Info (Kind => Graphic_Area);
    begin -- New_Graphic_Area
-      Break (Desired => Break_Before, Row => Row, Column => Column);
+      Break (Desired => Break_Before, Row => Row, Column => Adjusted (Row, Column) );
       Widget.Canvas := new Gnoga.Gui.Element.Canvas.Canvas_Type;
-      Widget.Canvas.Create (Parent => Form (Row, Column), Width => Width, Height => Height, ID => ID.Value'Image);
+      Widget.Canvas.Create (Parent => Form (Row, Adjusted (Row, Column) ), Width => Width, Height => Height, ID => ID.Value'Image);
       Widget_List.Append (New_Item => Widget);
 
       return ID;
@@ -210,11 +244,12 @@ package body Ada_GUI is
 
       Widget : Widget_Info (Kind => Password_Box);
    begin -- New_Password_Box
-      Break (Desired => Break_Before, Row => Row, Column => Column);
+      Break (Desired => Break_Before, Row => Row, Column => Adjusted (Row, Column) );
       Widget.Password := new Gnoga.Gui.Element.Form.Password_Type;
-      Widget.Password.Create (Form => Form (Row, Column), Size => Width, Value => Text, ID => ID.Value'Image);
+      Widget.Password.Create (Form => Form (Row, Adjusted (Row, Column) ), Size => Width, Value => Text, ID => ID.Value'Image);
       Widget.Password_Label := new Gnoga.Gui.Element.Form.Label_Type;
-      Widget.Password_Label.Create (Form => Form (Row, Column), Label_For => Widget.Password.all, Content => Label);
+      Widget.Password_Label.Create
+         (Form => Form (Row, Adjusted (Row, Column) ), Label_For => Widget.Password.all, Content => Label);
       Widget_List.Append (New_Item => Widget);
 
       return ID;
@@ -238,18 +273,20 @@ package body Ada_GUI is
       Name (Name'First) := 'R';
       Next_Button := Next_Button + 1;
       Widget.Radio := new Radio_List (Label'Range);
-      Break (Desired => Break_Before, Row => Row, Column => Column);
+      Break (Desired => Break_Before, Row => Row, Column => Adjusted (Row, Column) );
 
       All_Buttons : for I in Label'Range loop
-         Widget.Radio (I).Button.Create
-            (Form => Form (Row, Column), Checked => I = Label'First, Name => Name, ID => I'Image & 'R' & ID.Value'Image);
-         Widget.Radio (I).Label.Create (Form       => Form (Row, Column),
+         Widget.Radio (I).Button.Create (Form    => Form (Row, Adjusted (Row, Column) ),
+                                         Checked => I = Label'First,
+                                         Name    => Name,
+                                         ID      => I'Image & 'R' & ID.Value'Image);
+         Widget.Radio (I).Label.Create (Form       => Form (Row, Adjusted (Row, Column) ),
                                         Label_For  => Widget.Radio (I).Button,
                                         Content    => To_String (Label (I) ),
                                         Auto_Place => False);
 
          if I < Label'Last and Orientation = Vertical then
-            Form (Row, Column).New_Line;
+            Form (Row, Adjusted (Row, Column) ).New_Line;
          end if;
       end loop All_Buttons;
 
@@ -269,10 +306,12 @@ package body Ada_GUI is
 
       Widget : Widget_Info (Kind => Selection_List);
    begin -- New_Selection_List
-      Break (Desired => Break_Before, Row => Row, Column => Column);
+      Break (Desired => Break_Before, Row => Row, Column => Adjusted (Row, Column) );
       Widget.Selector := new Gnoga.Gui.Element.Form.Selection_Type;
-      Widget.Selector.Create
-         (Form => Form (Row, Column), Multiple_Select => Multiple_Select, Visible_Lines => Height, ID => ID.Value'Image);
+      Widget.Selector.Create (Form            => Form (Row, Adjusted (Row, Column) ),
+                              Multiple_Select => Multiple_Select,
+                              Visible_Lines   => Height,
+                              ID              => ID.Value'Image);
       Widget.Multi := Multiple_Select;
       Widget_List.Append (New_Item => Widget);
 
@@ -294,9 +333,10 @@ package body Ada_GUI is
 
       Widget : Widget_Info (Kind => Text_Area);
    begin -- New_Text_Area
-      Break (Desired => Break_Before, Row => Row, Column => Column);
+      Break (Desired => Break_Before, Row => Row, Column => Adjusted (Row, Column) );
       Widget.Area := new Gnoga.Gui.Element.Form.Text_Area_Type;
-      Widget.Area.Create (Form => Form (Row, Column), Columns => Width, Rows => Height, Value => Text, ID => ID.Value'Image);
+      Widget.Area.Create
+         (Form => Form (Row, Adjusted (Row, Column) ), Columns => Width, Rows => Height, Value => Text, ID => ID.Value'Image);
       Widget_List.Append (New_Item => Widget);
 
       return ID;
@@ -314,11 +354,11 @@ package body Ada_GUI is
 
       Widget : Widget_Info (Kind => Text_Box);
    begin -- New_Text_Box
-      Break (Desired => Break_Before, Row => Row, Column => Column);
+      Break (Desired => Break_Before, Row => Row, Column => Adjusted (Row, Column) );
       Widget.Box := new Gnoga.Gui.Element.Form.Text_Type;
-      Widget.Box.Create (Form => Form (Row, Column), Size => Width, Value => Text, ID => ID.Value'Image);
+      Widget.Box.Create (Form => Form (Row, Adjusted (Row, Column) ), Size => Width, Value => Text, ID => ID.Value'Image);
       Widget.Box_Label := new Gnoga.Gui.Element.Form.Label_Type;
-      Widget.Box_Label.Create (Form => Form (Row, Column), Label_For => Widget.Box.all, Content => Label);
+      Widget.Box_Label.Create (Form => Form (Row, Adjusted (Row, Column) ), Label_For => Widget.Box.all, Content => Label);
 
       if Placeholder /= "" then
          Widget.Box.Place_Holder (Value => Placeholder);
@@ -737,7 +777,9 @@ package body Ada_GUI is
 
       All_Rows : for Row in Form'Range (1) loop
          All_Columns : for Column in Form'Range (2) loop
-            Form (Row, Column).Background_Color (RGBA => Gnoga_Color (Color) );
+            if Valid (Row) (Column) then
+               Form (Row, Column).Background_Color (RGBA => Gnoga_Color (Color) );
+            end if;
          end loop All_Columns;
       end loop All_Rows;
    end Set_Background_Color;

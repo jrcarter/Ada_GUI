@@ -19,26 +19,54 @@ package Ada_GUI is
    -- If ID was returned by a call to a New_[Widget] function, returns the kind of widget identified by ID
    -- Raises Constraint_Error otherwise
 
+   type Area_Kind_ID is (Area, Extension);
    type Alignment_ID is (Left, Center, Right);
 
-   type Grid_Set is array (Positive range <>, Positive range <>) of Alignment_ID;
+   type Grid_Info (Kind : Area_Kind_ID := Area) is record
+      case Kind is
+      when Area =>
+         Alignment : Alignment_ID := Center;
+      when Extension =>
+         null;
+      end case;
+   end record;
 
-   procedure Set_Up (Grid  : in Grid_Set := (1 => (1 => Center) );
+   type Grid_Set is array (Positive range <>, Positive range <>) of Grid_Info;
+
+   procedure Set_Up (Grid  : in Grid_Set := (1 => (1 => (others => <>) ) );
                      ID    : in Positive := 8080;
                      Title : in String   := "Ada-GUI Application";
                      Icon  : in String   := "favicon.ico")
-   with Pre  => not Set_Up and Grid'Length (1) > 0 and Grid'Length (2) > 0 and Grid'First (1) = 1 and Grid'First (2) = 1,
+      with Pre => not Set_Up          and
+                  Grid'Length (1) > 0 and
+                  Grid'Length (2) > 0 and
+                  Grid'First (1) = 1  and
+                  Grid'First (2) = 1  and
+                  (for all R in Grid'Range (1) => Grid (R, 1).Kind = Area),
         Post => Set_Up;
    -- Sets up a grid of Grid'Length (1) rows by Grid'Length (2) Columns of display areas
    -- Each display area has the alignment given by Grid for its row and column
+   -- A display area is either a new Area, or an Extension of the area to its left
    -- Title is the initial window title
    -- Each application has an Ada-GUI ID; two applications with the same ID cannot run at the same time
    -- (The ID is used as the port for talking to the browser, hence the restriction)
+   --
+   -- Grid example: if Grid = (1 => (1 => (Area, Left), 2 => (Extension),  3 => (Area, Left) )
+   --                          2 => (1 => (Area, Left), 2 => (Area, Left), 3 => (Extension) ) )
+   -- then the resulting display areas will look something like
+   --     1  2  3
+   --   +-----+--+
+   -- 1 |     |  |
+   --   +--+--+--+
+   -- 2 |  |     |
+   --   +--+-----+
 
    -- For the New_[Widget] functions below, if Break_Before, the button appears below any existing widgets;
    -- otherwise, it appears to the right of the most recent widget
    -- All New_[Widget] functions return the ID of the new widget
    -- All New_[Widget] functions take the Row and Column of the display area in which the widget will be created
+   -- The Column should refer to an area with Kind = Area, but if it does not, it will be adjusted to the column
+   -- of the aread that Column extends
 
    procedure End_GUI with Pre => Set_Up, Post => not Set_Up;
    -- Destroys the GUI
