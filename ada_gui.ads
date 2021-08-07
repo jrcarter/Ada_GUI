@@ -222,6 +222,7 @@ package Ada_GUI is
    -- Result is (Timed_Out => True) if Timeout seconds pass before there's an event available
    -- Otherwise, the result R has not R.Timed_Out, and R.Event contains the Event_Info for the event
    -- A double click generates two events, a Left_Click followed by a Double_Click
+   -- This function blocks if a call to Selected_File is in progress
 
    procedure Set_Title (Title : in String) with Pre => Set_Up;
    -- Sets the window title to Title
@@ -232,6 +233,22 @@ package Ada_GUI is
    procedure Set_Visibility (ID : in Widget_ID; Visible : in Boolean := True) With Pre => Set_Up;
    -- Sets whether or not ID is visible
    -- Widgets are visible by default
+
+   type File_Result_Info (Picked : Boolean := False) is record
+      case Picked is
+      when False =>
+         null;
+      when True =>
+         Value : Ada.Strings.Unbounded.Unbounded_String;
+      end case;
+   end record;
+
+   function Selected_File (Initial_Directory : in String := ".") return File_Result_Info with Pre => Set_Up;
+   -- Opens a file-selection dialog with the files for Initial_Directory
+   -- If the user cancels the dialog, returns (Picked => False)
+   -- Otherwise, the return value has Picked => True and the Value component contains the full path of the selected file
+   -- Until the function returns, events are not available and Next_Event will block
+   -- Only one call may proceed at a time; if a call is in progress, another call will return  (Picked => False)
 
    procedure Set_Source (ID : in Widget_ID; Source : in String) with Pre => Set_Up and ID.Kind = Audio_Player;
    -- Makes Source the audio source for ID
