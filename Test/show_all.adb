@@ -21,7 +21,10 @@ procedure Show_All is
    Area       : Ada_GUI.Widget_ID;
    Box        : Ada_GUI.Widget_ID;
    Pressed    : Ada_GUI.Widget_ID;
+   Sel_File   : Ada_GUI.Widget_ID;
+   File       : Ada_GUI.Widget_ID;
    Event      : Ada_GUI.Next_Result_Info;
+   File_Info  : Ada_GUI.File_Result_Info;
 
    use Ada.Strings.Unbounded;
    use type Ada_GUI.Event_Kind_ID;
@@ -32,7 +35,9 @@ begin -- Show_All
    Audio := Ada_GUI.New_Audio_Player (Source => "glass.ogg");
    Audio.Set_Background_Color (Color => Ada_GUI.To_Color (Ada_GUI.Yellow) );
    Audio.Set_Foreground_Color (Color => Ada_GUI.To_Color (Ada_GUI.Red) );
-   Background := Ada_GUI.New_Background_Text (Text => "Background_Text", Break_Before => True);
+   Background := Ada_GUI.New_Background_Text (Text => "Background_Text can <br><font color=" & '"' & "Green" & '"' &
+                                                      ">have</font> <b>at</b><i>tri</i><u>butes</u>",
+                                              Break_Before => True);
    Background.Set_Background_Color (Color => Ada_GUI.To_Color (Ada_GUI.Yellow) );
    Background.Set_Foreground_Color (Color => Ada_GUI.To_Color (Ada_GUI.Red) );
    Visible := Ada_GUI.New_Check_Box (Label => "Visible", Active => True);
@@ -87,6 +92,8 @@ begin -- Show_All
    Pressed := Ada_GUI.New_Text_Area (Break_Before => True);
    Pressed.Set_Background_Color (Color => Ada_GUI.To_Color (Ada_GUI.Light_Green) );
    Pressed.Set_Foreground_Color (Color => Ada_GUI.To_Color (Ada_GUI.Dark_Blue) );
+   Sel_File := Ada_GUI.New_Button (Text => "Select File", Break_Before => True);
+   File := Ada_GUI.New_Text_Box (Break_Before => True, Label => "Selected file:");
 
    Wait_To_Quit : loop
       Event := Ada_GUI.Next_Event;
@@ -106,6 +113,9 @@ begin -- Show_All
                exit Wait_To_Quit;
             elsif Event.Event.ID = Visible then
                Background.Set_Visibility (Visible => Visible.Active);
+            elsif Event.Event.ID = Sel_File then
+               File_Info := Ada_GUI.Selected_File;
+               File.Set_Text (Text => (if File_Info.Picked then To_String (File_Info.Value) else "") );
             else
                null;
             end if;
