@@ -87,6 +87,7 @@ package Ada_GUI is
    return Widget_ID with Pre => Set_Up;
    -- Creates a new Background_Text with contents Text
    -- Like a label, background text is not in any visible widget; unlike a label, background text is not associated with a widget
+   -- Background text may contain HTML text attributes such as "<b>...</b>" and embedding "<br>" will cause new lines
 
    function New_Button (Row : Positive := 1; Column : Positive := 1; Text : String := ""; Break_Before : Boolean := False)
    return Widget_ID With Pre => Set_Up;
