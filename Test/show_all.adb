@@ -36,7 +36,7 @@ begin -- Show_All
    Audio.Set_Background_Color (Color => Ada_GUI.To_Color (Ada_GUI.Yellow) );
    Audio.Set_Foreground_Color (Color => Ada_GUI.To_Color (Ada_GUI.Red) );
    Background := Ada_GUI.New_Background_Text (Text => "Background_Text can <br><font color=" & '"' & "Green" & '"' &
-                                                      ">have</font> <b>at</b><i>tri</i><u>butes</u>",
+                                                      ">have</font> <b>at</b><i>tri</i><u>butes</u>&euro;",
                                               Break_Before => True);
    Background.Set_Background_Color (Color => Ada_GUI.To_Color (Ada_GUI.Yellow) );
    Background.Set_Foreground_Color (Color => Ada_GUI.To_Color (Ada_GUI.Red) );
