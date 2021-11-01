@@ -9,7 +9,7 @@ Ada_GUI is such a GUI.
 
 The implementation of Ada_GUI is derived from Gnoga, but simplified, reorganized, and converted to put events on a protected queue rather than call callbacks. The name Gnoga has been retained for the name of the implementation hierarchy, located at Ada_GUI.Gnoga, in recognition. Those parts of Kazakov's Simple Components used by the implementation are provided as well, with some minor modifications. If you have your own version of the Simple Components, you may use it instead: Delete all Ada source files that do not begin with ada_gui.
 
-In the process of modifying Gnoga I seem to have prevented responses to resizing the window. Provided you don't need that, Ada GUI is reasonably full-featured and useful. The implementation is more responsive than the former proof-of-concept directly on full Gnoga.
+Ada GUI is reasonably full-featured and useful. The implementation is more responsive than the former proof-of-concept directly on full Gnoga.
 
 The Test directory contains boot.html, boot.js, and jquery.min.js. These files must be available to every Ada-GUI program. It also contains favicon.ico, an icon of Ada.
 
