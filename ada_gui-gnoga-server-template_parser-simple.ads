@@ -49,7 +49,7 @@ package Ada_GUI.Gnoga.Server.Template_Parser.Simple is
    --  Return named view with no passed data
 
    function Load_View (Name     : String;
-                       Data_Map : Data_Map_Type;
+                       Data_Map : Gnoga.Data_Map_Type;
                        Var_Name : String := "data")
                        return String;
    --  Return named view with data map

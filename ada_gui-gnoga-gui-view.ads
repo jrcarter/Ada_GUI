@@ -176,7 +176,7 @@ package Ada_GUI.Gnoga.Gui.View is
    --  returns null if Name not found.
 
    function Element_Names (View : View_Base_Type)
-                           return Data_Array_Type;
+                           return Gnoga.Data_Array_Type;
    --  Return an array of all the names of elements in the view's element
    --  array
 

@@ -55,7 +55,7 @@ package body Ada_GUI.Gnoga.Gui.Element is
                                HTML    : in     String;
                                ID      : in     String := "")
    is
-      use Ada_GUI.Gnoga.Server.Connection;
+      use Gnoga.Server.Connection;
 
       function Adjusted_ID return String;
 
@@ -590,7 +590,7 @@ package body Ada_GUI.Gnoga.Gui.Element is
    is
    begin
       Element.Style ("height", Left_Trim (Value'Img) & Unit);
-      Element.Resize_Message;
+      Element.On_Message ("resize", "");
    end Box_Height;
 
    procedure Box_Height (Element : in out Element_Type;
@@ -598,7 +598,7 @@ package body Ada_GUI.Gnoga.Gui.Element is
    is
    begin
       Element.Style ("height", Value);
-      Element.Resize_Message;
+      Element.On_Message ("resize", "");
    end Box_Height;
 
    function Box_Height (Element : Element_Type) return String
@@ -617,7 +617,7 @@ package body Ada_GUI.Gnoga.Gui.Element is
    is
    begin
       Element.Style ("min-height", Left_Trim (Value'Img) & Unit);
-      Element.Resize_Message;
+      Element.On_Message ("resize", "");
    end Minimum_Height;
 
    procedure Minimum_Height (Element : in out Element_Type;
@@ -625,7 +625,7 @@ package body Ada_GUI.Gnoga.Gui.Element is
    is
    begin
       Element.Style ("min-height", Value);
-      Element.Resize_Message;
+      Element.On_Message ("resize", "");
    end Minimum_Height;
 
    function Minimum_Height (Element : Element_Type) return String
@@ -644,7 +644,7 @@ package body Ada_GUI.Gnoga.Gui.Element is
    is
    begin
       Element.Style ("max-height", Left_Trim (Value'Img) & Unit);
-      Element.Resize_Message;
+      Element.On_Message ("resize", "");
    end Maximum_Height;
 
    procedure Maximum_Height (Element : in out Element_Type;
@@ -652,7 +652,7 @@ package body Ada_GUI.Gnoga.Gui.Element is
    is
    begin
       Element.Style ("max-height", Value);
-      Element.Resize_Message;
+      Element.On_Message ("resize", "");
    end Maximum_Height;
 
    function Maximum_Height (Element : Element_Type) return String
@@ -671,7 +671,7 @@ package body Ada_GUI.Gnoga.Gui.Element is
    is
    begin
       Element.Style ("width", Left_Trim (Value'Img) & Unit);
-      Element.Resize_Message;
+      Element.On_Message ("resize", "");
    end Box_Width;
 
    procedure Box_Width (Element : in out Element_Type;
@@ -679,7 +679,7 @@ package body Ada_GUI.Gnoga.Gui.Element is
    is
    begin
       Element.Style ("width", Value);
-      Element.Resize_Message;
+      Element.On_Message ("resize", "");
    end Box_Width;
 
    function Box_Width (Element : Element_Type) return String
@@ -698,7 +698,7 @@ package body Ada_GUI.Gnoga.Gui.Element is
    is
    begin
       Element.Style ("min-width", Left_Trim (Value'Img) & Unit);
-      Element.Resize_Message;
+      Element.On_Message ("resize", "");
    end Minimum_Width;
 
    procedure Minimum_Width (Element : in out Element_Type;
@@ -706,7 +706,7 @@ package body Ada_GUI.Gnoga.Gui.Element is
    is
    begin
       Element.Style ("min-width", Value);
-      Element.Resize_Message;
+      Element.On_Message ("resize", "");
    end Minimum_Width;
 
    function Minimum_Width (Element : Element_Type) return String
@@ -725,7 +725,7 @@ package body Ada_GUI.Gnoga.Gui.Element is
    is
    begin
       Element.Style ("max-width", Left_Trim (Value'Img) & Unit);
-      Element.Resize_Message;
+      Element.On_Message ("resize", "");
    end Maximum_Width;
 
    procedure Maximum_Width (Element : in out Element_Type;
@@ -733,7 +733,7 @@ package body Ada_GUI.Gnoga.Gui.Element is
    is
    begin
       Element.Style ("max-width", Value);
-      Element.Resize_Message;
+      Element.On_Message ("resize", "");
    end Maximum_Width;
 
    function Maximum_Width (Element : Element_Type) return String
@@ -926,7 +926,7 @@ package body Ada_GUI.Gnoga.Gui.Element is
    is
    begin
       Element.jQuery_Execute ("innerHeight(" & Left_Trim (Value'Img) & ");");
-      Element.Resize_Message;
+      Element.On_Message ("resize", "");
    end Inner_Height;
 
    function Inner_Height (Element : Element_Type) return Integer is
@@ -941,7 +941,7 @@ package body Ada_GUI.Gnoga.Gui.Element is
    procedure Inner_Width (Element : in out Element_Type; Value : in Integer) is
    begin
       Element.jQuery_Execute ("innerWidth(" & Left_Trim (Value'Img) & ");");
-      Element.Resize_Message;
+      Element.On_Message ("resize", "");
    end Inner_Width;
 
    function Inner_Width (Element : Element_Type) return Integer is
@@ -1342,8 +1342,7 @@ package body Ada_GUI.Gnoga.Gui.Element is
                      Vertical_Position   : in     String;
                      Blur                : in     String := "";
                      Spread              : in     String := "";
-                     Color               : in     Gnoga.Colors.
-                       Color_Enumeration := Gnoga.Colors.Black;
+                     Color               : in     Gnoga.Colors.Color_Enumeration := Gnoga.Colors.Black;
                      Inset_Shadow        : in     Boolean := False)
    is
       function Inset return String;

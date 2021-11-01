@@ -135,6 +135,17 @@ package body Ada_GUI.Gnoga.Client_Storage is
    -- Local_Storage --
    -------------------
 
+   function Local_Storage (ID : Gnoga.Connection_ID)
+                           return Local_Storage_Type;
+
+   function Local_Storage
+     (ID : Gnoga.Connection_ID)
+      return Local_Storage_Type
+   is
+   begin
+      return Local_Storage_Type'(Connection_ID => ID);
+   end Local_Storage;
+
    function Local_Storage
      (Object : Gnoga.Gui.Base_Type'Class)
       return Local_Storage_Type
@@ -157,6 +168,17 @@ package body Ada_GUI.Gnoga.Client_Storage is
    ---------------------
    -- Session_Storage --
    ---------------------
+
+   function Session_Storage (ID : Gnoga.Connection_ID)
+                             return Session_Storage_Type;
+
+   function Session_Storage
+     (ID : Gnoga.Connection_ID)
+      return Session_Storage_Type
+   is
+   begin
+      return Session_Storage_Type'(Connection_ID => ID);
+   end Session_Storage;
 
    function Session_Storage
      (Object : Gnoga.Gui.Base_Type'Class)

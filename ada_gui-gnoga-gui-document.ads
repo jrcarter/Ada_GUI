@@ -55,7 +55,7 @@ package Ada_GUI.Gnoga.Gui.Document is
      (Document      : in out Document_Type;
       Connection_ID : in     Gnoga.Connection_ID;
       ID            : in     String                     := "window";
-      ID_Type       : in     ID_Enumeration := Script);
+      ID_Type       : in     Gnoga.ID_Enumeration := Gnoga.Script);
    --  Attach a Gnoga Document_Type to the document on Connection_ID
    --  ID in this context does not mean as on other objects the ID of this
    --  element, but rather the ID of the parent Window for the document.

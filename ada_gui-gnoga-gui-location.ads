@@ -80,7 +80,7 @@ package Ada_GUI.Gnoga.Gui.Location is
    function Search (Location : Location_Type) return String;
 
    function Parse (URL : in String; Encoding : String := "")
-                   return Data_Map_Type;
+                   return Gnoga.Data_Map_Type;
    --  Parse form GET parameters in URL (typically from Search function)
    --  to Data_Map_Type
    --  Supported encodings are ISO-8859-1 (default)

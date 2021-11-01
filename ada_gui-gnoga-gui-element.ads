@@ -146,7 +146,7 @@ package Ada_GUI.Gnoga.Gui.Element is
    function Draggable (Element : Element_Type) return Boolean;
    --  In order to make an object draggable in addition to Draggable being true
    --  the On_Drag_Start event _must_ be bound as well to set the Drag_Text.
-   --  To receive a drop, you need to bind On_Drop. See Gnoga.Gui.Base
+   --  To receive a drop, you need to bind On_Drop. See Gnoga.Gui
 
    procedure Inner_HTML (Element : in out Element_Type; Value : in String);
    function Inner_HTML (Element : Element_Type) return String;
@@ -489,14 +489,14 @@ package Ada_GUI.Gnoga.Gui.Element is
 
    procedure Color (Element : in out Element_Type; Value : String);
    procedure Color (Element : in out Element_Type;
-                    RGBA    : in     RGBA_Type);
+                    RGBA    : in     Gnoga.RGBA_Type);
    procedure Color (Element : in out Element_Type;
-                    Enum    : Colors.Color_Enumeration);
-   function Color (Element : Element_Type) return RGBA_Type;
+                    Enum    : Gnoga.Colors.Color_Enumeration);
+   function Color (Element : Element_Type) return Gnoga.RGBA_Type;
 
    procedure Opacity (Element : in out Element_Type;
-                      Alpha   : in     Alpha_Type);
-   function Opacity (Element : Element_Type) return Alpha_Type;
+                      Alpha   : in     Gnoga.Alpha_Type);
+   function Opacity (Element : Element_Type) return Gnoga.Alpha_Type;
 
    --  Background --
 
@@ -511,12 +511,12 @@ package Ada_GUI.Gnoga.Gui.Element is
    procedure Background_Color (Element : in out Element_Type;
                                Value   : in     String);
    procedure Background_Color (Element : in out Element_Type;
-                               RGBA    : in     RGBA_Type);
+                               RGBA    : in     Gnoga.RGBA_Type);
    procedure Background_Color
      (Element : in out Element_Type;
       Enum    : in     Gnoga.Colors.Color_Enumeration);
    function Background_Color (Element : Element_Type)
-                              return RGBA_Type;
+                              return Gnoga.RGBA_Type;
 
    procedure Background_Image (Element : in out Element_Type;
                                Value   : in     String);

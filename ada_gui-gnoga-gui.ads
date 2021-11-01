@@ -427,223 +427,223 @@ package Ada_GUI.Gnoga.Gui is
    procedure Fire_On_Resize (Object : in out Base_Type);
    --  Handle object size change.
 
---     procedure On_Scroll_Handler (Object  : in out Base_Type;
---                                  Handler : in     Action_Event);
---     procedure Fire_On_Scroll (Object : in out Base_Type);
---     --  Handle scroll changes.
---
---     -- Form Events --
---
---     procedure On_Focus_Handler (Object  : in out Base_Type;
---                                 Handler : in     Action_Event);
---     procedure Fire_On_Focus (Object : in out Base_Type);
---     --  Handle focus on object
---
---     procedure On_Blur_Handler (Object  : in out Base_Type;
---                                Handler : in     Action_Event);
---     procedure Fire_On_Blur (Object : in out Base_Type);
---     --  Handle loss of focus, many browsers poorly support this event.
---
---     procedure On_Change_Handler (Object  : in out Base_Type;
---                                  Handler : in     Action_Event);
---     procedure Fire_On_Change (Object : in out Base_Type);
---
---     procedure On_Focus_In_Handler (Object  : in out Base_Type;
---                                    Handler : in     Action_Event);
---     procedure Fire_On_Focus_In (Object : in out Base_Type);
---
---     procedure On_Focus_Out_Handler (Object  : in out Base_Type;
---                                     Handler : in     Action_Event);
---     procedure Fire_On_Focus_Out (Object : in out Base_Type);
---
---     procedure On_Input_Handler (Object  : in out Base_Type;
---                                 Handler : in     Action_Event);
---     procedure Fire_On_Input (Object : in out Base_Type);
---
---     procedure On_Reset_Handler (Object  : in out Base_Type;
---                                 Handler : in     Action_Event);
---     procedure Fire_On_Reset (Object : in out Base_Type);
---     --  If this event is bound it will stop automatic reset of form contents
---     --  Gnoga.Element.Form_Type.Reset must be called in the handler for the
---     --  form to be reset if desired.
---
---     procedure On_Search_Handler (Object  : in out Base_Type;
---                                  Handler : in     Action_Event);
---     procedure Fire_On_Search (Object : in out Base_Type);
---
---     procedure On_Select_Handler (Object  : in out Base_Type;
---                                  Handler : in     Action_Event);
---     procedure Fire_On_Select (Object : in out Base_Type);
---
---     procedure On_Submit_Handler (Object  : in out Base_Type;
---                                  Handler : in     Action_Event);
---     procedure Fire_On_Submit (Object : in out Base_Type);
---     --  If this event is bound it will stop automatic submission of a form
---     --  Gnoga.Element.Form_Type.Submit must be called in the handler for
---     --  the form to be submitted if desired.
---
---     -- Mouse Events --
---
---     procedure On_Click_Handler (Object  : in out Base_Type;
---                                 Handler : in     Action_Event);
---     procedure Fire_On_Click (Object : in out Base_Type);
---     --  Handle mouse click events
---
---     procedure On_Mouse_Click_Handler (Object  : in out Base_Type;
---                                       Handler : in     Mouse_Event);
---     procedure Fire_On_Mouse_Click (Object : in out Base_Type;
---                                    Event  : in     Mouse_Event_Record);
---     --  Handle mouse click events, but also return mouse event data
---
---     procedure On_Context_Menu_Handler (Object  : in out Base_Type;
---                                        Handler : in     Action_Event);
---     procedure Fire_On_Context_Menu (Object : in out Base_Type);
---     --  Handle right mouse button click events
---
---     procedure On_Mouse_Right_Click_Handler (Object  : in out Base_Type;
---                                             Handler : in     Mouse_Event);
---     procedure Fire_On_Mouse_Right_Click (Object : in out Base_Type;
---                                          Event  : in     Mouse_Event_Record);
---     --  Handle mouse right click event, but also return mouse event data
---
---     procedure On_Double_Click_Handler (Object  : in out Base_Type;
---                                        Handler : in     Action_Event);
---     procedure Fire_On_Double_Click (Object : in out Base_Type);
---     --  Handle mouse double click events
---
---     procedure On_Mouse_Double_Click_Handler (Object  : in out Base_Type;
---                                              Handler : in     Mouse_Event);
---     procedure Fire_On_Mouse_Double_Click (Object : in out Base_Type;
---                                           Event  : in     Mouse_Event_Record);
---     --  Handle mouse double click events, but also return mouse event data
---
---     procedure On_Mouse_Enter_Handler (Object  : in out Base_Type;
---                                       Handler : in     Action_Event);
---     procedure Fire_On_Mouse_Enter (Object : in out Base_Type);
---     --  Handle mouse enter to object events
---
---     procedure On_Mouse_Leave_Handler (Object  : in out Base_Type;
---                                       Handler : in     Action_Event);
---     procedure Fire_On_Mouse_Leave (Object : in out Base_Type);
---     --  Handle mouse leave object events
---
---     procedure On_Mouse_Over_Handler (Object  : in out Base_Type;
---                                       Handler : in     Action_Event);
---     procedure Fire_On_Mouse_Over (Object : in out Base_Type);
---     --  Handle mouse enter to object events or it's children events
---
---     procedure On_Mouse_Out_Handler (Object  : in out Base_Type;
---                                     Handler : in     Action_Event);
---     procedure Fire_On_Mouse_Out (Object : in out Base_Type);
---     --  Handle mouse leave object events or it's children events
---
---     procedure On_Mouse_Down_Handler (Object  : in out Base_Type;
---                                      Handler : in     Mouse_Event);
---     procedure Fire_On_Mouse_Down (Object : in out Base_Type;
---                                   Event  : in     Mouse_Event_Record);
---     --  Handle mouse down events
---
---     procedure On_Mouse_Up_Handler (Object  : in out Base_Type;
---                                    Handler : in     Mouse_Event);
---     procedure Fire_On_Mouse_Up (Object : in out Base_Type;
---                                 Event  : in     Mouse_Event_Record);
---     --  Handle mouse up events
---
---     procedure On_Mouse_Move_Handler (Object  : in out Base_Type;
---                                      Handler : in     Mouse_Event);
---     procedure Fire_On_Mouse_Move (Object : in out Base_Type;
---                                   Event  : in     Mouse_Event_Record);
---     --  Handle mouse move events
---
---     --  Drag and Drop Events --
---
---     procedure On_Drag_Start_Handler (Object    : in out Base_Type;
---                                      Handler   : in     Action_Event;
---                                      Drag_Text : in     String;
---                                      Drag_Type : in     String := "text/plain");
---     procedure Fire_On_Drag_Start (Object : in out Base_Type);
---     --  When setting the On_Drag_Start_Handler, Drag_Text is set to be the
---     --  text that will be delivered in a Drag_Event to an On_Drop event.
---     --  The Element_Type.Draggable property should also be true for Object.
---
---     procedure On_Drag_Handler (Object  : in out Base_Type;
---                                Handler : in     Action_Event);
---     procedure Fire_On_Drag (Object : in out Base_Type);
---
---     procedure On_Drag_End_Handler (Object  : in out Base_Type;
---                                    Handler : in     Action_Event);
---     procedure Fire_On_Drag_End (Object : in out Base_Type);
---
---     procedure On_Drag_Enter_Handler (Object  : in out Base_Type;
---                                    Handler : in     Action_Event);
---     procedure Fire_On_Drag_Enter (Object : in out Base_Type);
---
---     procedure On_Drag_Leave_Handler (Object  : in out Base_Type;
---                                    Handler : in     Action_Event);
---     procedure Fire_On_Drag_Leave (Object : in out Base_Type);
---
---     procedure On_Drop_Handler (Object    : in out Base_Type;
---                                Handler   : in     Drop_Event;
---                                Drag_Type : in     String := "text/plain");
---     procedure Fire_On_Drop (Object    : in out Base_Type;
---                             X, Y      : in     Integer;
---                             Drag_Text : in     String);
---     --  To become a drop target an element only needs to handle On_Drop
---     --  On_Drag_Enter and On_Drag_Leave can be used to show indication
---     --  of "ready to receive" object.
---
---     --  Keyboard Events --
---
---     procedure On_Character_Handler (Object  : in out Base_Type;
---                                     Handler : in     Character_Event);
---     procedure Fire_On_Character (Object : in out Base_Type;
---                                  Key    : in     Character);
---
---     procedure On_Wide_Character_Handler (Object  : in out Base_Type;
---                                          Handler : in     Wide_Character_Event);
---     procedure Fire_On_Wide_Character (Object : in out Base_Type;
---                                       Key    : in     Wide_Character);
---
---     procedure On_Key_Down_Handler (Object  : in out Base_Type;
---                                    Handler : in     Keyboard_Event);
---     procedure Fire_On_Key_Down (Object : in out Base_Type;
---                                 Event  : in     Keyboard_Event_Record);
---
---     procedure On_Key_Up_Handler (Object  : in out Base_Type;
---                                  Handler : in     Keyboard_Event);
---     procedure Fire_On_Key_Up (Object : in out Base_Type;
---                               Event  : in     Keyboard_Event_Record);
---
---     procedure On_Key_Press_Handler (Object  : in out Base_Type;
---                                     Handler : in     Keyboard_Event);
---     procedure Fire_On_Key_Press (Object : in out Base_Type;
---                                  Event  : in     Keyboard_Event_Record);
---
---     --  Clipboard Events  --
---
---     procedure On_Copy_Handler (Object  : in out Base_Type;
---                                Handler : in     Action_Event);
---     procedure Fire_On_Copy (Object : in out Base_Type);
---
---     procedure On_Cut_Handler (Object  : in out Base_Type;
---                               Handler : in     Action_Event);
---     procedure Fire_On_Cut (Object : in out Base_Type);
---
---     procedure On_Paste_Handler (Object  : in out Base_Type;
---                                 Handler : in     Action_Event);
---     procedure Fire_On_Paste (Object : in out Base_Type);
---
---     --  Generic Events --
---
---     procedure On_Create_Handler (Object  : in out Base_Type;
---                                  Handler : in     Action_Event);
---     procedure Fire_On_Create (Object : in out Base_Type);
---     --  Called on creation of a new Gnoga object after attached to message
---     --  queue.
---
---     procedure On_Destroy_Handler (Object  : in out Base_Type;
---                                   Handler : in     Action_Event);
---     procedure Fire_On_Destroy (Object : in out Base_Type);
+   procedure On_Scroll_Handler (Object  : in out Base_Type;
+                                Handler : in     Action_Event);
+   procedure Fire_On_Scroll (Object : in out Base_Type);
+   --  Handle scroll changes.
+
+   -- Form Events --
+
+   procedure On_Focus_Handler (Object  : in out Base_Type;
+                               Handler : in     Action_Event);
+   procedure Fire_On_Focus (Object : in out Base_Type);
+   --  Handle focus on object
+
+   procedure On_Blur_Handler (Object  : in out Base_Type;
+                              Handler : in     Action_Event);
+   procedure Fire_On_Blur (Object : in out Base_Type);
+   --  Handle loss of focus, many browsers poorly support this event.
+
+   procedure On_Change_Handler (Object  : in out Base_Type;
+                                Handler : in     Action_Event);
+   procedure Fire_On_Change (Object : in out Base_Type);
+
+   procedure On_Focus_In_Handler (Object  : in out Base_Type;
+                                  Handler : in     Action_Event);
+   procedure Fire_On_Focus_In (Object : in out Base_Type);
+
+   procedure On_Focus_Out_Handler (Object  : in out Base_Type;
+                                   Handler : in     Action_Event);
+   procedure Fire_On_Focus_Out (Object : in out Base_Type);
+
+   procedure On_Input_Handler (Object  : in out Base_Type;
+                               Handler : in     Action_Event);
+   procedure Fire_On_Input (Object : in out Base_Type);
+
+   procedure On_Reset_Handler (Object  : in out Base_Type;
+                               Handler : in     Action_Event);
+   procedure Fire_On_Reset (Object : in out Base_Type);
+   --  If this event is bound it will stop automatic reset of form contents
+   --  Gnoga.Element.Form_Type.Reset must be called in the handler for the
+   --  form to be reset if desired.
+
+   procedure On_Search_Handler (Object  : in out Base_Type;
+                                Handler : in     Action_Event);
+   procedure Fire_On_Search (Object : in out Base_Type);
+
+   procedure On_Select_Handler (Object  : in out Base_Type;
+                                Handler : in     Action_Event);
+   procedure Fire_On_Select (Object : in out Base_Type);
+
+   procedure On_Submit_Handler (Object  : in out Base_Type;
+                                Handler : in     Action_Event);
+   procedure Fire_On_Submit (Object : in out Base_Type);
+   --  If this event is bound it will stop automatic submission of a form
+   --  Gnoga.Element.Form_Type.Submit must be called in the handler for
+   --  the form to be submitted if desired.
+
+   -- Mouse Events --
+
+   procedure On_Click_Handler (Object  : in out Base_Type;
+                               Handler : in     Action_Event);
+   procedure Fire_On_Click (Object : in out Base_Type);
+   --  Handle mouse click events
+
+   procedure On_Mouse_Click_Handler (Object  : in out Base_Type;
+                                     Handler : in     Mouse_Event);
+   procedure Fire_On_Mouse_Click (Object : in out Base_Type;
+                                  Event  : in     Mouse_Event_Record);
+   --  Handle mouse click events, but also return mouse event data
+
+   procedure On_Context_Menu_Handler (Object  : in out Base_Type;
+                                      Handler : in     Action_Event);
+   procedure Fire_On_Context_Menu (Object : in out Base_Type);
+   --  Handle right mouse button click events
+
+   procedure On_Mouse_Right_Click_Handler (Object  : in out Base_Type;
+                                           Handler : in     Mouse_Event);
+   procedure Fire_On_Mouse_Right_Click (Object : in out Base_Type;
+                                        Event  : in     Mouse_Event_Record);
+   --  Handle mouse right click event, but also return mouse event data
+
+   procedure On_Double_Click_Handler (Object  : in out Base_Type;
+                                      Handler : in     Action_Event);
+   procedure Fire_On_Double_Click (Object : in out Base_Type);
+   --  Handle mouse double click events
+
+   procedure On_Mouse_Double_Click_Handler (Object  : in out Base_Type;
+                                            Handler : in     Mouse_Event);
+   procedure Fire_On_Mouse_Double_Click (Object : in out Base_Type;
+                                         Event  : in     Mouse_Event_Record);
+   --  Handle mouse double click events, but also return mouse event data
+
+   procedure On_Mouse_Enter_Handler (Object  : in out Base_Type;
+                                     Handler : in     Action_Event);
+   procedure Fire_On_Mouse_Enter (Object : in out Base_Type);
+   --  Handle mouse enter to object events
+
+   procedure On_Mouse_Leave_Handler (Object  : in out Base_Type;
+                                     Handler : in     Action_Event);
+   procedure Fire_On_Mouse_Leave (Object : in out Base_Type);
+   --  Handle mouse leave object events
+
+   procedure On_Mouse_Over_Handler (Object  : in out Base_Type;
+                                     Handler : in     Action_Event);
+   procedure Fire_On_Mouse_Over (Object : in out Base_Type);
+   --  Handle mouse enter to object events or it's children events
+
+   procedure On_Mouse_Out_Handler (Object  : in out Base_Type;
+                                   Handler : in     Action_Event);
+   procedure Fire_On_Mouse_Out (Object : in out Base_Type);
+   --  Handle mouse leave object events or it's children events
+
+   procedure On_Mouse_Down_Handler (Object  : in out Base_Type;
+                                    Handler : in     Mouse_Event);
+   procedure Fire_On_Mouse_Down (Object : in out Base_Type;
+                                 Event  : in     Mouse_Event_Record);
+   --  Handle mouse down events
+
+   procedure On_Mouse_Up_Handler (Object  : in out Base_Type;
+                                  Handler : in     Mouse_Event);
+   procedure Fire_On_Mouse_Up (Object : in out Base_Type;
+                               Event  : in     Mouse_Event_Record);
+   --  Handle mouse up events
+
+   procedure On_Mouse_Move_Handler (Object  : in out Base_Type;
+                                    Handler : in     Mouse_Event);
+   procedure Fire_On_Mouse_Move (Object : in out Base_Type;
+                                 Event  : in     Mouse_Event_Record);
+   --  Handle mouse move events
+
+   --  Drag and Drop Events --
+
+   procedure On_Drag_Start_Handler (Object    : in out Base_Type;
+                                    Handler   : in     Action_Event;
+                                    Drag_Text : in     String;
+                                    Drag_Type : in     String := "text/plain");
+   procedure Fire_On_Drag_Start (Object : in out Base_Type);
+   --  When setting the On_Drag_Start_Handler, Drag_Text is set to be the
+   --  text that will be delivered in a Drag_Event to an On_Drop event.
+   --  The Element_Type.Draggable property should also be true for Object.
+
+   procedure On_Drag_Handler (Object  : in out Base_Type;
+                              Handler : in     Action_Event);
+   procedure Fire_On_Drag (Object : in out Base_Type);
+
+   procedure On_Drag_End_Handler (Object  : in out Base_Type;
+                                  Handler : in     Action_Event);
+   procedure Fire_On_Drag_End (Object : in out Base_Type);
+
+   procedure On_Drag_Enter_Handler (Object  : in out Base_Type;
+                                  Handler : in     Action_Event);
+   procedure Fire_On_Drag_Enter (Object : in out Base_Type);
+
+   procedure On_Drag_Leave_Handler (Object  : in out Base_Type;
+                                  Handler : in     Action_Event);
+   procedure Fire_On_Drag_Leave (Object : in out Base_Type);
+
+   procedure On_Drop_Handler (Object    : in out Base_Type;
+                              Handler   : in     Drop_Event;
+                              Drag_Type : in     String := "text/plain");
+   procedure Fire_On_Drop (Object    : in out Base_Type;
+                           X, Y      : in     Integer;
+                           Drag_Text : in     String);
+   --  To become a drop target an element only needs to handle On_Drop
+   --  On_Drag_Enter and On_Drag_Leave can be used to show indication
+   --  of "ready to receive" object.
+
+   --  Keyboard Events --
+
+   procedure On_Character_Handler (Object  : in out Base_Type;
+                                   Handler : in     Character_Event);
+   procedure Fire_On_Character (Object : in out Base_Type;
+                                Key    : in     Character);
+
+   procedure On_Wide_Character_Handler (Object  : in out Base_Type;
+                                        Handler : in     Wide_Character_Event);
+   procedure Fire_On_Wide_Character (Object : in out Base_Type;
+                                     Key    : in     Wide_Character);
+
+   procedure On_Key_Down_Handler (Object  : in out Base_Type;
+                                  Handler : in     Keyboard_Event);
+   procedure Fire_On_Key_Down (Object : in out Base_Type;
+                               Event  : in     Keyboard_Event_Record);
+
+   procedure On_Key_Up_Handler (Object  : in out Base_Type;
+                                Handler : in     Keyboard_Event);
+   procedure Fire_On_Key_Up (Object : in out Base_Type;
+                             Event  : in     Keyboard_Event_Record);
+
+   procedure On_Key_Press_Handler (Object  : in out Base_Type;
+                                   Handler : in     Keyboard_Event);
+   procedure Fire_On_Key_Press (Object : in out Base_Type;
+                                Event  : in     Keyboard_Event_Record);
+
+   --  Clipboard Events  --
+
+   procedure On_Copy_Handler (Object  : in out Base_Type;
+                              Handler : in     Action_Event);
+   procedure Fire_On_Copy (Object : in out Base_Type);
+
+   procedure On_Cut_Handler (Object  : in out Base_Type;
+                             Handler : in     Action_Event);
+   procedure Fire_On_Cut (Object : in out Base_Type);
+
+   procedure On_Paste_Handler (Object  : in out Base_Type;
+                               Handler : in     Action_Event);
+   procedure Fire_On_Paste (Object : in out Base_Type);
+
+   --  Generic Events --
+
+   procedure On_Create_Handler (Object  : in out Base_Type;
+                                Handler : in     Action_Event);
+   procedure Fire_On_Create (Object : in out Base_Type);
+   --  Called on creation of a new Gnoga object after attached to message
+   --  queue.
+
+   procedure On_Destroy_Handler (Object  : in out Base_Type;
+                                 Handler : in     Action_Event);
+   procedure Fire_On_Destroy (Object : in out Base_Type);
    --  Called before detaching Gnoga object from message queue during
    --  finalization of Object. As it is possible the connection has been
    --  broken, and the reason for the event, it is imperative to check if the
@@ -655,17 +655,17 @@ package Ada_GUI.Gnoga.Gui is
    procedure Fire_On_Child_Added (Object : in out Base_Type;
                                   Child  : in out Base_Type'Class);
 
---     procedure On_Child_Removed_Handler (Object  : in out Base_Type;
---                                         Handler : in     Child_Changed_Event);
---     procedure Fire_On_Child_Removed (Object : in out Base_Type;
---                                      Child  : in out Base_Type'Class);
---
---     procedure On_Message_Handler (Object  : in out Base_Type;
---                                   Handler : in     Message_Event);
---     procedure Fire_On_Message (Object   : in out Base_Type;
---                                Event    : in     String;
---                                Message  : in     String;
---                                Continue : out    Boolean);
+   procedure On_Child_Removed_Handler (Object  : in out Base_Type;
+                                       Handler : in     Child_Changed_Event);
+   procedure Fire_On_Child_Removed (Object : in out Base_Type;
+                                    Child  : in out Base_Type'Class);
+
+   procedure On_Message_Handler (Object  : in out Base_Type;
+                                 Handler : in     Message_Event);
+   procedure Fire_On_Message (Object   : in out Base_Type;
+                              Event    : in     String;
+                              Message  : in     String;
+                              Continue : out    Boolean);
    --  Generic message event handler, if set is called before every event.
    --  If Continue is set to false, no more event processing will occur.
 
@@ -679,18 +679,18 @@ package Ada_GUI.Gnoga.Gui is
    --  Event Methods are always bound on creation of Gnoga object or do not
    --  require event binding.
 
---     procedure On_Create (Object : in out Base_Type);
---     --  Called on creation of a new Gnoga object after attached to message
---     --  queue.
---
---     procedure On_Destroy (Object : in out Base_Type);
---     --  Called before detaching Gnoga object from message queue during
---     --  finalization of Object.
---
---     procedure On_Child_Removed (Object : in out Base_Type;
---                                 Child  : in out Base_Type'Class);
---     --  Called when a Child's Parent changed and was claiming Object as its
---     --  parent.
+   procedure On_Create (Object : in out Base_Type);
+   --  Called on creation of a new Gnoga object after attached to message
+   --  queue.
+
+   procedure On_Destroy (Object : in out Base_Type);
+   --  Called before detaching Gnoga object from message queue during
+   --  finalization of Object.
+
+   procedure On_Child_Removed (Object : in out Base_Type;
+                               Child  : in out Base_Type'Class);
+   --  Called when a Child's Parent changed and was claiming Object as its
+   --  parent.
 
    procedure On_Resize (Object : in out Base_Type);
    --  Called by all sizing methods to inform Object it has changed size.
@@ -699,9 +699,9 @@ package Ada_GUI.Gnoga.Gui is
                              Child  : in out Base_Type'Class);
    --  Called when a Child is created claiming Object as its parent.
 
---     procedure On_Message (Object  : in out Base_Type;
---                           Event   : in     String;
---                           Message : in     String);
+   procedure On_Message (Object  : in out Base_Type;
+                         Event   : in     String;
+                         Message : in     String);
    --  Called on receiving any message or event from browser.
 private
    type Base_Type is new Ada.Finalization.Limited_Controlled with record
@@ -715,62 +715,60 @@ private
 
          --  Object Events
       On_Resize_Event             : Action_Event         := null;
---           On_Scroll_Event             : Action_Event         := null;
---
---           --  Form Events
---           On_Focus_Event              : Action_Event         := null;
---           On_Blur_Event               : Action_Event         := null;
---           On_Change_Event             : Action_Event         := null;
---           On_Focus_In_Event           : Action_Event         := null;
---           On_Focus_Out_Event          : Action_Event         := null;
---           On_Input_Event              : Action_Event         := null;
---           On_Reset_Event              : Action_Event         := null;
---           On_Search_Event             : Action_Event         := null;
---           On_Select_Event             : Action_Event         := null;
---           On_Submit_Event             : Action_Event         := null;
---
---           --  Mouse Events
---           On_Click_Event              : Action_Event         := null;
---           On_Mouse_Click_Event        : Mouse_Event          := null;
---           On_Mouse_Right_Click_Event  : Mouse_Event          := null;
---           On_Context_Menu_Event       : Action_Event         := null;
---           On_Double_Click_Event       : Action_Event         := null;
---           On_Mouse_Double_Click_Event : Mouse_Event          := null;
---           On_Mouse_Enter_Event        : Action_Event         := null;
---           On_Mouse_Leave_Event        : Action_Event         := null;
---           On_Mouse_Over_Event         : Action_Event         := null;
---           On_Mouse_Out_Event          : Action_Event         := null;
---           On_Mouse_Down_Event         : Mouse_Event          := null;
---           On_Mouse_Up_Event           : Mouse_Event          := null;
---           On_Mouse_Move_Event         : Mouse_Event          := null;
---
---           --  Drag and Drop Events
---           On_Drag_Start_Event         : Action_Event         := null;
---           On_Drag_Event               : Action_Event         := null;
---           On_Drag_End_Event           : Action_Event         := null;
---           On_Drag_Enter_Event         : Action_Event         := null;
---           On_Drag_Leave_Event         : Action_Event         := null;
---           On_Drop_Event               : Drop_Event           := null;
---
---           --  Keyboard Events
---           On_Character_Event          : Character_Event      := null;
---           On_Wide_Character_Event     : Wide_Character_Event := null;
---           On_Key_Down_Event           : Keyboard_Event       := null;
---           On_Key_Up_Event             : Keyboard_Event       := null;
---           On_Key_Press_Event          : Keyboard_Event       := null;
---
---           --  Clipboard Events
---           On_Copy_Event               : Action_Event         := null;
---           On_Cut_Event                : Action_Event         := null;
---           On_Paste_Event              : Action_Event         := null;
---
---           --  Generic Events
---           On_Create_Event             : Action_Event         := null;
---           On_Destroy_Event            : Action_Event         := null;
-      On_Child_Added_Event        : Child_Changed_Event  := null;
---           On_Child_Removed_Event      : Child_Changed_Event  := null;
---           On_Message_Event            : Message_Event        := null;
-   end record;
+      On_Scroll_Event             : Action_Event         := null;
 
-   procedure Resize_Message (Object : in out Base_Type);
+         --  Form Events
+      On_Focus_Event              : Action_Event         := null;
+      On_Blur_Event               : Action_Event         := null;
+      On_Change_Event             : Action_Event         := null;
+      On_Focus_In_Event           : Action_Event         := null;
+      On_Focus_Out_Event          : Action_Event         := null;
+      On_Input_Event              : Action_Event         := null;
+      On_Reset_Event              : Action_Event         := null;
+      On_Search_Event             : Action_Event         := null;
+      On_Select_Event             : Action_Event         := null;
+      On_Submit_Event             : Action_Event         := null;
+
+         --  Mouse Events
+      On_Click_Event              : Action_Event         := null;
+      On_Mouse_Click_Event        : Mouse_Event          := null;
+      On_Mouse_Right_Click_Event  : Mouse_Event          := null;
+      On_Context_Menu_Event       : Action_Event         := null;
+      On_Double_Click_Event       : Action_Event         := null;
+      On_Mouse_Double_Click_Event : Mouse_Event          := null;
+      On_Mouse_Enter_Event        : Action_Event         := null;
+      On_Mouse_Leave_Event        : Action_Event         := null;
+      On_Mouse_Over_Event         : Action_Event         := null;
+      On_Mouse_Out_Event          : Action_Event         := null;
+      On_Mouse_Down_Event         : Mouse_Event          := null;
+      On_Mouse_Up_Event           : Mouse_Event          := null;
+      On_Mouse_Move_Event         : Mouse_Event          := null;
+
+         --  Drag and Drop Events
+      On_Drag_Start_Event         : Action_Event         := null;
+      On_Drag_Event               : Action_Event         := null;
+      On_Drag_End_Event           : Action_Event         := null;
+      On_Drag_Enter_Event         : Action_Event         := null;
+      On_Drag_Leave_Event         : Action_Event         := null;
+      On_Drop_Event               : Drop_Event           := null;
+
+         --  Keyboard Events
+      On_Character_Event          : Character_Event      := null;
+      On_Wide_Character_Event     : Wide_Character_Event := null;
+      On_Key_Down_Event           : Keyboard_Event       := null;
+      On_Key_Up_Event             : Keyboard_Event       := null;
+      On_Key_Press_Event          : Keyboard_Event       := null;
+
+         --  Clipboard Events
+      On_Copy_Event               : Action_Event         := null;
+      On_Cut_Event                : Action_Event         := null;
+      On_Paste_Event              : Action_Event         := null;
+
+         --  Generic Events
+      On_Create_Event             : Action_Event         := null;
+      On_Destroy_Event            : Action_Event         := null;
+      On_Child_Added_Event        : Child_Changed_Event  := null;
+      On_Child_Removed_Event      : Child_Changed_Event  := null;
+      On_Message_Event            : Message_Event        := null;
+   end record;
 end Ada_GUI.Gnoga.Gui;

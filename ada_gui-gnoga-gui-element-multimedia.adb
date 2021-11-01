@@ -202,681 +202,681 @@ package body Ada_GUI.Gnoga.Gui.Element.Multimedia is
    -- On_Media_Abort --
    --------------------
 
---     procedure On_Media_Abort_Handler
---       (Media   : in out Multimedia_Type;
---        Handler : in     Gnoga.Gui.Action_Event)
---     is
---     begin
---        if Media.On_Media_Abort_Event /= null then
---           Media.Unbind_Event ("abort");
---        end if;
---
---        Media.On_Media_Abort_Event := Handler;
---
---        if Handler /= null then
---           Media.Bind_Event (Event   => "abort",
---                             Message => "");
---        end if;
---     end On_Media_Abort_Handler;
---
---     procedure Fire_On_Media_Abort (Media : in out Multimedia_Type)
---     is
---     begin
---        if Media.On_Media_Abort_Event /= null then
---           Media.On_Media_Abort_Event (Media);
---        end if;
---     end Fire_On_Media_Abort;
---
---     --------------------
---     -- On_Media_Error --
---     --------------------
---
---     procedure On_Media_Error_Handler
---       (Media   : in out Multimedia_Type;
---        Handler : in     Gnoga.Gui.Action_Event)
---     is
---     begin
---        if Media.On_Media_Error_Event /= null then
---           Media.Unbind_Event ("error");
---        end if;
---
---        Media.On_Media_Error_Event := Handler;
---
---        if Handler /= null then
---           Media.Bind_Event (Event   => "error",
---                             Message => "");
---        end if;
---     end On_Media_Error_Handler;
---
---     procedure Fire_On_Media_Error (Media : in out Multimedia_Type) is
---     begin
---        if Media.On_Media_Error_Event /= null then
---           Media.On_Media_Error_Event (Media);
---        end if;
---     end Fire_On_Media_Error;
---
---     -----------------
---     -- On_Can_Play --
---     -----------------
---
---     procedure On_Can_Play_Handler
---       (Media   : in out Multimedia_Type;
---        Handler : in     Gnoga.Gui.Action_Event)
---     is
---     begin
---        if Media.On_Can_Play_Event /= null then
---           Media.Unbind_Event ("canplay");
---        end if;
---
---        Media.On_Can_Play_Event := Handler;
---
---        if Handler /= null then
---           Media.Bind_Event (Event   => "canplay",
---                             Message => "");
---        end if;
---     end On_Can_Play_Handler;
---
---     procedure Fire_On_Can_Play (Media : in out Multimedia_Type) is
---     begin
---        if Media.On_Can_Play_Event /= null then
---           Media.On_Can_Play_Event (Media);
---        end if;
---     end Fire_On_Can_Play;
---
---     -------------------------
---     -- On_Can_Play_Through --
---     -------------------------
---
---     procedure On_Can_Play_Through_Handler
---       (Media   : in out Multimedia_Type;
---        Handler : in     Gnoga.Gui.Action_Event)
---     is
---     begin
---        if Media.On_Can_Play_Through_Event /= null then
---           Media.Unbind_Event ("canplaythrough");
---        end if;
---
---        Media.On_Can_Play_Through_Event := Handler;
---
---        if Handler /= null then
---           Media.Bind_Event (Event   => "canplaythrough",
---                             Message => "");
---        end if;
---     end On_Can_Play_Through_Handler;
---
---     procedure Fire_On_Can_Play_Through (Media : in out Multimedia_Type) is
---     begin
---        if Media.On_Can_Play_Through_Event /= null then
---           Media.On_Can_Play_Through_Event (Media);
---        end if;
---     end Fire_On_Can_Play_Through;
---
---     --------------------------------
---     -- On_Duration_Change_Handler --
---     --------------------------------
---
---     procedure On_Duration_Change_Handler
---       (Media   : in out Multimedia_Type;
---        Handler : in     Gnoga.Gui.Action_Event)
---     is
---     begin
---        if Media.On_Duration_Change_Event /= null then
---           Media.Unbind_Event ("durationchange");
---        end if;
---
---        Media.On_Duration_Change_Event := Handler;
---
---        if Handler /= null then
---           Media.Bind_Event (Event   => "durationchange",
---                             Message => "");
---        end if;
---     end On_Duration_Change_Handler;
---
---     procedure Fire_On_Duration_Change (Media : in out Multimedia_Type) is
---     begin
---        if Media.On_Duration_Change_Event /= null then
---           Media.On_Duration_Change_Event (Media);
---        end if;
---     end Fire_On_Duration_Change;
---
---     ------------------------
---     -- On_Emptied_Handler --
---     ------------------------
---
---     procedure On_Emptied_Handler
---       (Media   : in out Multimedia_Type;
---        Handler : in     Gnoga.Gui.Action_Event)
---     is
---     begin
---        if Media.On_Emptied_Event /= null then
---           Media.Unbind_Event ("emptied");
---        end if;
---
---        Media.On_Emptied_Event := Handler;
---
---        if Handler /= null then
---           Media.Bind_Event (Event   => "emptied",
---                             Message => "");
---        end if;
---     end On_Emptied_Handler;
---
---     procedure Fire_On_Emptied (Media : in out Multimedia_Type) is
---     begin
---        if Media.On_Emptied_Event /= null then
---           Media.On_Emptied_Event (Media);
---        end if;
---     end Fire_On_Emptied;
---
---     ------------------------
---     -- On_Ended_Handler --
---     ------------------------
---
---     procedure On_Ended_Handler
---       (Media   : in out Multimedia_Type;
---        Handler : in     Gnoga.Gui.Action_Event)
---     is
---     begin
---        if Media.On_Ended_Event /= null then
---           Media.Unbind_Event ("ended");
---        end if;
---
---        Media.On_Ended_Event := Handler;
---
---        if Handler /= null then
---           Media.Bind_Event (Event   => "ended",
---                             Message => "");
---        end if;
---     end On_Ended_Handler;
---
---     procedure Fire_On_Ended (Media : in out Multimedia_Type) is
---     begin
---        if Media.On_Ended_Event /= null then
---           Media.On_Ended_Event (Media);
---        end if;
---     end Fire_On_Ended;
---
---     ----------------------------
---     -- On_Loaded_Data_Handler --
---     ----------------------------
---
---     procedure On_Loaded_Data_Handler
---       (Media   : in out Multimedia_Type;
---        Handler : in     Gnoga.Gui.Action_Event)
---     is
---     begin
---        if Media.On_Loaded_Data_Event /= null then
---           Media.Unbind_Event ("loadeddata");
---        end if;
---
---        Media.On_Loaded_Data_Event := Handler;
---
---        if Handler /= null then
---           Media.Bind_Event (Event   => "loadeddata",
---                             Message => "");
---        end if;
---     end On_Loaded_Data_Handler;
---
---     procedure Fire_On_Loaded_Data (Media : in out Multimedia_Type) is
---     begin
---        if Media.On_Loaded_Data_Event /= null then
---           Media.On_Loaded_Data_Event (Media);
---        end if;
---     end Fire_On_Loaded_Data;
---
---     ---------------------------------
---     -- On_Loaded_Meta_Data_Handler --
---     ---------------------------------
---
---     procedure On_Loaded_Meta_Data_Handler
---       (Media   : in out Multimedia_Type;
---        Handler : in     Gnoga.Gui.Action_Event)
---     is
---     begin
---        if Media.On_Loaded_Meta_Data_Event /= null then
---           Media.Unbind_Event ("loadedmetadata");
---        end if;
---
---        Media.On_Loaded_Meta_Data_Event := Handler;
---
---        if Handler /= null then
---           Media.Bind_Event (Event   => "loadedmetadata",
---                             Message => "");
---        end if;
---     end On_Loaded_Meta_Data_Handler;
---
---     procedure Fire_On_Loaded_Meta_Data (Media : in out Multimedia_Type) is
---     begin
---        if Media.On_Loaded_Meta_Data_Event /= null then
---           Media.On_Loaded_Meta_Data_Event (Media);
---        end if;
---     end Fire_On_Loaded_Meta_Data;
---
---     ---------------------------
---     -- On_Load_Start_Handler --
---     ---------------------------
---
---     procedure On_Load_Start_Handler
---       (Media   : in out Multimedia_Type;
---        Handler : in     Gnoga.Gui.Action_Event)
---     is
---     begin
---        if Media.On_Load_Start_Event /= null then
---           Media.Unbind_Event ("loadstart");
---        end if;
---
---        Media.On_Load_Start_Event := Handler;
---
---        if Handler /= null then
---           Media.Bind_Event (Event   => "loadstart",
---                             Message => "");
---        end if;
---     end On_Load_Start_Handler;
---
---     procedure Fire_On_Load_Start (Media : in out Multimedia_Type) is
---     begin
---        if Media.On_Load_Start_Event /= null then
---           Media.On_Load_Start_Event (Media);
---        end if;
---     end Fire_On_Load_Start;
---
---     ---------------------
---     -- On_Play_Handler --
---     ---------------------
---
---     procedure On_Play_Handler
---       (Media   : in out Multimedia_Type;
---        Handler : in     Gnoga.Gui.Action_Event)
---     is
---     begin
---        if Media.On_Play_Event /= null then
---           Media.Unbind_Event ("play");
---        end if;
---
---        Media.On_Play_Event := Handler;
---
---        if Handler /= null then
---           Media.Bind_Event (Event   => "play",
---                             Message => "");
---        end if;
---     end On_Play_Handler;
---
---     procedure Fire_On_Play (Media : in out Multimedia_Type) is
---     begin
---        if Media.On_Play_Event /= null then
---           Media.On_Play_Event (Media);
---        end if;
---     end Fire_On_Play;
---
---     ------------------------
---     -- On_Pause_Handler --
---     ------------------------
---
---     procedure On_Pause_Handler
---       (Media   : in out Multimedia_Type;
---        Handler : in     Gnoga.Gui.Action_Event)
---     is
---     begin
---        if Media.On_Pause_Event /= null then
---           Media.Unbind_Event ("pause");
---        end if;
---
---        Media.On_Pause_Event := Handler;
---
---        if Handler /= null then
---           Media.Bind_Event (Event   => "pause",
---                             Message => "");
---        end if;
---     end On_Pause_Handler;
---
---     procedure Fire_On_Pause (Media : in out Multimedia_Type) is
---     begin
---        if Media.On_Pause_Event /= null then
---           Media.On_Pause_Event (Media);
---        end if;
---     end Fire_On_Pause;
---
---     ------------------------
---     -- On_Playing_Handler --
---     ------------------------
---
---     procedure On_Playing_Handler
---       (Media   : in out Multimedia_Type;
---        Handler : in     Gnoga.Gui.Action_Event)
---     is
---     begin
---        if Media.On_Playing_Event /= null then
---           Media.Unbind_Event ("playing");
---        end if;
---
---        Media.On_Playing_Event := Handler;
---
---        if Handler /= null then
---           Media.Bind_Event (Event   => "playing",
---                             Message => "");
---        end if;
---     end On_Playing_Handler;
---
---     procedure Fire_On_Playing (Media : in out Multimedia_Type) is
---     begin
---        if Media.On_Playing_Event /= null then
---           Media.On_Playing_Event (Media);
---        end if;
---     end Fire_On_Playing;
---
---     ------------------------
---     -- On_Progress_Handler --
---     ------------------------
---
---     procedure On_Progress_Handler
---       (Media   : in out Multimedia_Type;
---        Handler : in     Gnoga.Gui.Action_Event)
---     is
---     begin
---        if Media.On_Progress_Event /= null then
---           Media.Unbind_Event ("progress");
---        end if;
---
---        Media.On_Progress_Event := Handler;
---
---        if Handler /= null then
---           Media.Bind_Event (Event   => "progress",
---                             Message => "");
---        end if;
---     end On_Progress_Handler;
---
---     procedure Fire_On_Progress (Media : in out Multimedia_Type) is
---     begin
---        if Media.On_Progress_Event /= null then
---           Media.On_Progress_Event (Media);
---        end if;
---     end Fire_On_Progress;
---
---     ----------------------------
---     -- On_Rate_Change_Handler --
---     ----------------------------
---
---     procedure On_Rate_Change_Handler
---       (Media   : in out Multimedia_Type;
---        Handler : in     Gnoga.Gui.Action_Event)
---     is
---     begin
---        if Media.On_Rate_Change_Event /= null then
---           Media.Unbind_Event ("ratechange");
---        end if;
---
---        Media.On_Rate_Change_Event := Handler;
---
---        if Handler /= null then
---           Media.Bind_Event (Event   => "ratechange",
---                             Message => "");
---        end if;
---     end On_Rate_Change_Handler;
---
---     procedure Fire_On_Rate_Change (Media : in out Multimedia_Type) is
---     begin
---        if Media.On_Rate_Change_Event /= null then
---           Media.On_Rate_Change_Event (Media);
---        end if;
---     end Fire_On_Rate_Change;
---
---     ------------------------
---     -- On_Seeked_Handler --
---     ------------------------
---
---     procedure On_Seeked_Handler
---       (Media   : in out Multimedia_Type;
---        Handler : in     Gnoga.Gui.Action_Event)
---     is
---     begin
---        if Media.On_Seeked_Event /= null then
---           Media.Unbind_Event ("seeked");
---        end if;
---
---        Media.On_Seeked_Event := Handler;
---
---        if Handler /= null then
---           Media.Bind_Event (Event   => "seeked",
---                             Message => "");
---        end if;
---     end On_Seeked_Handler;
---
---     procedure Fire_On_Seeked (Media : in out Multimedia_Type) is
---     begin
---        if Media.On_Seeked_Event /= null then
---           Media.On_Seeked_Event (Media);
---        end if;
---     end Fire_On_Seeked;
---
---     ------------------------
---     -- On_Seeking_Handler --
---     ------------------------
---
---     procedure On_Seeking_Handler
---       (Media   : in out Multimedia_Type;
---        Handler : in     Gnoga.Gui.Action_Event)
---     is
---     begin
---        if Media.On_Seeking_Event /= null then
---           Media.Unbind_Event ("seeking");
---        end if;
---
---        Media.On_Seeking_Event := Handler;
---
---        if Handler /= null then
---           Media.Bind_Event (Event   => "seeking",
---                             Message => "");
---        end if;
---     end On_Seeking_Handler;
---
---     procedure Fire_On_Seeking (Media : in out Multimedia_Type) is
---     begin
---        if Media.On_Seeking_Event /= null then
---           Media.On_Seeking_Event (Media);
---        end if;
---     end Fire_On_Seeking;
---
---     ------------------------
---     -- On_Stalled_Handler --
---     ------------------------
---
---     procedure On_Stalled_Handler
---       (Media   : in out Multimedia_Type;
---        Handler : in     Gnoga.Gui.Action_Event)
---     is
---     begin
---        if Media.On_Stalled_Event /= null then
---           Media.Unbind_Event ("stalled");
---        end if;
---
---        Media.On_Stalled_Event := Handler;
---
---        if Handler /= null then
---           Media.Bind_Event (Event   => "stalled",
---                             Message => "");
---        end if;
---     end On_Stalled_Handler;
---
---     procedure Fire_On_Stalled (Media : in out Multimedia_Type) is
---     begin
---        if Media.On_Stalled_Event /= null then
---           Media.On_Stalled_Event (Media);
---        end if;
---     end Fire_On_Stalled;
---
---     ------------------------
---     -- On_Suspend_Handler --
---     ------------------------
---
---     procedure On_Suspend_Handler
---       (Media   : in out Multimedia_Type;
---        Handler : in     Gnoga.Gui.Action_Event)
---     is
---     begin
---        if Media.On_Suspend_Event /= null then
---           Media.Unbind_Event ("suspend");
---        end if;
---
---        Media.On_Suspend_Event := Handler;
---
---        if Handler /= null then
---           Media.Bind_Event (Event   => "suspend",
---                             Message => "");
---        end if;
---     end On_Suspend_Handler;
---
---     procedure Fire_On_Suspend (Media : in out Multimedia_Type) is
---     begin
---        if Media.On_Suspend_Event /= null then
---           Media.On_Suspend_Event (Media);
---        end if;
---     end Fire_On_Suspend;
---
---     ------------------------
---     -- On_Time_Update_Handler --
---     ------------------------
---
---     procedure On_Time_Update_Handler
---       (Media   : in out Multimedia_Type;
---        Handler : in     Gnoga.Gui.Action_Event)
---     is
---     begin
---        if Media.On_Time_Update_Event /= null then
---           Media.Unbind_Event ("timeupdate");
---        end if;
---
---        Media.On_Time_Update_Event := Handler;
---
---        if Handler /= null then
---           Media.Bind_Event (Event   => "timeupdate",
---                             Message => "");
---        end if;
---     end On_Time_Update_Handler;
---
---     procedure Fire_On_Time_Update (Media : in out Multimedia_Type) is
---     begin
---        if Media.On_Time_Update_Event /= null then
---           Media.On_Time_Update_Event (Media);
---        end if;
---     end Fire_On_Time_Update;
---
---     ------------------------------
---     -- On_Volume_Change_Handler --
---     ------------------------------
---
---     procedure On_Volume_Change_Handler
---       (Media   : in out Multimedia_Type;
---        Handler : in     Gnoga.Gui.Action_Event)
---     is
---     begin
---        if Media.On_Volume_Change_Event /= null then
---           Media.Unbind_Event ("volumechange");
---        end if;
---
---        Media.On_Volume_Change_Event := Handler;
---
---        if Handler /= null then
---           Media.Bind_Event (Event   => "volumechange",
---                             Message => "");
---        end if;
---     end On_Volume_Change_Handler;
---
---     procedure Fire_On_Volume_Change (Media : in out Multimedia_Type) is
---     begin
---        if Media.On_Volume_Change_Event /= null then
---           Media.On_Volume_Change_Event (Media);
---        end if;
---     end Fire_On_Volume_Change;
---
---     ------------------------
---     -- On_Waiting_Handler --
---     ------------------------
---
---     procedure On_Waiting_Handler
---       (Media   : in out Multimedia_Type;
---        Handler : in     Gnoga.Gui.Action_Event)
---     is
---     begin
---        if Media.On_Waiting_Event /= null then
---           Media.Unbind_Event ("waiting");
---        end if;
---
---        Media.On_Waiting_Event := Handler;
---
---        if Handler /= null then
---           Media.Bind_Event (Event   => "waiting",
---                             Message => "");
---        end if;
---     end On_Waiting_Handler;
---
---     procedure Fire_On_Waiting (Media : in out Multimedia_Type) is
---     begin
---        if Media.On_Waiting_Event /= null then
---           Media.On_Waiting_Event (Media);
---        end if;
---     end Fire_On_Waiting;
---
---     ----------------
---     -- On_Message --
---     ----------------
---
---     overriding
---     procedure On_Message (Object  : in out Multimedia_Type;
---                           Event   : in     String;
---                           Message : in     String)
---     is
---     begin
---        if Event = "abort" then
---           Object.Fire_On_Media_Abort;
---        elsif Event = "error" then
---           Object.Fire_On_Media_Error;
---        elsif Event = "canplay" then
---           Object.Fire_On_Can_Play;
---        elsif Event = "canplaythrough" then
---           Object.Fire_On_Can_Play_Through;
---        elsif Event = "canplay" then
---           Object.Fire_On_Can_Play;
---        elsif Event = "durationchange" then
---           Object.Fire_On_Duration_Change;
---        elsif Event = "emptied" then
---           Object.Fire_On_Emptied;
---        elsif Event = "ended" then
---           Object.Fire_On_Ended;
---        elsif Event = "error" then
---           Object.Fire_On_Media_Error;
---        elsif Event = "loadeddata" then
---           Object.Fire_On_Loaded_Data;
---        elsif Event = "loadedmetadata" then
---           Object.Fire_On_Loaded_Meta_Data;
---        elsif Event = "loadstart" then
---           Object.Fire_On_Load_Start;
---        elsif Event = "pause" then
---           Object.Fire_On_Pause;
---        elsif Event = "play" then
---           Object.Fire_On_Play;
---        elsif Event = "playing" then
---           Object.Fire_On_Playing;
---        elsif Event = "progress" then
---           Object.Fire_On_Progress;
---        elsif Event = "ratechange" then
---           Object.Fire_On_Rate_Change;
---        elsif Event = "seeked" then
---           Object.Fire_On_Seeked;
---        elsif Event = "seeking" then
---           Object.Fire_On_Seeking;
---        elsif Event = "stalled" then
---           Object.Fire_On_Stalled;
---        elsif Event = "suspend" then
---           Object.Fire_On_Suspend;
---        elsif Event = "timeupdate" then
---           Object.Fire_On_Time_Update;
---        elsif Event = "volumechange" then
---           Object.Fire_On_Volume_Change;
---        elsif Event = "waiting" then
---           Object.Fire_On_Waiting;
---        else
---           Gnoga.Gui.Base_Type (Object).On_Message (Event, Message);
---        end if;
---     end On_Message;
+   procedure On_Media_Abort_Handler
+     (Media   : in out Multimedia_Type;
+      Handler : in     Gnoga.Gui.Action_Event)
+   is
+   begin
+      if Media.On_Media_Abort_Event /= null then
+         Media.Unbind_Event ("abort");
+      end if;
+
+      Media.On_Media_Abort_Event := Handler;
+
+      if Handler /= null then
+         Media.Bind_Event (Event   => "abort",
+                           Message => "");
+      end if;
+   end On_Media_Abort_Handler;
+
+   procedure Fire_On_Media_Abort (Media : in out Multimedia_Type)
+   is
+   begin
+      if Media.On_Media_Abort_Event /= null then
+         Media.On_Media_Abort_Event (Media);
+      end if;
+   end Fire_On_Media_Abort;
+
+   --------------------
+   -- On_Media_Error --
+   --------------------
+
+   procedure On_Media_Error_Handler
+     (Media   : in out Multimedia_Type;
+      Handler : in     Gnoga.Gui.Action_Event)
+   is
+   begin
+      if Media.On_Media_Error_Event /= null then
+         Media.Unbind_Event ("error");
+      end if;
+
+      Media.On_Media_Error_Event := Handler;
+
+      if Handler /= null then
+         Media.Bind_Event (Event   => "error",
+                           Message => "");
+      end if;
+   end On_Media_Error_Handler;
+
+   procedure Fire_On_Media_Error (Media : in out Multimedia_Type) is
+   begin
+      if Media.On_Media_Error_Event /= null then
+         Media.On_Media_Error_Event (Media);
+      end if;
+   end Fire_On_Media_Error;
+
+   -----------------
+   -- On_Can_Play --
+   -----------------
+
+   procedure On_Can_Play_Handler
+     (Media   : in out Multimedia_Type;
+      Handler : in     Gnoga.Gui.Action_Event)
+   is
+   begin
+      if Media.On_Can_Play_Event /= null then
+         Media.Unbind_Event ("canplay");
+      end if;
+
+      Media.On_Can_Play_Event := Handler;
+
+      if Handler /= null then
+         Media.Bind_Event (Event   => "canplay",
+                           Message => "");
+      end if;
+   end On_Can_Play_Handler;
+
+   procedure Fire_On_Can_Play (Media : in out Multimedia_Type) is
+   begin
+      if Media.On_Can_Play_Event /= null then
+         Media.On_Can_Play_Event (Media);
+      end if;
+   end Fire_On_Can_Play;
+
+   -------------------------
+   -- On_Can_Play_Through --
+   -------------------------
+
+   procedure On_Can_Play_Through_Handler
+     (Media   : in out Multimedia_Type;
+      Handler : in     Gnoga.Gui.Action_Event)
+   is
+   begin
+      if Media.On_Can_Play_Through_Event /= null then
+         Media.Unbind_Event ("canplaythrough");
+      end if;
+
+      Media.On_Can_Play_Through_Event := Handler;
+
+      if Handler /= null then
+         Media.Bind_Event (Event   => "canplaythrough",
+                           Message => "");
+      end if;
+   end On_Can_Play_Through_Handler;
+
+   procedure Fire_On_Can_Play_Through (Media : in out Multimedia_Type) is
+   begin
+      if Media.On_Can_Play_Through_Event /= null then
+         Media.On_Can_Play_Through_Event (Media);
+      end if;
+   end Fire_On_Can_Play_Through;
+
+   --------------------------------
+   -- On_Duration_Change_Handler --
+   --------------------------------
+
+   procedure On_Duration_Change_Handler
+     (Media   : in out Multimedia_Type;
+      Handler : in     Gnoga.Gui.Action_Event)
+   is
+   begin
+      if Media.On_Duration_Change_Event /= null then
+         Media.Unbind_Event ("durationchange");
+      end if;
+
+      Media.On_Duration_Change_Event := Handler;
+
+      if Handler /= null then
+         Media.Bind_Event (Event   => "durationchange",
+                           Message => "");
+      end if;
+   end On_Duration_Change_Handler;
+
+   procedure Fire_On_Duration_Change (Media : in out Multimedia_Type) is
+   begin
+      if Media.On_Duration_Change_Event /= null then
+         Media.On_Duration_Change_Event (Media);
+      end if;
+   end Fire_On_Duration_Change;
+
+   ------------------------
+   -- On_Emptied_Handler --
+   ------------------------
+
+   procedure On_Emptied_Handler
+     (Media   : in out Multimedia_Type;
+      Handler : in     Gnoga.Gui.Action_Event)
+   is
+   begin
+      if Media.On_Emptied_Event /= null then
+         Media.Unbind_Event ("emptied");
+      end if;
+
+      Media.On_Emptied_Event := Handler;
+
+      if Handler /= null then
+         Media.Bind_Event (Event   => "emptied",
+                           Message => "");
+      end if;
+   end On_Emptied_Handler;
+
+   procedure Fire_On_Emptied (Media : in out Multimedia_Type) is
+   begin
+      if Media.On_Emptied_Event /= null then
+         Media.On_Emptied_Event (Media);
+      end if;
+   end Fire_On_Emptied;
+
+   ------------------------
+   -- On_Ended_Handler --
+   ------------------------
+
+   procedure On_Ended_Handler
+     (Media   : in out Multimedia_Type;
+      Handler : in     Gnoga.Gui.Action_Event)
+   is
+   begin
+      if Media.On_Ended_Event /= null then
+         Media.Unbind_Event ("ended");
+      end if;
+
+      Media.On_Ended_Event := Handler;
+
+      if Handler /= null then
+         Media.Bind_Event (Event   => "ended",
+                           Message => "");
+      end if;
+   end On_Ended_Handler;
+
+   procedure Fire_On_Ended (Media : in out Multimedia_Type) is
+   begin
+      if Media.On_Ended_Event /= null then
+         Media.On_Ended_Event (Media);
+      end if;
+   end Fire_On_Ended;
+
+   ----------------------------
+   -- On_Loaded_Data_Handler --
+   ----------------------------
+
+   procedure On_Loaded_Data_Handler
+     (Media   : in out Multimedia_Type;
+      Handler : in     Gnoga.Gui.Action_Event)
+   is
+   begin
+      if Media.On_Loaded_Data_Event /= null then
+         Media.Unbind_Event ("loadeddata");
+      end if;
+
+      Media.On_Loaded_Data_Event := Handler;
+
+      if Handler /= null then
+         Media.Bind_Event (Event   => "loadeddata",
+                           Message => "");
+      end if;
+   end On_Loaded_Data_Handler;
+
+   procedure Fire_On_Loaded_Data (Media : in out Multimedia_Type) is
+   begin
+      if Media.On_Loaded_Data_Event /= null then
+         Media.On_Loaded_Data_Event (Media);
+      end if;
+   end Fire_On_Loaded_Data;
+
+   ---------------------------------
+   -- On_Loaded_Meta_Data_Handler --
+   ---------------------------------
+
+   procedure On_Loaded_Meta_Data_Handler
+     (Media   : in out Multimedia_Type;
+      Handler : in     Gnoga.Gui.Action_Event)
+   is
+   begin
+      if Media.On_Loaded_Meta_Data_Event /= null then
+         Media.Unbind_Event ("loadedmetadata");
+      end if;
+
+      Media.On_Loaded_Meta_Data_Event := Handler;
+
+      if Handler /= null then
+         Media.Bind_Event (Event   => "loadedmetadata",
+                           Message => "");
+      end if;
+   end On_Loaded_Meta_Data_Handler;
+
+   procedure Fire_On_Loaded_Meta_Data (Media : in out Multimedia_Type) is
+   begin
+      if Media.On_Loaded_Meta_Data_Event /= null then
+         Media.On_Loaded_Meta_Data_Event (Media);
+      end if;
+   end Fire_On_Loaded_Meta_Data;
+
+   ---------------------------
+   -- On_Load_Start_Handler --
+   ---------------------------
+
+   procedure On_Load_Start_Handler
+     (Media   : in out Multimedia_Type;
+      Handler : in     Gnoga.Gui.Action_Event)
+   is
+   begin
+      if Media.On_Load_Start_Event /= null then
+         Media.Unbind_Event ("loadstart");
+      end if;
+
+      Media.On_Load_Start_Event := Handler;
+
+      if Handler /= null then
+         Media.Bind_Event (Event   => "loadstart",
+                           Message => "");
+      end if;
+   end On_Load_Start_Handler;
+
+   procedure Fire_On_Load_Start (Media : in out Multimedia_Type) is
+   begin
+      if Media.On_Load_Start_Event /= null then
+         Media.On_Load_Start_Event (Media);
+      end if;
+   end Fire_On_Load_Start;
+
+   ---------------------
+   -- On_Play_Handler --
+   ---------------------
+
+   procedure On_Play_Handler
+     (Media   : in out Multimedia_Type;
+      Handler : in     Gnoga.Gui.Action_Event)
+   is
+   begin
+      if Media.On_Play_Event /= null then
+         Media.Unbind_Event ("play");
+      end if;
+
+      Media.On_Play_Event := Handler;
+
+      if Handler /= null then
+         Media.Bind_Event (Event   => "play",
+                           Message => "");
+      end if;
+   end On_Play_Handler;
+
+   procedure Fire_On_Play (Media : in out Multimedia_Type) is
+   begin
+      if Media.On_Play_Event /= null then
+         Media.On_Play_Event (Media);
+      end if;
+   end Fire_On_Play;
+
+   ------------------------
+   -- On_Pause_Handler --
+   ------------------------
+
+   procedure On_Pause_Handler
+     (Media   : in out Multimedia_Type;
+      Handler : in     Gnoga.Gui.Action_Event)
+   is
+   begin
+      if Media.On_Pause_Event /= null then
+         Media.Unbind_Event ("pause");
+      end if;
+
+      Media.On_Pause_Event := Handler;
+
+      if Handler /= null then
+         Media.Bind_Event (Event   => "pause",
+                           Message => "");
+      end if;
+   end On_Pause_Handler;
+
+   procedure Fire_On_Pause (Media : in out Multimedia_Type) is
+   begin
+      if Media.On_Pause_Event /= null then
+         Media.On_Pause_Event (Media);
+      end if;
+   end Fire_On_Pause;
+
+   ------------------------
+   -- On_Playing_Handler --
+   ------------------------
+
+   procedure On_Playing_Handler
+     (Media   : in out Multimedia_Type;
+      Handler : in     Gnoga.Gui.Action_Event)
+   is
+   begin
+      if Media.On_Playing_Event /= null then
+         Media.Unbind_Event ("playing");
+      end if;
+
+      Media.On_Playing_Event := Handler;
+
+      if Handler /= null then
+         Media.Bind_Event (Event   => "playing",
+                           Message => "");
+      end if;
+   end On_Playing_Handler;
+
+   procedure Fire_On_Playing (Media : in out Multimedia_Type) is
+   begin
+      if Media.On_Playing_Event /= null then
+         Media.On_Playing_Event (Media);
+      end if;
+   end Fire_On_Playing;
+
+   ------------------------
+   -- On_Progress_Handler --
+   ------------------------
+
+   procedure On_Progress_Handler
+     (Media   : in out Multimedia_Type;
+      Handler : in     Gnoga.Gui.Action_Event)
+   is
+   begin
+      if Media.On_Progress_Event /= null then
+         Media.Unbind_Event ("progress");
+      end if;
+
+      Media.On_Progress_Event := Handler;
+
+      if Handler /= null then
+         Media.Bind_Event (Event   => "progress",
+                           Message => "");
+      end if;
+   end On_Progress_Handler;
+
+   procedure Fire_On_Progress (Media : in out Multimedia_Type) is
+   begin
+      if Media.On_Progress_Event /= null then
+         Media.On_Progress_Event (Media);
+      end if;
+   end Fire_On_Progress;
+
+   ----------------------------
+   -- On_Rate_Change_Handler --
+   ----------------------------
+
+   procedure On_Rate_Change_Handler
+     (Media   : in out Multimedia_Type;
+      Handler : in     Gnoga.Gui.Action_Event)
+   is
+   begin
+      if Media.On_Rate_Change_Event /= null then
+         Media.Unbind_Event ("ratechange");
+      end if;
+
+      Media.On_Rate_Change_Event := Handler;
+
+      if Handler /= null then
+         Media.Bind_Event (Event   => "ratechange",
+                           Message => "");
+      end if;
+   end On_Rate_Change_Handler;
+
+   procedure Fire_On_Rate_Change (Media : in out Multimedia_Type) is
+   begin
+      if Media.On_Rate_Change_Event /= null then
+         Media.On_Rate_Change_Event (Media);
+      end if;
+   end Fire_On_Rate_Change;
+
+   ------------------------
+   -- On_Seeked_Handler --
+   ------------------------
+
+   procedure On_Seeked_Handler
+     (Media   : in out Multimedia_Type;
+      Handler : in     Gnoga.Gui.Action_Event)
+   is
+   begin
+      if Media.On_Seeked_Event /= null then
+         Media.Unbind_Event ("seeked");
+      end if;
+
+      Media.On_Seeked_Event := Handler;
+
+      if Handler /= null then
+         Media.Bind_Event (Event   => "seeked",
+                           Message => "");
+      end if;
+   end On_Seeked_Handler;
+
+   procedure Fire_On_Seeked (Media : in out Multimedia_Type) is
+   begin
+      if Media.On_Seeked_Event /= null then
+         Media.On_Seeked_Event (Media);
+      end if;
+   end Fire_On_Seeked;
+
+   ------------------------
+   -- On_Seeking_Handler --
+   ------------------------
+
+   procedure On_Seeking_Handler
+     (Media   : in out Multimedia_Type;
+      Handler : in     Gnoga.Gui.Action_Event)
+   is
+   begin
+      if Media.On_Seeking_Event /= null then
+         Media.Unbind_Event ("seeking");
+      end if;
+
+      Media.On_Seeking_Event := Handler;
+
+      if Handler /= null then
+         Media.Bind_Event (Event   => "seeking",
+                           Message => "");
+      end if;
+   end On_Seeking_Handler;
+
+   procedure Fire_On_Seeking (Media : in out Multimedia_Type) is
+   begin
+      if Media.On_Seeking_Event /= null then
+         Media.On_Seeking_Event (Media);
+      end if;
+   end Fire_On_Seeking;
+
+   ------------------------
+   -- On_Stalled_Handler --
+   ------------------------
+
+   procedure On_Stalled_Handler
+     (Media   : in out Multimedia_Type;
+      Handler : in     Gnoga.Gui.Action_Event)
+   is
+   begin
+      if Media.On_Stalled_Event /= null then
+         Media.Unbind_Event ("stalled");
+      end if;
+
+      Media.On_Stalled_Event := Handler;
+
+      if Handler /= null then
+         Media.Bind_Event (Event   => "stalled",
+                           Message => "");
+      end if;
+   end On_Stalled_Handler;
+
+   procedure Fire_On_Stalled (Media : in out Multimedia_Type) is
+   begin
+      if Media.On_Stalled_Event /= null then
+         Media.On_Stalled_Event (Media);
+      end if;
+   end Fire_On_Stalled;
+
+   ------------------------
+   -- On_Suspend_Handler --
+   ------------------------
+
+   procedure On_Suspend_Handler
+     (Media   : in out Multimedia_Type;
+      Handler : in     Gnoga.Gui.Action_Event)
+   is
+   begin
+      if Media.On_Suspend_Event /= null then
+         Media.Unbind_Event ("suspend");
+      end if;
+
+      Media.On_Suspend_Event := Handler;
+
+      if Handler /= null then
+         Media.Bind_Event (Event   => "suspend",
+                           Message => "");
+      end if;
+   end On_Suspend_Handler;
+
+   procedure Fire_On_Suspend (Media : in out Multimedia_Type) is
+   begin
+      if Media.On_Suspend_Event /= null then
+         Media.On_Suspend_Event (Media);
+      end if;
+   end Fire_On_Suspend;
+
+   ------------------------
+   -- On_Time_Update_Handler --
+   ------------------------
+
+   procedure On_Time_Update_Handler
+     (Media   : in out Multimedia_Type;
+      Handler : in     Gnoga.Gui.Action_Event)
+   is
+   begin
+      if Media.On_Time_Update_Event /= null then
+         Media.Unbind_Event ("timeupdate");
+      end if;
+
+      Media.On_Time_Update_Event := Handler;
+
+      if Handler /= null then
+         Media.Bind_Event (Event   => "timeupdate",
+                           Message => "");
+      end if;
+   end On_Time_Update_Handler;
+
+   procedure Fire_On_Time_Update (Media : in out Multimedia_Type) is
+   begin
+      if Media.On_Time_Update_Event /= null then
+         Media.On_Time_Update_Event (Media);
+      end if;
+   end Fire_On_Time_Update;
+
+   ------------------------------
+   -- On_Volume_Change_Handler --
+   ------------------------------
+
+   procedure On_Volume_Change_Handler
+     (Media   : in out Multimedia_Type;
+      Handler : in     Gnoga.Gui.Action_Event)
+   is
+   begin
+      if Media.On_Volume_Change_Event /= null then
+         Media.Unbind_Event ("volumechange");
+      end if;
+
+      Media.On_Volume_Change_Event := Handler;
+
+      if Handler /= null then
+         Media.Bind_Event (Event   => "volumechange",
+                           Message => "");
+      end if;
+   end On_Volume_Change_Handler;
+
+   procedure Fire_On_Volume_Change (Media : in out Multimedia_Type) is
+   begin
+      if Media.On_Volume_Change_Event /= null then
+         Media.On_Volume_Change_Event (Media);
+      end if;
+   end Fire_On_Volume_Change;
+
+   ------------------------
+   -- On_Waiting_Handler --
+   ------------------------
+
+   procedure On_Waiting_Handler
+     (Media   : in out Multimedia_Type;
+      Handler : in     Gnoga.Gui.Action_Event)
+   is
+   begin
+      if Media.On_Waiting_Event /= null then
+         Media.Unbind_Event ("waiting");
+      end if;
+
+      Media.On_Waiting_Event := Handler;
+
+      if Handler /= null then
+         Media.Bind_Event (Event   => "waiting",
+                           Message => "");
+      end if;
+   end On_Waiting_Handler;
+
+   procedure Fire_On_Waiting (Media : in out Multimedia_Type) is
+   begin
+      if Media.On_Waiting_Event /= null then
+         Media.On_Waiting_Event (Media);
+      end if;
+   end Fire_On_Waiting;
+
+   ----------------
+   -- On_Message --
+   ----------------
+
+   overriding
+   procedure On_Message (Object  : in out Multimedia_Type;
+                         Event   : in     String;
+                         Message : in     String)
+   is
+   begin
+      if Event = "abort" then
+         Object.Fire_On_Media_Abort;
+      elsif Event = "error" then
+         Object.Fire_On_Media_Error;
+      elsif Event = "canplay" then
+         Object.Fire_On_Can_Play;
+      elsif Event = "canplaythrough" then
+         Object.Fire_On_Can_Play_Through;
+      elsif Event = "canplay" then
+         Object.Fire_On_Can_Play;
+      elsif Event = "durationchange" then
+         Object.Fire_On_Duration_Change;
+      elsif Event = "emptied" then
+         Object.Fire_On_Emptied;
+      elsif Event = "ended" then
+         Object.Fire_On_Ended;
+      elsif Event = "error" then
+         Object.Fire_On_Media_Error;
+      elsif Event = "loadeddata" then
+         Object.Fire_On_Loaded_Data;
+      elsif Event = "loadedmetadata" then
+         Object.Fire_On_Loaded_Meta_Data;
+      elsif Event = "loadstart" then
+         Object.Fire_On_Load_Start;
+      elsif Event = "pause" then
+         Object.Fire_On_Pause;
+      elsif Event = "play" then
+         Object.Fire_On_Play;
+      elsif Event = "playing" then
+         Object.Fire_On_Playing;
+      elsif Event = "progress" then
+         Object.Fire_On_Progress;
+      elsif Event = "ratechange" then
+         Object.Fire_On_Rate_Change;
+      elsif Event = "seeked" then
+         Object.Fire_On_Seeked;
+      elsif Event = "seeking" then
+         Object.Fire_On_Seeking;
+      elsif Event = "stalled" then
+         Object.Fire_On_Stalled;
+      elsif Event = "suspend" then
+         Object.Fire_On_Suspend;
+      elsif Event = "timeupdate" then
+         Object.Fire_On_Time_Update;
+      elsif Event = "volumechange" then
+         Object.Fire_On_Volume_Change;
+      elsif Event = "waiting" then
+         Object.Fire_On_Waiting;
+      else
+         Gnoga.Gui.Base_Type (Object).On_Message (Event, Message);
+      end if;
+   end On_Message;
 
    ------------
    -- Create --
@@ -1035,7 +1035,7 @@ package body Ada_GUI.Gnoga.Gui.Element.Multimedia is
 
       function Has_Poster return String is
       begin
-         if Poster /= "" then
+         if Source /= "" then
             return Escape_Quotes (" poster='" & Poster & "'");
          else
             return "";

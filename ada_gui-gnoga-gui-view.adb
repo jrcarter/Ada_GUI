@@ -87,7 +87,7 @@ package body Ada_GUI.Gnoga.Gui.View is
    procedure On_Child_Added (View  : in out View_Base_Type;
                              Child : in out Gnoga.Gui.Base_Type'Class)
    is
-      use Ada_GUI.Gnoga.Gui.Element;
+      use Gnoga.Gui.Element;
    begin
       if Child in Element_Type'Class then
          if Element_Type (Child).Auto_Place then
@@ -105,7 +105,7 @@ package body Ada_GUI.Gnoga.Gui.View is
    ------------------
 
    procedure Fill_Parent (View : in out View_Base_Type) is
-      use Ada_GUI.Gnoga.Gui.Element;
+      use Gnoga.Gui.Element;
    begin
       View.Position (Absolute);
       View.Box_Height ("100%");

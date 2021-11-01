@@ -47,7 +47,7 @@ package Ada_GUI.Gnoga.Server.Template_Parser is
    --  engines. It also makes it possible to leverage and reuse existing
    --  web resources until they can be ported to Gnoga. To use Python instead
    --  of PHP see Gnoga.Server.Template_Parser.Python. If only simple parsing
-   --  is needed (find and replace), use Ada_GUI.Gnoga.Server.Template_Parse.Simple
+   --  is needed (find and replace), use Ada_GUI.Gnoga.Server.Template_Parser.Simple
    --  that uses Ada.Text_IO
    --
    --  Note: Template_Parser is not intended to be used for web site / app
@@ -83,28 +83,28 @@ package Ada_GUI.Gnoga.Server.Template_Parser is
    --  accessed in view as - $data[key], data['key'] or @@data.key@@
 
    procedure Insert_Array (Data   : in out View_Data;
-                           Vector : Data_Array_Type);
+                           Vector : Gnoga.Data_Array_Type);
    --  Add an entire Array from a Data_Vector.Vector to View_Data
    --  access in view as $data[Index], data[Index] or @@data.Index@@
 
    procedure Insert_Array_Item (Data   : in out View_Data;
                                 Key    : String;
-                                Vector : Data_Array_Type);
+                                Vector : Gnoga.Data_Array_Type);
    --  Add an entire Array from a Data_Vector.Vector to View_Data
    --  as a single item.
    --  access in view as $data[Key][Array Index], data[Key][Index] or
    --  @@data.Key.Index@@
 
    procedure Insert_Map (Data   : in out View_Data;
-                         Map    : Data_Map_Type);
-   --  Add an entire Map of Key/Value pairs from a Data_Map_Type
+                         Map    : Gnoga.Data_Map_Type);
+   --  Add an entire Map of Key/Value pairs from a Gnoga.Data_Map_Type
    --  to View_Data each item will be accessed as - $data[key] where key is key
    --  in Map, or for Python and Simple parser data['key'] or @@data.key@@
 
    procedure Insert_Map_Item (Data   : in out View_Data;
                               Key    : String;
-                              Map    : Data_Map_Type);
-   --  Add an entire Map of Key/Value pairs from a Data_Map_Type
+                              Map    : Gnoga.Data_Map_Type);
+   --  Add an entire Map of Key/Value pairs from a Gnoga.Data_Map_Type
    --  to View_Data as a single item.
    --  access in view as $data[Key][Map's_Key], data['Key']['Map's_Key']
    --  or @@data.Key.Map's_Key@@
@@ -173,8 +173,8 @@ private
       record
          Name          : Ada.Strings.Unbounded.Unbounded_String :=
            Ada.Strings.Unbounded.To_Unbounded_String ("data");
-         String_Values : Data_Map_Type;
-         Map_Values    : Map_of_Data_Maps_Type;
+         String_Values : Gnoga.Data_Map_Type;
+         Map_Values    : Gnoga.Map_of_Data_Maps_Type;
       end record;
 
    function Parse_Name (Name : String) return String;
@@ -182,6 +182,6 @@ private
    --  unless Name contains a ':' (as in C:) or starts
    --  with the OS separator ('/' or '\' on Windows)
 
-   Error_Queue : Data_Array_Type;
-   Info_Queue  : Data_Array_Type;
+   Error_Queue : Gnoga.Data_Array_Type;
+   Info_Queue  : Gnoga.Data_Array_Type;
 end Ada_GUI.Gnoga.Server.Template_Parser;

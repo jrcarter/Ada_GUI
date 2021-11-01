@@ -252,11 +252,11 @@ package body Ada_GUI.Gnoga.Server.Connection is
    pragma Warnings (Off);
    procedure Start_Long_Polling_Connect
      (Client : in out Gnoga_HTTP_Client;
-      ID     : out    Connection_ID);
+      ID     : out    Gnoga.Connection_ID);
    --  Start a long polling connection alternative to websocket
    pragma Warnings (On);
 
-   function Buffer_Add (ID     : Connection_ID;
+   function Buffer_Add (ID     : Gnoga.Connection_ID;
                         Script : String)
                         return Boolean;
    --  If buffering add Script to the buffer for ID and return true, if not
@@ -566,7 +566,7 @@ package body Ada_GUI.Gnoga.Server.Connection is
                      Client.Content.Finalized := False;
 
                      declare
-                        ID : Connection_ID;
+                        ID : Gnoga.Connection_ID;
                         F  : Unbounded_String := To_Unbounded_String
                           (Gnoga.Server.Template_Parser.Simple.Load_View
                              (Adjust_Name));
@@ -683,7 +683,7 @@ package body Ada_GUI.Gnoga.Server.Connection is
       pragma Unreferenced (Content);
       Status : Status_Line renames Get_Status_Line (Client);
 
-      Parameters : Data_Map_Type;
+      Parameters : Gnoga.Data_Map_Type;
    begin
       if On_Post_Event /= null and Status.Kind = File then
          for i in 1 .. Client.Get_CGI_Size loop
@@ -715,7 +715,7 @@ package body Ada_GUI.Gnoga.Server.Connection is
       Content_Type : constant String :=
         Client.Get_Multipart_Header (Content_Type_Header);
 
-      Parameters : Data_Map_Type;
+      Parameters : Gnoga.Data_Map_Type;
    begin
       if On_Post_Event /= null and Status.Kind = File and Content_Type = "" then
          Parameters.Insert (Strings_Edit.UTF8.Handling.To_String (Field_Name, Substitution_Character),
@@ -921,16 +921,16 @@ package body Ada_GUI.Gnoga.Server.Connection is
    type Connection_Holder_Access is access all Connection_Holder_Type;
 
    package Connection_Holder_Maps is new Ada.Containers.Ordered_Maps
-     (Unique_ID, Connection_Holder_Access);
+     (Gnoga.Unique_ID, Connection_Holder_Access);
 
    package Connection_Data_Maps is new Ada.Containers.Ordered_Maps
-     (Unique_ID, Pointer_to_Connection_Data_Class);
+     (Gnoga.Unique_ID, Gnoga.Pointer_to_Connection_Data_Class);
 
    ---------------------
    -- Event_Task_Type --
    ---------------------
 
-   task type Event_Task_Type (TID : Connection_ID);
+   task type Event_Task_Type (TID : Gnoga.Connection_ID);
 
    type Event_Task_Access is access all Event_Task_Type;
 
@@ -939,70 +939,70 @@ package body Ada_GUI.Gnoga.Server.Connection is
                                         Event_Task_Access);
 
    package Event_Task_Maps is new Ada.Containers.Ordered_Maps
-     (Unique_ID, Event_Task_Access);
+     (Gnoga.Unique_ID, Event_Task_Access);
 
    ------------------------
    -- Connection Manager --
    ------------------------
 
    package Socket_Maps is new Ada.Containers.Ordered_Maps
-     (Connection_ID, Socket_Type);
+     (Gnoga.Connection_ID, Socket_Type);
    --  Socket Maps are used for the Connection Manager to map connection IDs
    --  to web sockets.
 
    protected Connection_Manager is
       procedure Add_Connection (Socket : in  Socket_Type;
-                                New_ID : out Connection_ID);
+                                New_ID : out Gnoga.Connection_ID);
       --  Adds Socket to managed Connections and generates a New_ID.
 
-      procedure Start_Connection (New_ID : in Connection_ID);
+      procedure Start_Connection (New_ID : in Gnoga.Connection_ID);
       --  Start event task on connection
 
-      procedure Swap_Connection (New_ID : in Connection_ID;
-                                 Old_ID : in Connection_ID);
+      procedure Swap_Connection (New_ID : in Gnoga.Connection_ID;
+                                 Old_ID : in Gnoga.Connection_ID);
       --  Reconnect old connection
 
-      procedure Add_Connection_Holder (ID     : in Connection_ID;
+      procedure Add_Connection_Holder (ID     : in Gnoga.Connection_ID;
                                        Holder : in Connection_Holder_Access);
       --  Adds a connection holder to the connection
       --  Can only be one at any given time.
 
       procedure Add_Connection_Data
-        (ID   : in Connection_ID;
-         Data : in Pointer_to_Connection_Data_Class);
+        (ID   : in Gnoga.Connection_ID;
+         Data : in Gnoga.Pointer_to_Connection_Data_Class);
       --  Adds data to be associated with connection
 
       function Connection_Data
-        (ID : in Connection_ID)
-         return Pointer_to_Connection_Data_Class;
+        (ID : in Gnoga.Connection_ID)
+         return Gnoga.Pointer_to_Connection_Data_Class;
       --  Returns the Connection_Data associated with ID
 
-      procedure Delete_Connection_Holder (ID : in Connection_ID);
+      procedure Delete_Connection_Holder (ID : in Gnoga.Connection_ID);
       --  Delete connection holder
 
-      procedure Delete_Connection (ID : in Connection_ID);
+      procedure Delete_Connection (ID : in Gnoga.Connection_ID);
       --  Delete Connection with ID.
       --  Releases connection holder if present.
 
-      procedure Finalize_Connection (ID : in Connection_ID);
+      procedure Finalize_Connection (ID : in Gnoga.Connection_ID);
       --  Mark Connection with ID for deletion.
 
-      function Valid (ID : in Connection_ID) return Boolean;
+      function Valid (ID : in Gnoga.Connection_ID) return Boolean;
       --  Return True if ID is in connection map.
 
-      procedure First (ID : out Connection_ID);
+      procedure First (ID : out Gnoga.Connection_ID);
       --  Return first ID if ID is in connection map else 0.
 
-      procedure Next (ID : out Connection_ID);
+      procedure Next (ID : out Gnoga.Connection_ID);
       --  Return next ID if ID is in connection map else 0.
 
-      function Connection_Socket (ID : in Connection_ID)
+      function Connection_Socket (ID : in Gnoga.Connection_ID)
                                   return Socket_Type;
       --  Return the Socket_Type associated with ID
       --  Raises Connection_Error if ID is not Valid
 
       function Find_Connection_ID (Socket : Socket_Type)
-                                  return Connection_ID;
+                                  return Gnoga.Connection_ID;
       --  Find the Connection_ID related to Socket.
 
       procedure Delete_All_Connections;
@@ -1011,7 +1011,7 @@ package body Ada_GUI.Gnoga.Server.Connection is
       function Active_Connections return Ada.Containers.Count_Type;
       --  Returns the number of active connections
    private
-      Socket_Count          : Connection_ID := 0;
+      Socket_Count          : Gnoga.Connection_ID := 0;
       Connection_Holder_Map : Connection_Holder_Maps.Map;
       Connection_Data_Map   : Connection_Data_Maps.Map;
       Event_Task_Map        : Event_Task_Maps.Map;
@@ -1022,7 +1022,7 @@ package body Ada_GUI.Gnoga.Server.Connection is
 
    protected body Connection_Manager is
       procedure Add_Connection (Socket : in  Socket_Type;
-                                New_ID : out Connection_ID)
+                                New_ID : out Gnoga.Connection_ID)
       is
       begin
          Socket_Count := Socket_Count + 1;
@@ -1030,14 +1030,14 @@ package body Ada_GUI.Gnoga.Server.Connection is
          Socket_Map.Insert (New_ID, Socket);
       end Add_Connection;
 
-      procedure Start_Connection (New_ID : in Connection_ID)
+      procedure Start_Connection (New_ID : in Gnoga.Connection_ID)
       is
       begin
          Event_Task_Map.Insert (New_ID, new Event_Task_Type (New_ID));
       end Start_Connection;
 
-      procedure Swap_Connection (New_ID : in Connection_ID;
-                                 Old_ID : in Connection_ID)
+      procedure Swap_Connection (New_ID : in Gnoga.Connection_ID;
+                                 Old_ID : in Gnoga.Connection_ID)
       is
       begin
          if Socket_Map.Contains (Old_ID) then
@@ -1059,14 +1059,14 @@ package body Ada_GUI.Gnoga.Server.Connection is
          end if;
       end Swap_Connection;
 
-      procedure Add_Connection_Holder (ID     : in Connection_ID;
+      procedure Add_Connection_Holder (ID     : in Gnoga.Connection_ID;
                                        Holder : in Connection_Holder_Access)
       is
       begin
          Connection_Holder_Map.Insert (ID, Holder);
       end Add_Connection_Holder;
 
-      procedure Delete_Connection_Holder (ID : in Connection_ID)
+      procedure Delete_Connection_Holder (ID : in Gnoga.Connection_ID)
       is
       begin
          if Connection_Holder_Map.Contains (ID) then
@@ -1075,16 +1075,16 @@ package body Ada_GUI.Gnoga.Server.Connection is
       end Delete_Connection_Holder;
 
       procedure Add_Connection_Data
-        (ID   : in Connection_ID;
-         Data : in Pointer_to_Connection_Data_Class)
+        (ID   : in Gnoga.Connection_ID;
+         Data : in Gnoga.Pointer_to_Connection_Data_Class)
       is
       begin
          Connection_Data_Map.Include (ID, Data);
       end Add_Connection_Data;
 
       function Connection_Data
-        (ID : in Connection_ID)
-         return Pointer_to_Connection_Data_Class
+        (ID : in Gnoga.Connection_ID)
+         return Gnoga.Pointer_to_Connection_Data_Class
       is
       begin
          if Connection_Data_Map.Contains (ID) then
@@ -1094,7 +1094,7 @@ package body Ada_GUI.Gnoga.Server.Connection is
          end if;
       end Connection_Data;
 
-      procedure Delete_Connection (ID : in Connection_ID) is
+      procedure Delete_Connection (ID : in Gnoga.Connection_ID) is
       begin
          if (ID > 0) then
             Gnoga.Log ("Deleting connection -" & ID'Img);
@@ -1127,7 +1127,7 @@ package body Ada_GUI.Gnoga.Server.Connection is
          Log (Ada.Exceptions.Exception_Information (E));
       end Delete_Connection;
 
-      procedure Finalize_Connection (ID : in Connection_ID) is
+      procedure Finalize_Connection (ID : in Gnoga.Connection_ID) is
       begin
          if (ID > 0) and Socket_Map.Contains (ID) then
             if Verbose_Output then
@@ -1138,12 +1138,12 @@ package body Ada_GUI.Gnoga.Server.Connection is
          end if;
       end Finalize_Connection;
 
-      function Valid (ID : in Connection_ID) return Boolean is
+      function Valid (ID : in Gnoga.Connection_ID) return Boolean is
       begin
          return Socket_Map.Contains (ID);
       end Valid;
 
-      procedure First (ID : out Connection_ID) is
+      procedure First (ID : out Gnoga.Connection_ID) is
          use type Socket_Maps.Cursor;
       begin
          Shadow_Socket_Map := Socket_Map;
@@ -1155,7 +1155,7 @@ package body Ada_GUI.Gnoga.Server.Connection is
          end if;
       end First;
 
-      procedure Next (ID : out Connection_ID) is
+      procedure Next (ID : out Gnoga.Connection_ID) is
          use type Socket_Maps.Cursor;
       begin
          Current_Socket := Socket_Maps.Next (Current_Socket);
@@ -1166,7 +1166,7 @@ package body Ada_GUI.Gnoga.Server.Connection is
          end if;
       end Next;
 
-      function Connection_Socket (ID : in Connection_ID)
+      function Connection_Socket (ID : in Gnoga.Connection_ID)
                                   return Socket_Type
       is
          use type Socket_Maps.Cursor;
@@ -1183,7 +1183,7 @@ package body Ada_GUI.Gnoga.Server.Connection is
       end Connection_Socket;
 
       function Find_Connection_ID (Socket : Socket_Type)
-                               return Connection_ID
+                               return Gnoga.Connection_ID
       is
          use type Socket_Maps.Cursor;
 
@@ -1197,7 +1197,7 @@ package body Ada_GUI.Gnoga.Server.Connection is
             end if;
          end loop;
 
-         return No_Connection;
+         return Gnoga.No_Connection;
       end Find_Connection_ID;
 
       procedure Delete_All_Connections is
@@ -1225,7 +1225,7 @@ package body Ada_GUI.Gnoga.Server.Connection is
 
    task body Event_Task_Type is
       Connection_Holder : aliased Connection_Holder_Type;
-      ID : Connection_ID;
+      ID : Gnoga.Connection_ID;
    begin
       ID := TID;
       --  Insure that TID is retained even if task is "deleted"
@@ -1274,9 +1274,9 @@ package body Ada_GUI.Gnoga.Server.Connection is
    --------------
 
    task body Watchdog_Type is
-      procedure Ping (ID : in Connection_ID);
+      procedure Ping (ID : in Gnoga.Connection_ID);
 
-      procedure Ping (ID : in Connection_ID) is
+      procedure Ping (ID : in Gnoga.Connection_ID) is
          Socket : Socket_Type := Connection_Manager.Connection_Socket (ID);
       begin
          if Socket.Content.Finalized then
@@ -1336,7 +1336,7 @@ package body Ada_GUI.Gnoga.Server.Connection is
 
       loop
          declare
-            ID : Connection_ID;
+            ID : Gnoga.Connection_ID;
          begin
             Connection_Manager.First (ID);
             while ID /= 0 loop
@@ -1376,22 +1376,22 @@ package body Ada_GUI.Gnoga.Server.Connection is
    end "=";
 
    package Object_Maps is new Ada.Containers.Ordered_Maps
-     (Unique_ID, Gnoga.Gui.Pointer_To_Base_Class);
+     (Gnoga.Unique_ID, Gnoga.Gui.Pointer_To_Base_Class);
 
    protected Object_Manager is
-      function Get_Object (ID : Unique_ID)
+      function Get_Object (ID : Gnoga.Unique_ID)
                            return Gnoga.Gui.Pointer_To_Base_Class;
       procedure Insert
-        (ID     : in Unique_ID;
+        (ID     : in Gnoga.Unique_ID;
          Object : in Gnoga.Gui.Pointer_To_Base_Class);
 
-      procedure Delete (ID : Unique_ID);
+      procedure Delete (ID : Gnoga.Unique_ID);
    private
       Object_Map : Object_Maps.Map;
    end Object_Manager;
 
    protected body Object_Manager is
-      function Get_Object (ID : Unique_ID)
+      function Get_Object (ID : Gnoga.Unique_ID)
                            return Gnoga.Gui.Pointer_To_Base_Class
       is
       begin
@@ -1403,7 +1403,7 @@ package body Ada_GUI.Gnoga.Server.Connection is
       end Get_Object;
 
       procedure Insert
-        (ID     : in Unique_ID;
+        (ID     : in Gnoga.Unique_ID;
          Object : in Gnoga.Gui.Pointer_To_Base_Class)
       is
       begin
@@ -1411,7 +1411,7 @@ package body Ada_GUI.Gnoga.Server.Connection is
                             New_Item => Object);
       end Insert;
 
-      procedure Delete (ID : Unique_ID) is
+      procedure Delete (ID : Gnoga.Unique_ID) is
       begin
          if Object_Map.Contains (ID) then
             Object_Map.Delete (ID);
@@ -1478,7 +1478,7 @@ package body Ada_GUI.Gnoga.Server.Connection is
       F      : constant String := Status.Query;
       S      : constant Socket_Type := Client'Unchecked_Access;
 
-      ID     : Connection_ID := No_Connection;
+      ID     : Gnoga.Connection_ID := Gnoga.No_Connection;
 
       function Get_Old_ID return String;
 
@@ -1509,7 +1509,7 @@ package body Ada_GUI.Gnoga.Server.Connection is
 
          begin
             Connection_Manager.Swap_Connection
-              (ID, Connection_ID'Value (Old_ID));
+              (ID, Gnoga.Connection_ID'Value (Old_ID));
          exception
             when E : Connection_Error =>
                Gnoga.Log ("Connection error - " & ID'Img);
@@ -1543,10 +1543,10 @@ package body Ada_GUI.Gnoga.Server.Connection is
       pragma Unreferenced (Status);
       S  : constant Socket_Type := Client'Unchecked_Access;
 
-      ID : constant Connection_ID :=
+      ID : constant Gnoga.Connection_ID :=
              Connection_Manager.Find_Connection_ID (S);
    begin
-      if ID /= No_Connection then
+      if ID /= Gnoga.No_Connection then
          S.Content.Finalized := True;
 
          if Verbose_Output then
@@ -1573,7 +1573,7 @@ package body Ada_GUI.Gnoga.Server.Connection is
    is
       S  : constant Socket_Type := Client'Unchecked_Access;
 
-      ID : constant Connection_ID :=
+      ID : constant Gnoga.Connection_ID :=
              Connection_Manager.Find_Connection_ID (S);
    begin
       S.Content.Finalized := True;
@@ -1590,7 +1590,7 @@ package body Ada_GUI.Gnoga.Server.Connection is
 
    procedure Start_Long_Polling_Connect
      (Client : in out Gnoga_HTTP_Client;
-      ID     : out    Connection_ID)
+      ID     : out    Gnoga.Connection_ID)
    is
       S  : constant Socket_Type := Client'Unchecked_Access;
    begin
@@ -1640,27 +1640,27 @@ package body Ada_GUI.Gnoga.Server.Connection is
    type Script_Holder_Access is access all Script_Holder_Type;
 
    package Script_Holder_Maps is new Ada.Containers.Ordered_Maps
-     (Unique_ID, Script_Holder_Access);
+     (Gnoga.Unique_ID, Script_Holder_Access);
 
    protected type Script_Manager_Type is
-      procedure Add_Script_Holder (ID     : out Unique_ID;
+      procedure Add_Script_Holder (ID     : out Gnoga.Unique_ID;
                                    Holder : in  Script_Holder_Access);
       --  Adds a script holder to wait for script execution to end
       --  and return results;
 
-      procedure Delete_Script_Holder (ID : in Unique_ID);
+      procedure Delete_Script_Holder (ID : in Gnoga.Unique_ID);
       --  Delete script holder
 
-      procedure Release_Hold (ID     : in Unique_ID;
+      procedure Release_Hold (ID     : in Gnoga.Unique_ID;
                               Result : in String);
       --  Delete connection hold with ID.
    private
       Script_Holder_Map : Script_Holder_Maps.Map;
-      Script_ID         : Unique_ID := 0;
+      Script_ID         : Gnoga.Unique_ID := 0;
    end Script_Manager_Type;
 
    protected body Script_Manager_Type is
-      procedure Add_Script_Holder (ID     : out Connection_ID;
+      procedure Add_Script_Holder (ID     : out Gnoga.Connection_ID;
                                    Holder : in Script_Holder_Access)
       is
       begin
@@ -1670,12 +1670,12 @@ package body Ada_GUI.Gnoga.Server.Connection is
          ID := Script_ID;
       end Add_Script_Holder;
 
-      procedure Delete_Script_Holder (ID : in Connection_ID) is
+      procedure Delete_Script_Holder (ID : in Gnoga.Connection_ID) is
       begin
          Script_Holder_Map.Delete (ID);
       end Delete_Script_Holder;
 
-      procedure Release_Hold (ID     : in Unique_ID;
+      procedure Release_Hold (ID     : in Gnoga.Unique_ID;
                               Result : in String)
       is
       begin
@@ -1729,6 +1729,97 @@ package body Ada_GUI.Gnoga.Server.Connection is
    -- Dispatch_Message --
    ----------------------
 
+   task type Dispatch_Task_Type
+     (Object : Gnoga.Gui.Pointer_To_Base_Class)
+   is
+      entry Start (Event : in String;
+                   Data  : in String;
+                   ID    : in Gnoga.Unique_ID);
+   end Dispatch_Task_Type;
+
+   type Dispatch_Task_Access is access all Dispatch_Task_Type;
+
+   procedure Free_Dispatch_Task is
+        new Ada.Unchecked_Deallocation (Dispatch_Task_Type,
+                                        Dispatch_Task_Access);
+
+   package Dispatch_Task_Maps is new Ada.Containers.Ordered_Maps
+     (Gnoga.Unique_ID, Dispatch_Task_Access);
+
+   protected Dispatch_Task_Objects is
+      procedure Add_Dispatch_Task (ID            : in Gnoga.Unique_ID;
+                                   Dispatch_Task : in Dispatch_Task_Access);
+
+      function Object (ID : Gnoga.Unique_ID) return Dispatch_Task_Access;
+
+      procedure Delete_Dispatch_Task (ID : in Gnoga.Unique_ID);
+   private
+      Dispatch_Task_Map : Dispatch_Task_Maps.Map;
+   end Dispatch_Task_Objects;
+
+   protected body Dispatch_Task_Objects is
+      procedure Add_Dispatch_Task (ID            : in Gnoga.Unique_ID;
+                                   Dispatch_Task : in Dispatch_Task_Access)
+      is
+      begin
+         Dispatch_Task_Map.Insert (ID, Dispatch_Task);
+      end Add_Dispatch_Task;
+
+      function Object (ID : Gnoga.Unique_ID) return Dispatch_Task_Access
+      is
+      begin
+         return Dispatch_Task_Map.Element (ID);
+      end Object;
+
+      procedure Delete_Dispatch_Task (ID : in Gnoga.Unique_ID)
+      is
+         Dummy_T : Dispatch_Task_Access := Dispatch_Task_Map.Element (ID);
+      begin
+         Free_Dispatch_Task (Dummy_T);
+         --  http://adacore.com/developers/development-log/NF-65-H911-007-gnat
+         --  This will cause Dummy_T to free upon task termination.
+         Dispatch_Task_Map.Delete (ID);
+      end Delete_Dispatch_Task;
+   end Dispatch_Task_Objects;
+
+   task body Dispatch_Task_Type is
+      E : Ada.Strings.Unbounded.Unbounded_String;
+      D : Ada.Strings.Unbounded.Unbounded_String;
+      I : Gnoga.Unique_ID;
+   begin
+      accept Start (Event : in String;
+                    Data  : in String;
+                    ID    : in Gnoga.Unique_ID)
+      do
+         E := Ada.Strings.Unbounded.To_Unbounded_String (Event);
+         D := Ada.Strings.Unbounded.To_Unbounded_String (Data);
+         I := ID;
+      end Start;
+
+      Object.Flush_Buffer;
+
+      declare
+         Continue : Boolean;
+
+         Event    : constant String  := Ada.Strings.Unbounded.To_String (E);
+         Data     : constant String  := Ada.Strings.Unbounded.To_String (D);
+      begin
+         Object.Fire_On_Message (Event, Data, Continue);
+
+         if Continue then
+            Object.On_Message (Event, Data);
+         end if;
+      end;
+
+      Object.Flush_Buffer;
+
+      Dispatch_Task_Objects.Delete_Dispatch_Task (I);
+   exception
+      when E : others =>
+         Log ("Dispatch Error");
+         Log (Ada.Exceptions.Exception_Information (E));
+   end Dispatch_Task_Type;
+
    procedure Dispatch_Message (Message : in String) is
       use Ada.Strings.Fixed;
    begin
@@ -1740,13 +1831,14 @@ package body Ada_GUI.Gnoga.Server.Connection is
             UID    : constant String := Message (Message'First + 2 .. (P1 - 1));
             Result : constant String := Message ((P1 + 1) .. Message'Last);
          begin
-            Script_Manager.Release_Hold (Unique_ID'Value (UID),
+            Script_Manager.Release_Hold (Gnoga.Unique_ID'Value (UID),
                                          Result);
          end;
       else
          declare
             P1 : constant Integer := Index (Source  => Message,
                                             Pattern => "|");
+
             P2 : constant Integer := Index (Source  => Message,
                                             Pattern => "|",
                                             From    => P1 + 1);
@@ -1756,11 +1848,19 @@ package body Ada_GUI.Gnoga.Server.Connection is
             Event_Data : constant String := Message ((P2 + 1) .. Message'Last);
 
             Object : constant Gnoga.Gui.Pointer_To_Base_Class :=
-               Object_Manager.Get_Object (Integer'Value (UID));
+                       Object_Manager.Get_Object (Integer'Value (UID));
+
+            New_ID : Gnoga.Unique_ID;
          begin
             Gui.Event_Queue.Enqueue (New_Item => (Event  => Ada.Strings.Unbounded.To_Unbounded_String (Event),
                                                   Object => Object,
                                                   Data   => Ada.Strings.Unbounded.To_Unbounded_String (Event_Data) ) );
+
+            New_Unique_ID (New_ID);
+            Dispatch_Task_Objects.Add_Dispatch_Task
+              (New_ID, new Dispatch_Task_Type (Object));
+            Dispatch_Task_Objects.Object (New_ID).Start
+              (Event, Event_Data, New_ID);
          end;
       end if;
    exception
@@ -1827,7 +1927,7 @@ package body Ada_GUI.Gnoga.Server.Connection is
    -- Buffer_Add --
    ----------------
 
-   function Buffer_Add (ID     : Connection_ID;
+   function Buffer_Add (ID     : Gnoga.Connection_ID;
                         Script : String)
                         return Boolean
    is
@@ -1861,7 +1961,7 @@ package body Ada_GUI.Gnoga.Server.Connection is
    -- Buffer_Connection --
    -----------------------
 
-   function Buffer_Connection (ID : Connection_ID) return Boolean
+   function Buffer_Connection (ID : Gnoga.Connection_ID) return Boolean
    is
       Socket : constant Socket_Type :=
         Connection_Manager.Connection_Socket (ID);
@@ -1869,7 +1969,7 @@ package body Ada_GUI.Gnoga.Server.Connection is
       return Socket.Content.Buffer.Buffering;
    end Buffer_Connection;
 
-   procedure Buffer_Connection (ID    : in Connection_ID;
+   procedure Buffer_Connection (ID    : in Gnoga.Connection_ID;
                                 Value : in Boolean)
    is
       Socket : constant Socket_Type :=
@@ -1886,7 +1986,7 @@ package body Ada_GUI.Gnoga.Server.Connection is
    -- Flush_Buffer --
    ------------------
 
-   procedure Flush_Buffer (ID : in Connection_ID)
+   procedure Flush_Buffer (ID : in Gnoga.Connection_ID)
    is
       Socket : Socket_Type;
    begin
@@ -1918,7 +2018,7 @@ package body Ada_GUI.Gnoga.Server.Connection is
    -- Buffer_Append --
    -------------------
 
-   procedure Buffer_Append (ID    : in Connection_ID;
+   procedure Buffer_Append (ID    : in Gnoga.Connection_ID;
                             Value : in String)
    is
       Socket : constant Socket_Type :=
@@ -1931,7 +2031,7 @@ package body Ada_GUI.Gnoga.Server.Connection is
    -- Execute_Script --
    --------------------
 
-   procedure Execute_Script (ID     : in Connection_ID;
+   procedure Execute_Script (ID     : in Gnoga.Connection_ID;
                              Script : in String)
    is
       UTF8_Script : constant String :=
@@ -1979,7 +2079,7 @@ package body Ada_GUI.Gnoga.Server.Connection is
          Try_Execute;
    end Execute_Script;
 
-   function Execute_Script (ID     : in Connection_ID;
+   function Execute_Script (ID     : in Gnoga.Connection_ID;
                             Script : in String)
                             return String
    is
@@ -1992,7 +2092,7 @@ package body Ada_GUI.Gnoga.Server.Connection is
          Script_Holder : aliased Script_Holder_Type;
       begin
          declare
-            Script_ID : Unique_ID;
+            Script_ID : Gnoga.Unique_ID;
             Socket    : constant Socket_Type :=
                           Connection_Manager.Connection_Socket (ID);
          begin
@@ -2077,18 +2177,18 @@ package body Ada_GUI.Gnoga.Server.Connection is
    ---------------------
 
    procedure Connection_Data
-     (ID   : in     Connection_ID;
-      Data : access Connection_Data_Type'Class)
+     (ID   : in     Gnoga.Connection_ID;
+      Data : access Gnoga.Connection_Data_Type'Class)
    is
    begin
       Connection_Manager.Add_Connection_Data
         (ID,
-         Pointer_to_Connection_Data_Class (Data));
+         Gnoga.Pointer_to_Connection_Data_Class (Data));
    end Connection_Data;
 
    function Connection_Data
-     (ID : in Connection_ID)
-      return Pointer_to_Connection_Data_Class
+     (ID : in Gnoga.Connection_ID)
+      return Gnoga.Pointer_to_Connection_Data_Class
    is
    begin
       return Connection_Manager.Connection_Data (ID);
@@ -2107,7 +2207,7 @@ package body Ada_GUI.Gnoga.Server.Connection is
    -- Connection_Type --
    ---------------------
 
-   function Connection_Type (ID : Connection_ID)
+   function Connection_Type (ID : Gnoga.Connection_ID)
                              return Gnoga_Connection_Type
    is
       Socket : constant Socket_Type :=
@@ -2125,7 +2225,7 @@ package body Ada_GUI.Gnoga.Server.Connection is
    -- Connection_Path --
    ---------------------
 
-   function Connection_Path (ID : Connection_ID)
+   function Connection_Path (ID : Gnoga.Connection_ID)
                              return String
    is
       use Ada.Strings.Unbounded;
@@ -2160,7 +2260,7 @@ package body Ada_GUI.Gnoga.Server.Connection is
    -- Connection_Client_Address --
    -------------------------------
 
-   function Connection_Client_Address (ID : Connection_ID)
+   function Connection_Client_Address (ID : Gnoga.Connection_ID)
                                        return String
    is
       Socket : constant Socket_Type :=
@@ -2215,7 +2315,7 @@ package body Ada_GUI.Gnoga.Server.Connection is
    -- Form_Parameter --
    --------------------
 
-   function Form_Parameter (ID   : Connection_ID;
+   function Form_Parameter (ID   : Gnoga.Connection_ID;
                             Name : String)
                             return String
    is
@@ -2227,9 +2327,9 @@ package body Ada_GUI.Gnoga.Server.Connection is
    -- Valid --
    -----------
 
-   function Valid (ID : Connection_ID) return Boolean is
+   function Valid (ID : Gnoga.Connection_ID) return Boolean is
    begin
-      if ID = No_Connection then
+      if ID = Gnoga.No_Connection then
          return False;
       else
          return Connection_Manager.Valid (ID);
@@ -2240,7 +2340,7 @@ package body Ada_GUI.Gnoga.Server.Connection is
    -- Close --
    -----------
 
-   procedure Close (ID : Connection_ID) is
+   procedure Close (ID : Gnoga.Connection_ID) is
    begin
       if Valid (ID) then
          declare
@@ -2264,7 +2364,7 @@ package body Ada_GUI.Gnoga.Server.Connection is
    -- HTML_On_Close --
    -------------------
 
-   procedure HTML_On_Close (ID   : in Connection_ID;
+   procedure HTML_On_Close (ID   : in Gnoga.Connection_ID;
                             HTML : in String)
    is
    begin
@@ -2278,13 +2378,13 @@ package body Ada_GUI.Gnoga.Server.Connection is
    ---------------------
 
    protected type ID_Machine_Type is
-      procedure Next_ID (ID : out Unique_ID);
+      procedure Next_ID (ID : out Gnoga.Unique_ID);
    private
-      Current_ID : Unique_ID := 0;
+      Current_ID : Gnoga.Unique_ID := 0;
    end ID_Machine_Type;
 
    protected body ID_Machine_Type is
-      procedure Next_ID (ID : out Unique_ID) is
+      procedure Next_ID (ID : out Gnoga.Unique_ID) is
       begin
          Current_ID := Current_ID + 1;
          ID := Current_ID;
@@ -2297,7 +2397,7 @@ package body Ada_GUI.Gnoga.Server.Connection is
    -- New_Unique_ID --
    -------------------
 
-   procedure New_Unique_ID (New_ID : out Unique_ID) is
+   procedure New_Unique_ID (New_ID : out Gnoga.Unique_ID) is
    begin
       ID_Machine.Next_ID (New_ID);
    end New_Unique_ID;
@@ -2307,7 +2407,7 @@ package body Ada_GUI.Gnoga.Server.Connection is
    -------------
 
    function New_GID return String is
-      New_ID : Unique_ID;
+      New_ID : Gnoga.Unique_ID;
    begin
       New_Unique_ID (New_ID);
 
@@ -2340,7 +2440,7 @@ package body Ada_GUI.Gnoga.Server.Connection is
    ----------
 
    procedure Stop is
-      ID : Connection_ID;
+      ID : Gnoga.Connection_ID;
       procedure Free is new Ada.Unchecked_Deallocation (Watchdog_Type, Watchdog_Access);
       procedure Free is new Ada.Unchecked_Deallocation (Gnoga_HTTP_Server_Type, Gnoga_HTTP_Server_Access);
    begin
@@ -2393,7 +2493,7 @@ package body Ada_GUI.Gnoga.Server.Connection is
             return "";
          elsif Source.Finalized then
             declare
-               ID : constant Connection_ID :=
+               ID : constant Gnoga.Connection_ID :=
                  Connection_Manager.Find_Connection_ID
                    (Source.Socket);
             begin
@@ -2434,14 +2534,14 @@ package body Ada_GUI.Gnoga.Server.Connection is
 
    overriding
    procedure Finalize (Client : in out Gnoga_HTTP_Client) is
-      ID : constant Connection_ID :=
+      ID : constant Gnoga.Connection_ID :=
              Connection_Manager.Find_Connection_ID (Client'Unchecked_Access);
    begin
       if Ada.Streams.Stream_IO.Is_Open (Client.Content.FS) then
          Ada.Streams.Stream_IO.Close (Client.Content.FS);
       end if;
 
-      if ID /= No_Connection then
+      if ID /= Gnoga.No_Connection then
          Gnoga.Log ("Deleting connection during finalize -" & ID'Img);
          Connection_Manager.Delete_Connection (ID);
       end if;

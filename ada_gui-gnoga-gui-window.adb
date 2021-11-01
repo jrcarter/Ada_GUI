@@ -48,45 +48,51 @@ with Ada_GUI.Gnoga.Gui.Element;
 with Ada_GUI.Gnoga.Gui.View;
 
 package body Ada_GUI.Gnoga.Gui.Window is
---     Storage_Event_Script : constant String :=
---                            "e.originalEvent.key + '|' + " &
---                            "e.originalEvent.oldValue + '|' " &
---                            "+ e.originalEvent.newValue + '|'";
---
---     function Parse_Storage_Event (Message : String)
---                                   return Storage_Event_Record;
---
---     -------------------------
---     -- Parse_Storage_Event --
---     -------------------------
---
---     function Parse_Storage_Event (Message : String)
---                                   return Storage_Event_Record is
---        use Ada.Strings.Fixed;
---        use Ada.Strings.Unbounded;
---
---        Event  : Storage_Event_Record;
---        S      : Integer := Message'First;
---        F      : Integer := Message'First - 1;
---
---        function Split return String;
---        --  Split string and extract values
---
---        function Split return String is
---        begin
---           S := F + 1;
---           F := Index (Source  => Message,
---                       Pattern => "|",
---                       From    => S);
---           return Message (S .. (F - 1));
---        end Split;
---     begin
---        Event.Name := To_Unbounded_String (Split);
---        Event.Old_Value := To_Unbounded_String (Split);
---        Event.New_Value := To_Unbounded_String (Split);
---
---        return Event;
---     end Parse_Storage_Event;
+   Storage_Event_Script : constant String :=
+                          "e.originalEvent.key + '|' + " &
+                          "e.originalEvent.oldValue + '|' " &
+                          "+ e.originalEvent.newValue + '|'";
+
+   function Parse_Storage_Event (Message : String)
+                                 return Storage_Event_Record;
+
+   -------------------------
+   -- Parse_Storage_Event --
+   -------------------------
+
+   function Parse_Storage_Event (Message : String)
+                                 return Storage_Event_Record is
+      use Ada.Strings.Fixed;
+      use Ada.Strings.Unbounded;
+
+      Event  : Storage_Event_Record;
+      S      : Integer := Message'First;
+      F      : Integer := Message'First - 1;
+
+      function Split return String;
+      function Split return Boolean;
+      --  Split string and extract values
+
+      function Split return String is
+      begin
+         S := F + 1;
+         F := Index (Source  => Message,
+                     Pattern => "|",
+                     From    => S);
+         return Message (S .. (F - 1));
+      end Split;
+
+      function Split return Boolean is
+      begin
+         return Split = "true";
+      end Split;
+   begin
+      Event.Name := To_Unbounded_String (Split);
+      Event.Old_Value := To_Unbounded_String (Split);
+      Event.New_Value := To_Unbounded_String (Split);
+
+      return Event;
+   end Parse_Storage_Event;
 
    --------------
    -- Finalize --
@@ -94,13 +100,13 @@ package body Ada_GUI.Gnoga.Gui.Window is
 
    overriding
    procedure Finalize (Object : in out Window_Type) is
-      P : Pointer_to_Connection_Data_Class :=
+      P : Gnoga.Pointer_to_Connection_Data_Class :=
             Object.Connection_Data;
 
       procedure Free_Data is
         new Ada.Unchecked_Deallocation
-          (Connection_Data_Type'Class,
-           Pointer_to_Connection_Data_Class);
+          (Gnoga.Connection_Data_Type'Class,
+           Gnoga.Pointer_to_Connection_Data_Class);
    begin
       if Object.View /= null and Object.View_Is_Dynamic then
          Object.View.Free;
@@ -130,10 +136,10 @@ package body Ada_GUI.Gnoga.Gui.Window is
      (Window        : in out Window_Type;
       Connection_ID : in     Gnoga.Connection_ID;
       ID            : in     String                     := "window";
-      ID_Type       : in     ID_Enumeration := Script)
+      ID_Type       : in     Gnoga.ID_Enumeration := Gnoga.Script)
    is
    begin
-      if ID_Type = DOM_ID then
+      if ID_Type = Gnoga.DOM_ID then
          raise Invalid_ID_Type;
       end if;
 
@@ -148,37 +154,30 @@ package body Ada_GUI.Gnoga.Gui.Window is
       Window.Location.Attach
         (Connection_ID => Connection_ID,
          ID            => Window.jQuery & ".prop ('location')",
-         ID_Type       => Script);
+         ID_Type       => Gnoga.Script);
 
       Window.Bind_Event (Event   => "resize",
                          Message => "");
    end Attach;
 
-   procedure Resize_Message (Object : in out Window_Type) is
-   begin -- Resize_Message
-      Window_Type'Class (Object).On_Resize;
-      Object.Fire_On_Resize;
-   end Resize_Message;
-
    procedure Attach
      (Window  : in out Window_Type;
       Parent  : in out Window_Type'Class;
       ID      : in     String;
-      ID_Type : in     ID_Enumeration := Script)
+      ID_Type : in     Gnoga.ID_Enumeration := Gnoga.Script)
    is
       CID : constant String := Gnoga.Server.Connection.Execute_Script
         (Parent.Connection_ID,
          Script_Accessor (ID, ID_Type) & ".gnoga['Connection_ID']");
    begin
-      if ID_Type = DOM_ID then
+      if ID_Type = Gnoga.DOM_ID then
          raise Invalid_ID_Type;
       end if;
 
       Attach (Window, Gnoga.Connection_ID'Value (CID));
    exception
       when E : others =>
-         Log ("Unable to find gnoga['Connection_ID'] on " & ID &
-                " eval returned : " & CID);
+         Log ("Unable to find gnoga['Connection_ID'] on " & ID & " eval returned : " & CID);
          Log (Ada.Exceptions.Exception_Information (E));
          raise Not_A_Gnoga_Window;
    end Attach;
@@ -192,8 +191,7 @@ package body Ada_GUI.Gnoga.Gui.Window is
    is
       CID : constant String := Gnoga.Server.Connection.Execute_Script
         (Parent.Connection_ID,
-         Script_Accessor (Window.ID, Window.ID_Type) &
-                 ".gnoga['Connection_ID']");
+         Script_Accessor (Window.ID, Window.ID_Type) & ".gnoga['Connection_ID']");
    begin
       Connection_ID (Object => Window, Value => Gnoga.Connection_ID'Value (CID));
    end Reattach;
@@ -216,7 +214,7 @@ package body Ada_GUI.Gnoga.Gui.Window is
                        Object : in out Gnoga.Gui.Base_Type'Class;
                        Place  : in     Boolean := True)
    is
-      use Ada_GUI.Gnoga.Gui.Element;
+      use Gnoga.Gui.Element;
    begin
       if not (Object in Element_Type'Class) then
          raise Invalid_ID_Type with "Not in Element_Type'Class";
@@ -443,7 +441,7 @@ package body Ada_GUI.Gnoga.Gui.Window is
    function Gnoga_Session_ID (Window : Window_Type; Name : String := "gid")
                               return String
    is
-      use Ada_GUI.Gnoga.Client_Storage;
+      use Gnoga.Client_Storage;
 
       function Generate_Session_ID return String;
       --  Create a new unique string to identify sessions
@@ -487,7 +485,7 @@ package body Ada_GUI.Gnoga.Gui.Window is
 
    procedure Connection_Data
      (Window  : in out Window_Type;
-      Data    : access Connection_Data_Type'Class;
+      Data    : access Gnoga.Connection_Data_Type'Class;
       Dynamic : in     Boolean := True)
    is
    begin
@@ -586,7 +584,7 @@ package body Ada_GUI.Gnoga.Gui.Window is
          ID            => GID,
          Script        => "gnoga['" & GID & "']=window.open ('" & URL &
            "', '" & GID & "', '" & Params & "')",
-         ID_Type       => Gnoga_ID);
+         ID_Type       => Gnoga.Gnoga_ID);
 
       delay 0.25;
       --  Needed for Firefox or there is a race condition with the value of
@@ -600,12 +598,12 @@ package body Ada_GUI.Gnoga.Gui.Window is
       end if;
 
       Window.DOM_Document.Attach
-        (Parent.Connection_ID, GID, Gnoga_ID);
+        (Parent.Connection_ID, GID, Gnoga.Gnoga_ID);
 
       Window.Location.Attach
         (Connection_ID => Parent.Connection_ID,
          ID            => Window.jQuery & ".prop ('location')",
-         ID_Type       => Script);
+         ID_Type       => Gnoga.Script);
    end Launch;
 
    -----------
@@ -726,174 +724,174 @@ package body Ada_GUI.Gnoga.Gui.Window is
    -- On_Abort --
    --------------
 
---     procedure On_Abort_Handler (Window  : in out Window_Type;
---                                 Handler : in     Gnoga.Gui.Action_Event)
---     is
---     begin
---        if Window.On_Abort_Event /= null then
---           Window.Unbind_Event ("abort");
---        end if;
---
---        Window.On_Abort_Event := Handler;
---
---        if Handler /= null then
---           Window.Bind_Event (Event   => "abort",
---                              Message => "");
---        end if;
---     end On_Abort_Handler;
---
---     procedure Fire_On_Abort (Window : in out Window_Type)
---     is
---     begin
---        if Window.On_Abort_Event /= null then
---           Window.On_Abort_Event (Window);
---        end if;
---     end Fire_On_Abort;
---
---     --------------
---     -- On_Error --
---     --------------
---
---     procedure On_Error_Handler
---       (Window  : in out Window_Type;
---        Handler : in     Gnoga.Gui.Action_Event)
---     is
---     begin
---        if Window.On_Error_Event /= null then
---           Window.Unbind_Event ("error");
---        end if;
---
---        Window.On_Error_Event := Handler;
---
---        if Handler /= null then
---           Window.Bind_Event (Event   => "error",
---                              Message => "");
---        end if;
---     end On_Error_Handler;
---
---     procedure Fire_On_Error (Window : in out Window_Type)
---     is
---     begin
---        if Window.On_Error_Event /= null then
---           Window.On_Error_Event (Window);
---        end if;
---     end Fire_On_Error;
---
---     ----------------------
---     -- On_Before_Unload --
---     ----------------------
---
---     procedure On_Before_Unload_Handler (Window  : in out Window_Type;
---                                 Handler : in     Gnoga.Gui.Action_Event)
---     is
---     begin
---        if Window.On_Before_Unload_Event /= null then
---           Window.Unbind_Event ("beforeunload");
---        end if;
---
---        Window.On_Before_Unload_Event := Handler;
---
---        if Handler /= null then
---           Window.Bind_Event (Event   => "beforeunload",
---                              Message => "");
---        end if;
---     end On_Before_Unload_Handler;
---
---     procedure Fire_On_Before_Unload (Window : in out Window_Type)
---     is
---     begin
---        if Window.On_Before_Unload_Event /= null then
---           Window.On_Before_Unload_Event (Window);
---        end if;
---     end Fire_On_Before_Unload;
---
---     --------------------
---     -- On_Hash_Change --
---     --------------------
---
---     procedure On_Hash_Change_Handler
---       (Window  : in out Window_Type;
---        Handler : in     Gnoga.Gui.Action_Event)
---     is
---     begin
---        if Window.On_Hash_Change_Event /= null then
---           Window.Unbind_Event ("hashchange");
---        end if;
---
---        Window.On_Hash_Change_Event := Handler;
---
---        if Handler /= null then
---           Window.Bind_Event (Event   => "hashchange",
---                              Message => "");
---        end if;
---     end On_Hash_Change_Handler;
---
---     procedure Fire_On_Hash_Change (Window : in out Window_Type)
---     is
---     begin
---        if Window.On_Hash_Change_Event /= null then
---           Window.On_Hash_Change_Event (Window);
---        end if;
---     end Fire_On_Hash_Change;
---
---     ---------------------------
---     -- On_Orientation_Change --
---     ---------------------------
---
---     procedure On_Orientation_Change_Handler
---       (Window  : in out Window_Type;
---        Handler : in     Gnoga.Gui.Action_Event)
---     is
---     begin
---        if Window.On_Orientation_Change_Event /= null then
---           Window.Unbind_Event ("orientationchange");
---        end if;
---
---        Window.On_Orientation_Change_Event := Handler;
---
---        if Handler /= null then
---           Window.Bind_Event (Event   => "orientationchange",
---                              Message => "");
---        end if;
---     end On_Orientation_Change_Handler;
---
---     procedure Fire_On_Orientation_Change (Window : in out Window_Type)
---     is
---     begin
---        if Window.On_Orientation_Change_Event /= null then
---           Window.On_Orientation_Change_Event (Window);
---        end if;
---     end Fire_On_Orientation_Change;
---
---     ----------------
---     -- On_Storage --
---     ----------------
---
---     procedure On_Storage_Handler (Window  : in out Window_Type;
---                                   Handler : in     Storage_Event)
---     is
---     begin
---        if Window.On_Storage_Event /= null then
---           Window.Unbind_Event ("storage");
---        end if;
---
---        Window.On_Storage_Event := Handler;
---
---        if Handler /= null then
---           Window.Bind_Event (Event   => "storage",
---                              Message => "",
---                              Script  => Storage_Event_Script);
---        end if;
---     end On_Storage_Handler;
---
---     procedure Fire_On_Storage (Window        : in out Window_Type;
---                                Storage_Event : in     Storage_Event_Record)
---     is
---     begin
---        if Window.On_Storage_Event /= null then
---           Window.On_Storage_Event (Window, Storage_Event);
---        end if;
---     end Fire_On_Storage;
+   procedure On_Abort_Handler (Window  : in out Window_Type;
+                               Handler : in     Gnoga.Gui.Action_Event)
+   is
+   begin
+      if Window.On_Abort_Event /= null then
+         Window.Unbind_Event ("abort");
+      end if;
+
+      Window.On_Abort_Event := Handler;
+
+      if Handler /= null then
+         Window.Bind_Event (Event   => "abort",
+                            Message => "");
+      end if;
+   end On_Abort_Handler;
+
+   procedure Fire_On_Abort (Window : in out Window_Type)
+   is
+   begin
+      if Window.On_Abort_Event /= null then
+         Window.On_Abort_Event (Window);
+      end if;
+   end Fire_On_Abort;
+
+   --------------
+   -- On_Error --
+   --------------
+
+   procedure On_Error_Handler
+     (Window  : in out Window_Type;
+      Handler : in     Gnoga.Gui.Action_Event)
+   is
+   begin
+      if Window.On_Error_Event /= null then
+         Window.Unbind_Event ("error");
+      end if;
+
+      Window.On_Error_Event := Handler;
+
+      if Handler /= null then
+         Window.Bind_Event (Event   => "error",
+                            Message => "");
+      end if;
+   end On_Error_Handler;
+
+   procedure Fire_On_Error (Window : in out Window_Type)
+   is
+   begin
+      if Window.On_Error_Event /= null then
+         Window.On_Error_Event (Window);
+      end if;
+   end Fire_On_Error;
+
+   ----------------------
+   -- On_Before_Unload --
+   ----------------------
+
+   procedure On_Before_Unload_Handler (Window  : in out Window_Type;
+                               Handler : in     Gnoga.Gui.Action_Event)
+   is
+   begin
+      if Window.On_Before_Unload_Event /= null then
+         Window.Unbind_Event ("beforeunload");
+      end if;
+
+      Window.On_Before_Unload_Event := Handler;
+
+      if Handler /= null then
+         Window.Bind_Event (Event   => "beforeunload",
+                            Message => "");
+      end if;
+   end On_Before_Unload_Handler;
+
+   procedure Fire_On_Before_Unload (Window : in out Window_Type)
+   is
+   begin
+      if Window.On_Before_Unload_Event /= null then
+         Window.On_Before_Unload_Event (Window);
+      end if;
+   end Fire_On_Before_Unload;
+
+   --------------------
+   -- On_Hash_Change --
+   --------------------
+
+   procedure On_Hash_Change_Handler
+     (Window  : in out Window_Type;
+      Handler : in     Gnoga.Gui.Action_Event)
+   is
+   begin
+      if Window.On_Hash_Change_Event /= null then
+         Window.Unbind_Event ("hashchange");
+      end if;
+
+      Window.On_Hash_Change_Event := Handler;
+
+      if Handler /= null then
+         Window.Bind_Event (Event   => "hashchange",
+                            Message => "");
+      end if;
+   end On_Hash_Change_Handler;
+
+   procedure Fire_On_Hash_Change (Window : in out Window_Type)
+   is
+   begin
+      if Window.On_Hash_Change_Event /= null then
+         Window.On_Hash_Change_Event (Window);
+      end if;
+   end Fire_On_Hash_Change;
+
+   ---------------------------
+   -- On_Orientation_Change --
+   ---------------------------
+
+   procedure On_Orientation_Change_Handler
+     (Window  : in out Window_Type;
+      Handler : in     Gnoga.Gui.Action_Event)
+   is
+   begin
+      if Window.On_Orientation_Change_Event /= null then
+         Window.Unbind_Event ("orientationchange");
+      end if;
+
+      Window.On_Orientation_Change_Event := Handler;
+
+      if Handler /= null then
+         Window.Bind_Event (Event   => "orientationchange",
+                            Message => "");
+      end if;
+   end On_Orientation_Change_Handler;
+
+   procedure Fire_On_Orientation_Change (Window : in out Window_Type)
+   is
+   begin
+      if Window.On_Orientation_Change_Event /= null then
+         Window.On_Orientation_Change_Event (Window);
+      end if;
+   end Fire_On_Orientation_Change;
+
+   ----------------
+   -- On_Storage --
+   ----------------
+
+   procedure On_Storage_Handler (Window  : in out Window_Type;
+                                 Handler : in     Storage_Event)
+   is
+   begin
+      if Window.On_Storage_Event /= null then
+         Window.Unbind_Event ("storage");
+      end if;
+
+      Window.On_Storage_Event := Handler;
+
+      if Handler /= null then
+         Window.Bind_Event (Event   => "storage",
+                            Message => "",
+                            Script  => Storage_Event_Script);
+      end if;
+   end On_Storage_Handler;
+
+   procedure Fire_On_Storage (Window        : in out Window_Type;
+                              Storage_Event : in     Storage_Event_Record)
+   is
+   begin
+      if Window.On_Storage_Event /= null then
+         Window.On_Storage_Event (Window, Storage_Event);
+      end if;
+   end Fire_On_Storage;
 
    ---------------
    -- On_Resize --
@@ -901,7 +899,7 @@ package body Ada_GUI.Gnoga.Gui.Window is
 
    overriding
    procedure On_Resize (Window : in out Window_Type) is
-      use Ada_GUI.Gnoga.Gui.Element;
+      use Gnoga.Gui.Element;
    begin
       if Window.View /= null then
          Element_Access (Window.View).Box_Height (Window.Height);
@@ -930,35 +928,34 @@ package body Ada_GUI.Gnoga.Gui.Window is
    -- On_Message --
    ----------------
 
---     overriding
---     procedure On_Message (Object  : in out Window_Type;
---                           Event   : in     String;
---                           Message : in     String)
---     is
---     begin
+   overriding
+   procedure On_Message (Object  : in out Window_Type;
+                         Event   : in     String;
+                         Message : in     String)
+   is
+   begin
       -- Network Event --
---        if Event = "abort" then
---           Object.Fire_On_Abort;
---        elsif Event = "error" then
---           Object.Fire_On_Error;
---        elsif Event = "beforeunload" then
---           Object.Fire_On_Before_Unload;
---        elsif Event = "hashchange" then
---           Object.Fire_On_Hash_Change;
---        elsif Event = "orientationchange" then
---           Object.Fire_On_Orientation_Change;
---        elsif Event = "storage" then
---           declare
---              E : constant Storage_Event_Record := Parse_Storage_Event (Message);
---           begin
---              Object.Fire_On_Storage (E);
---           end;
---        elsif Event = "resize" then
---           Window_Type'Class (Object).On_Resize;
---           Object.Fire_On_Resize;
---        else
---           Gnoga.Gui.Base_Type (Object).On_Message (Event, Message);
---        end if;
---        null;
---     end On_Message;
+      if Event = "abort" then
+         Object.Fire_On_Abort;
+      elsif Event = "error" then
+         Object.Fire_On_Error;
+      elsif Event = "beforeunload" then
+         Object.Fire_On_Before_Unload;
+      elsif Event = "hashchange" then
+         Object.Fire_On_Hash_Change;
+      elsif Event = "orientationchange" then
+         Object.Fire_On_Orientation_Change;
+      elsif Event = "storage" then
+         declare
+            E : constant Storage_Event_Record := Parse_Storage_Event (Message);
+         begin
+            Object.Fire_On_Storage (E);
+         end;
+      elsif Event = "resize" then
+         Window_Type'Class (Object).On_Resize;
+         Object.Fire_On_Resize;
+      else
+         Gnoga.Gui.Base_Type (Object).On_Message (Event, Message);
+      end if;
+   end On_Message;
 end Ada_GUI.Gnoga.Gui.Window;

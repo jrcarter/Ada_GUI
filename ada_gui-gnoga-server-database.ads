@@ -66,13 +66,13 @@ package Ada_GUI.Gnoga.Server.Database is
    --  Returns the last error message that has occurred on this connection
 
    function List_Of_Tables (C : Connection)
-                            return Data_Array_Type is abstract;
+                            return Gnoga.Data_Array_Type is abstract;
    --  Return an array of table names
 
    function List_Fields_Of_Table
      (C          : Connection;
       Table_Name : String)
-      return Data_Array_Type is abstract;
+      return Gnoga.Data_Array_Type is abstract;
    --  Return an array of field names for table
 
    type Field_Description is record
@@ -154,13 +154,13 @@ package Ada_GUI.Gnoga.Server.Database is
    procedure Iterate
      (C     : in out Connection;
       SQL   : String;
-      Process : not null access procedure (Row : Data_Map_Type))
+      Process : not null access procedure (Row : Gnoga.Data_Map_Type))
       is abstract;
    --  Iterate through all rows in the result set of the query
 
    procedure Iterate
      (RS      : in out Recordset;
-      Process : not null access procedure (Row : Data_Map_Type))
+      Process : not null access procedure (Row : Gnoga.Data_Map_Type))
       is abstract;
    --  Iterate through all rows in the recordset
 
@@ -195,7 +195,7 @@ package Ada_GUI.Gnoga.Server.Database is
    --  return value of field, if Handle_Nulls is true, Null values will
    --  return as empty Strings
 
-   function Field_Values (RS : Recordset) return Data_Map_Type
+   function Field_Values (RS : Recordset) return Gnoga.Data_Map_Type
                           is abstract;
    --  return map of all values for current row, NULL values are set to
    --  an empty String

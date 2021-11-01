@@ -39,7 +39,7 @@ with Ada.Exceptions;
 
 with Ada.Strings.Fixed;
 with Ada.Unchecked_Deallocation;
---  with Ada.Characters.Conversions;
+with Ada.Characters.Conversions;
 
 with Ada_GUI.Gnoga.Server.Connection;
 
@@ -59,74 +59,205 @@ package body Ada_GUI.Gnoga.Gui is
    Keyboard_Event_Script : constant String :=
      "e.keyCode + '|' + e.charCode + '|' + e.altKey + '|' + e.ctrlKey + '|'" &
      " + e.shiftKey + '|' + e.metaKey + '|'";
---
---     function Parse_Mouse_Event (Message       : String;
---                                 Mouse_Message : Mouse_Message_Type)
---                                 return Mouse_Event_Record;
---     --  Parse event message in to Mouse_Event_Record
---
---     function Parse_Keyboard_Event (Message          : String;
---                                    Keyboard_Message : Keyboard_Message_Type)
---                                    return Keyboard_Event_Record;
---     --  Parse event message in to Keyboard_Event_Record
---
---     function Parse_Drop_Event (X, Y : out Integer; Message : in String)
---                                return String;
---     --  Parse on_drop event message
---
---     -----------------------
---     -- Parse_Mouse_Event --
---     -----------------------
---
---     --------------------------
---     -- Parse_Keyboard_Event --
---     --------------------------
---
---     ----------------------
---     -- Parse_Drop_Event --
---     ----------------------
---
---     function Parse_Drop_Event (X, Y : out Integer; Message : in String)
---                                return String
---     is
---        use Ada.Strings.Fixed;
---
---        S      : Integer := Message'First;
---        F      : Integer := Message'First - 1;
---
---        function Split return String;
---        function Split return Integer;
---
---        function Split return String is
---        begin
---           S := F + 1;
---           F := Index (Source  => Message,
---                       Pattern => "|",
---                       From    => S);
---           return Message (S .. (F - 1));
---        end Split;
---
---        function Split return Integer is
---           S : constant String := Split;
---        begin
---           if Index (S, ".") > 0 then
---              return Integer (Float'Value (S));
---           else
---              return Integer'Value (S);
---           end if;
---        exception
---           when E : others =>
---              Log ("Error Parse_Drop_Event converting to Integer" &
---                     " (forced to 0).");
---              Log (Ada.Exceptions.Exception_Information (E));
---              return 0;
---        end Split;
---     begin
---        X := Split;
---        Y := Split;
---
---        return Split;
---     end Parse_Drop_Event;
+
+   function Parse_Mouse_Event (Message       : String;
+                               Mouse_Message : Mouse_Message_Type)
+                               return Mouse_Event_Record;
+   --  Parse event message in to Mouse_Event_Record
+
+   function Parse_Keyboard_Event (Message          : String;
+                                  Keyboard_Message : Keyboard_Message_Type)
+                                  return Keyboard_Event_Record;
+   --  Parse event message in to Keyboard_Event_Record
+
+   function Parse_Drop_Event (X, Y : out Integer; Message : in String)
+                              return String;
+   --  Parse on_drop event message
+
+   -----------------------
+   -- Parse_Mouse_Event --
+   -----------------------
+
+   function Parse_Mouse_Event (Message       : String;
+                               Mouse_Message : Mouse_Message_Type)
+                               return Mouse_Event_Record
+   is
+      use Ada.Strings.Fixed;
+
+      Event  : Mouse_Event_Record;
+      S      : Integer := Message'First;
+      F      : Integer := Message'First - 1;
+      Button : Integer;
+
+      function Split return String;
+      function Split return Integer;
+      function Split return Boolean;
+      --  Split string and extract values
+
+      function Split return String is
+      begin
+         S := F + 1;
+         F := Index (Source  => Message,
+                     Pattern => "|",
+                     From    => S);
+         return Message (S .. (F - 1));
+      end Split;
+
+      function Split return Integer is
+         S : constant String := Split;
+      begin
+         if Index (S, ".") > 0 then
+            return Integer (Float'Value (S));
+         else
+            return Integer'Value (S);
+         end if;
+      exception
+         when E : others =>
+            Log ("Error Parse_Mouse_Event converting to Integer" &
+                   " (forced to 0).");
+            Log (Ada.Exceptions.Exception_Information (E));
+            return 0;
+      end Split;
+
+      function Split return Boolean is
+      begin
+         return Split = "true";
+      end Split;
+
+      No_Button     : constant := 0;
+      Left_Button   : constant := 1;
+      Middle_Button : constant := 2;
+      Right_Button  : constant := 3;
+   begin
+      Event.Message := Mouse_Message;
+      Event.X := Split;
+      Event.Y := Split;
+      Event.Screen_X := Split;
+      Event.Screen_Y := Split;
+
+      Button := Split;
+      Event.Left_Button := Button = Left_Button;
+      Event.Middle_Button := Button = Middle_Button;
+      Event.Right_Button := Button = Right_Button;
+
+      Event.Alt := Split;
+      Event.Control := Split;
+      Event.Shift := Split;
+      Event.Meta := Split;
+
+      return Event;
+   end Parse_Mouse_Event;
+
+   --------------------------
+   -- Parse_Keyboard_Event --
+   --------------------------
+
+   function Parse_Keyboard_Event (Message          : String;
+                                  Keyboard_Message : Keyboard_Message_Type)
+                                  return Keyboard_Event_Record
+   is
+      use Ada.Strings.Fixed;
+
+      Event  : Keyboard_Event_Record;
+      S      : Integer := Message'First;
+      F      : Integer := Message'First - 1;
+
+      function Split return String;
+      function Split return Integer;
+      function Split return Boolean;
+      function Split return Wide_Character;
+
+      function Split return String is
+      begin
+         S := F + 1;
+         F := Index (Source  => Message,
+                     Pattern => "|",
+                     From    => S);
+         return Message (S .. (F - 1));
+      end Split;
+
+      function Split return Integer is
+         S : constant String := Split;
+      begin
+         if Index (S, ".") > 0 then
+            return Integer (Float'Value (S));
+         else
+            return Integer'Value (S);
+         end if;
+      exception
+         when E : others =>
+            Log ("Error Parse_Keyboard_Event converting to Integer" &
+                   " (forced to 0).");
+            Log (Ada.Exceptions.Exception_Information (E));
+            return 0;
+      end Split;
+
+      function Split return Boolean is
+      begin
+         return Split = "true";
+      end Split;
+
+      function Split return Wide_Character is
+      begin
+         return Wide_Character'Val (Split);
+      end Split;
+   begin
+      Event.Message := Keyboard_Message;
+      Event.Key_Code := Split;
+      Event.Key_Char := Split;
+      Event.Alt := Split;
+      Event.Control := Split;
+      Event.Shift := Split;
+      Event.Meta := Split;
+
+      return Event;
+   end Parse_Keyboard_Event;
+
+   ----------------------
+   -- Parse_Drop_Event --
+   ----------------------
+
+   function Parse_Drop_Event (X, Y : out Integer; Message : in String)
+                              return String
+   is
+      use Ada.Strings.Fixed;
+
+      S      : Integer := Message'First;
+      F      : Integer := Message'First - 1;
+
+      function Split return String;
+      function Split return Integer;
+
+      function Split return String is
+      begin
+         S := F + 1;
+         F := Index (Source  => Message,
+                     Pattern => "|",
+                     From    => S);
+         return Message (S .. (F - 1));
+      end Split;
+
+      function Split return Integer is
+         S : constant String := Split;
+      begin
+         if Index (S, ".") > 0 then
+            return Integer (Float'Value (S));
+         else
+            return Integer'Value (S);
+         end if;
+      exception
+         when E : others =>
+            Log ("Error Parse_Drop_Event converting to Integer" &
+                   " (forced to 0).");
+            Log (Ada.Exceptions.Exception_Information (E));
+            return 0;
+      end Split;
+   begin
+      X := Split;
+      Y := Split;
+
+      return Split;
+   end Parse_Drop_Event;
 
    ----------------
    -- Initialize --
@@ -145,7 +276,7 @@ package body Ada_GUI.Gnoga.Gui is
    overriding
    procedure Finalize (Object : in out Base_Type) is
    begin
---        Object.On_Destroy;
+      Object.On_Destroy;
       Object.Detach_From_Message_Queue;
 
       if not Gnoga.Server.Connection.Shutting_Down and
@@ -217,7 +348,7 @@ package body Ada_GUI.Gnoga.Gui is
                      ID            => ID,
                      ID_Type       => ID_Type);
 
---        Object.On_Create;
+      Object.On_Create;
       Object.Bind_Event (Event   => "click",
                          Message => "",
                          Script  => Mouse_Event_Script);
@@ -381,9 +512,9 @@ package body Ada_GUI.Gnoga.Gui is
                      Value  : in out Base_Type'Class)
    is
    begin
---        if Object.Parent_Object /= null then
---           Object.Parent_Object.On_Child_Removed (Object);
---        end if;
+      if Object.Parent_Object /= null then
+         Object.Parent_Object.On_Child_Removed (Object);
+      end if;
 
       Object.Parent_Object := Value'Unchecked_Access;
 
@@ -394,9 +525,9 @@ package body Ada_GUI.Gnoga.Gui is
                      Value  : in Pointer_To_Base_Class)
    is
    begin
---        if Object.Parent_Object /= null then
---           Object.Parent_Object.On_Child_Removed (Object);
---        end if;
+      if Object.Parent_Object /= null then
+         Object.Parent_Object.On_Child_Removed (Object);
+      end if;
 
       Object.Parent_Object := Value;
 
@@ -405,15 +536,6 @@ package body Ada_GUI.Gnoga.Gui is
       end if;
    end Parent;
 
-   procedure Resize_Message (Object : in out Base_Type) is
-   begin -- Resize_Message
-      if not Object.In_Resize then
-         Object.In_Resize := True;
-         Base_Type'Class (Object).On_Resize;
-         Object.In_Resize := False;
-      end if;
-   end Resize_Message;
-
    ------------
    -- Height --
    ------------
@@ -421,7 +543,7 @@ package body Ada_GUI.Gnoga.Gui is
    procedure Height (Object : in out Base_Type; Value : in Integer) is
    begin
       Object.jQuery_Execute ("height(" & Left_Trim (Value'Img) & ");");
-      Object.Resize_Message;
+      Object.On_Message ("resize", "");
    end Height;
 
    function Height (Object : Base_Type) return Integer is
@@ -436,7 +558,7 @@ package body Ada_GUI.Gnoga.Gui is
    procedure Width (Object : in out Base_Type; Value : in Integer) is
    begin
       Object.jQuery_Execute ("width(" & Left_Trim (Value'Img) & ");");
-      Object.Resize_Message;
+      Object.On_Message ("resize", "");
    end Width;
 
    function Width (Object : Base_Type) return Integer is
@@ -622,1186 +744,1186 @@ package body Ada_GUI.Gnoga.Gui is
    begin
       Object.Fire_On_Resize;
    end On_Resize;
---
---     ---------------
---     -- On_Scroll --
---     ---------------
---
---     procedure On_Scroll_Handler (Object  : in out Base_Type;
---                                  Handler : in     Action_Event)
---     is
---     begin
---        if Object.On_Scroll_Event /= null then
---           Object.Unbind_Event ("scroll");
---        end if;
---
---        Object.On_Scroll_Event := Handler;
---
---        if Handler /= null then
---           Object.Bind_Event (Event   => "scroll",
---                              Message => "");
---        end if;
---     end On_Scroll_Handler;
---
---     procedure Fire_On_Scroll (Object : in out Base_Type)
---     is
---     begin
---        if Object.On_Scroll_Event /= null then
---           Object.On_Scroll_Event (Object);
---        end if;
---     end Fire_On_Scroll;
---
---     --------------
---     -- On_Focus --
---     --------------
---
---     procedure On_Focus_Handler (Object  : in out Base_Type;
---                                 Handler : in     Action_Event)
---     is
---     begin
---        if Object.On_Focus_Event /= null then
---           Object.Unbind_Event ("focus");
---        end if;
---
---        Object.On_Focus_Event := Handler;
---
---        if Handler /= null then
---           Object.Bind_Event (Event   => "focus",
---                              Message => "");
---        end if;
---     end On_Focus_Handler;
---
---     procedure Fire_On_Focus (Object : in out Base_Type)
---     is
---     begin
---        if Object.On_Focus_Event /= null then
---           Object.On_Focus_Event (Object);
---        end if;
---     end Fire_On_Focus;
---
---     -------------
---     -- On_Blur --
---     -------------
---
---     procedure On_Blur_Handler (Object  : in out Base_Type;
---                                 Handler : in     Action_Event)
---     is
---     begin
---        if Object.On_Blur_Event /= null then
---           Object.Unbind_Event ("blur");
---        end if;
---
---        Object.On_Blur_Event := Handler;
---
---        if Handler /= null then
---           Object.Bind_Event (Event   => "blur",
---                              Message => "");
---        end if;
---     end On_Blur_Handler;
---
---     procedure Fire_On_Blur (Object : in out Base_Type)
---     is
---     begin
---        if Object.On_Blur_Event /= null then
---           Object.On_Blur_Event (Object);
---        end if;
---     end Fire_On_Blur;
---
---     ---------------
---     -- On_Change --
---     ---------------
---
---     procedure On_Change_Handler (Object  : in out Base_Type;
---                                  Handler : in     Action_Event)
---     is
---     begin
---        if Object.On_Change_Event /= null then
---           Object.Unbind_Event ("change");
---        end if;
---
---        Object.On_Change_Event := Handler;
---
---        if Handler /= null then
---           Object.Bind_Event (Event   => "change",
---                              Message => "");
---        end if;
---     end On_Change_Handler;
---
---     procedure Fire_On_Change (Object : in out Base_Type)
---     is
---     begin
---        if Object.On_Change_Event /= null then
---           Object.On_Change_Event (Object);
---        end if;
---     end Fire_On_Change;
---
---     -----------------
---     -- On_Focus_In --
---     -----------------
---
---     procedure On_Focus_In_Handler (Object  : in out Base_Type;
---                                    Handler : in     Action_Event)
---     is
---     begin
---        if Object.On_Focus_In_Event /= null then
---           Object.Unbind_Event ("focusin");
---        end if;
---
---        Object.On_Focus_In_Event := Handler;
---
---        if Handler /= null then
---           Object.Bind_Event (Event   => "focusin",
---                              Message => "");
---        end if;
---     end On_Focus_In_Handler;
---
---     procedure Fire_On_Focus_In (Object : in out Base_Type)
---     is
---     begin
---        if Object.On_Focus_In_Event /= null then
---           Object.On_Focus_In_Event (Object);
---        end if;
---     end Fire_On_Focus_In;
---
---     ------------------
---     -- On_Focus_Out --
---     ------------------
---
---     procedure On_Focus_Out_Handler (Object  : in out Base_Type;
---                                     Handler : in     Action_Event)
---     is
---     begin
---        if Object.On_Focus_Out_Event /= null then
---           Object.Unbind_Event ("focusout");
---        end if;
---
---        Object.On_Focus_Out_Event := Handler;
---
---        if Handler /= null then
---           Object.Bind_Event (Event   => "focusout",
---                              Message => "");
---        end if;
---     end On_Focus_Out_Handler;
---
---     procedure Fire_On_Focus_Out (Object : in out Base_Type)
---     is
---     begin
---        if Object.On_Focus_Out_Event /= null then
---           Object.On_Focus_Out_Event (Object);
---        end if;
---     end Fire_On_Focus_Out;
---
---     --------------
---     -- On_Input --
---     --------------
---
---     procedure On_Input_Handler (Object  : in out Base_Type;
---                                 Handler : in     Action_Event)
---     is
---     begin
---        if Object.On_Input_Event /= null then
---           Object.Unbind_Event ("input");
---        end if;
---
---        Object.On_Input_Event := Handler;
---
---        if Handler /= null then
---           Object.Bind_Event (Event   => "input",
---                              Message => "");
---        end if;
---     end On_Input_Handler;
---
---     procedure Fire_On_Input (Object : in out Base_Type)
---     is
---     begin
---        if Object.On_Input_Event /= null then
---           Object.On_Input_Event (Object);
---        end if;
---     end Fire_On_Input;
---
---     --------------
---     -- On_Reset --
---     --------------
---
---     procedure On_Reset_Handler (Object  : in out Base_Type;
---                                 Handler : in     Action_Event)
---     is
---     begin
---        if Object.On_Reset_Event /= null then
---           Object.Unbind_Event ("reset");
---        end if;
---
---        Object.On_Reset_Event := Handler;
---
---        if Handler /= null then
---           Object.Bind_Event (Event   => "reset",
---                              Message => "",
---                              Cancel  => True);
---        end if;
---     end On_Reset_Handler;
---
---     procedure Fire_On_Reset (Object : in out Base_Type)
---     is
---     begin
---        if Object.On_Reset_Event /= null then
---           Object.On_Reset_Event (Object);
---        end if;
---     end Fire_On_Reset;
---
---     ---------------
---     -- On_Search --
---     ---------------
---
---     procedure On_Search_Handler (Object  : in out Base_Type;
---                                  Handler : in     Action_Event)
---     is
---     begin
---        if Object.On_Search_Event /= null then
---           Object.Unbind_Event ("search");
---        end if;
---
---        Object.On_Search_Event := Handler;
---
---        if Handler /= null then
---           Object.Bind_Event (Event   => "search",
---                              Message => "");
---        end if;
---     end On_Search_Handler;
---
---     procedure Fire_On_Search (Object : in out Base_Type)
---     is
---     begin
---        if Object.On_Search_Event /= null then
---           Object.On_Search_Event (Object);
---        end if;
---     end Fire_On_Search;
---
---     ---------------
---     -- On_Select --
---     ---------------
---
---     procedure On_Select_Handler (Object  : in out Base_Type;
---                                  Handler : in     Action_Event)
---     is
---     begin
---        if Object.On_Select_Event /= null then
---           Object.Unbind_Event ("select");
---        end if;
---
---        Object.On_Select_Event := Handler;
---
---        if Handler /= null then
---           Object.Bind_Event (Event   => "select",
---                              Message => "");
---        end if;
---     end On_Select_Handler;
---
---     procedure Fire_On_Select (Object : in out Base_Type)
---     is
---     begin
---        if Object.On_Select_Event /= null then
---           Object.On_Select_Event (Object);
---        end if;
---     end Fire_On_Select;
---
---     ---------------
---     -- On_Submit --
---     ---------------
---
---     procedure On_Submit_Handler (Object  : in out Base_Type;
---                                  Handler : in     Action_Event)
---     is
---     begin
---        if Object.On_Submit_Event /= null then
---           Object.Unbind_Event ("submit");
---        end if;
---
---        Object.On_Submit_Event := Handler;
---
---        if Handler /= null then
---           Object.Bind_Event (Event   => "submit",
---                              Message => "",
---                              Cancel  => True);
---        end if;
---     end On_Submit_Handler;
---
---     procedure Fire_On_Submit (Object : in out Base_Type)
---     is
---     begin
---        if Object.On_Submit_Event /= null then
---           Object.On_Submit_Event (Object);
---        end if;
---     end Fire_On_Submit;
---
---     --------------
---     -- On_Click --
---     --------------
---
---     procedure On_Click_Handler (Object  : in out Base_Type;
---                                 Handler : in     Action_Event)
---     is
---     begin
---        If Object.On_Click_Event /= null And Object.On_Mouse_Click_Event = Null then
---           Object.Unbind_Event ("click");
---        end if;
---
---        Object.On_Click_Event := Handler;
---
---        if Handler /= null then --and Object.On_Mouse_Click_Event = null then
---           Object.Bind_Event (Event   => "click",
---                              Message => "",
---                              Script  => Mouse_Event_Script);
---        end if;
---     end On_Click_Handler;
---
---     procedure Fire_On_Click (Object : in out Base_Type)
---     is
---     begin
---        if Object.On_Click_Event /= null then
---           Object.On_Click_Event (Object);
---        end if;
---     end Fire_On_Click;
---
---     --------------------
---     -- On_Mouse_Click --
---     --------------------
---
---     procedure On_Mouse_Click_Handler (Object  : in out Base_Type;
---                                       Handler : in     Mouse_Event)
---     is
---     begin
---        if
---          Object.On_Click_Event = null and
---          Object.On_Mouse_Click_Event /= null
---        then
---           Object.Unbind_Event ("click");
---        end if;
---
---        Object.On_Mouse_Click_Event := Handler;
---
---        if Handler /= null and Object.On_Click_Event = null then
---           Object.Bind_Event (Event   => "click",
---                              Message => "",
---                              Script  => Mouse_Event_Script);
---        end if;
---     end On_Mouse_Click_Handler;
---
---     procedure Fire_On_Mouse_Click (Object   : in out Base_Type;
---                                    Event    : in     Mouse_Event_Record)
---     is
---     begin
---        if Object.On_Mouse_Click_Event /= null then
---           Object.On_Mouse_Click_Event (Object, Event);
---        end if;
---     end Fire_On_Mouse_Click;
---
---     ---------------------
---     -- On_Context_Menu --
---     ---------------------
---
---     procedure On_Context_Menu_Handler (Object  : in out Base_Type;
---                                        Handler : in     Action_Event)
---     is
---     begin
---        if
---          Object.On_Mouse_Right_Click_Event = null and
---          Object.On_Context_Menu_Event /= null
---        then
---           Object.Unbind_Event ("contextmenu");
---        end if;
---
---        Object.On_Context_Menu_Event := Handler;
---
---        if Handler /= null and Object.On_Mouse_Right_Click_Event = null then
---           Object.Bind_Event (Event   => "contextmenu",
---                              Message => "",
---                              Script  => Mouse_Event_Script,
---                              Cancel  => True);
---        end if;
---     end On_Context_Menu_Handler;
---
---     procedure Fire_On_Context_Menu (Object : in out Base_Type)
---     is
---     begin
---        if Object.On_Context_Menu_Event /= null then
---           Object.On_Context_Menu_Event (Object);
---        end if;
---     end Fire_On_Context_Menu;
---
---     --------------------------
---     -- On_Mouse_Right_Click --
---     --------------------------
---
---     procedure On_Mouse_Right_Click_Handler (Object  : in out Base_Type;
---                                             Handler : in     Mouse_Event)
---     is
---     begin
---        if
---          Object.On_Mouse_Right_Click_Event /= null and
---          Object.On_Context_Menu_Event = null
---        then
---           Object.Unbind_Event ("contextmenu");
---        end if;
---
---        Object.On_Mouse_Right_Click_Event := Handler;
---
---        if Handler /= null and Object.On_Context_Menu_Event = null then
---           Object.Bind_Event (Event   => "contextmenu",
---                              Message => "",
---                              Script  => Mouse_Event_Script,
---                              Cancel  => True);
---        end if;
---     end On_Mouse_Right_Click_Handler;
---
---     procedure Fire_On_Mouse_Right_Click (Object   : in out Base_Type;
---                                          Event    : in     Mouse_Event_Record)
---     is
---     begin
---        if Object.On_Mouse_Right_Click_Event /= null then
---           Object.On_Mouse_Right_Click_Event (Object, Event);
---        end if;
---     end Fire_On_Mouse_Right_Click;
---
---     ---------------------
---     -- On_Double_Click --
---     ---------------------
---
---     procedure On_Double_Click_Handler (Object  : in out Base_Type;
---                                        Handler : in     Action_Event)
---     is
---     begin
---        if
---          Object.On_Double_Click_Event /= null and
---          Object.On_Mouse_Double_Click_Event = null
---        then
---           Object.Unbind_Event ("dblclick");
---        end if;
---
---        Object.On_Double_Click_Event := Handler;
---
---        if Handler /= null and Object.On_Mouse_Double_Click_Event = null then
---           Object.Bind_Event (Event   => "dblclick",
---                              Message => "",
---                              Script  => Mouse_Event_Script);
---        end if;
---     end On_Double_Click_Handler;
---
---     procedure Fire_On_Double_Click (Object : in out Base_Type)
---     is
---     begin
---        if Object.On_Double_Click_Event /= null then
---           Object.On_Double_Click_Event (Object);
---        end if;
---     end Fire_On_Double_Click;
---
---     ---------------------------
---     -- On_Mouse_Double_Click --
---     ---------------------------
---
---     procedure On_Mouse_Double_Click_Handler (Object  : in out Base_Type;
---                                              Handler : in     Mouse_Event)
---     is
---     begin
---        if
---          Object.On_Double_Click_Event = null and
---          Object.On_Mouse_Double_Click_Event /= null
---        then
---           Object.Unbind_Event ("dblclick");
---        end if;
---
---        Object.On_Mouse_Double_Click_Event := Handler;
---
---        if Handler /= null and Object.On_Double_Click_Event = null then
---           Object.Bind_Event (Event   => "dblclick",
---                              Message => "",
---                              Script  => Mouse_Event_Script);
---        end if;
---     end On_Mouse_Double_Click_Handler;
---
---     procedure Fire_On_Mouse_Double_Click (Object   : in out Base_Type;
---                                           Event    : in     Mouse_Event_Record)
---     is
---     begin
---        if Object.On_Mouse_Double_Click_Event /= null then
---           Object.On_Mouse_Double_Click_Event (Object, Event);
---        end if;
---     end Fire_On_Mouse_Double_Click;
---
---     --------------------
---     -- On_Mouse_Enter --
---     --------------------
---
---     procedure On_Mouse_Enter_Handler (Object  : in out Base_Type;
---                                       Handler : in     Action_Event)
---     is
---     begin
---        if Object.On_Mouse_Enter_Event /= null then
---           Object.Unbind_Event ("mouseenter");
---        end if;
---
---        Object.On_Mouse_Enter_Event := Handler;
---
---        if Handler /= null then
---           Object.Bind_Event (Event   => "mouseenter",
---                              Message => "");
---        end if;
---     end On_Mouse_Enter_Handler;
---
---     procedure Fire_On_Mouse_Enter (Object : in out Base_Type)
---     is
---     begin
---        if Object.On_Mouse_Enter_Event /= null then
---           Object.On_Mouse_Enter_Event (Object);
---        end if;
---     end Fire_On_Mouse_Enter;
---
---     --------------------
---     -- On_Mouse_Leave --
---     --------------------
---
---     procedure On_Mouse_Leave_Handler (Object  : in out Base_Type;
---                                 Handler : in     Action_Event)
---     is
---     begin
---        if Object.On_Mouse_Leave_Event /= null then
---           Object.Unbind_Event ("mouseleave");
---        end if;
---
---        Object.On_Mouse_Leave_Event := Handler;
---
---        if Handler /= null then
---           Object.Bind_Event (Event   => "mouseleave",
---                              Message => "");
---        end if;
---     end On_Mouse_Leave_Handler;
---
---     procedure Fire_On_Mouse_Leave (Object : in out Base_Type)
---     is
---     begin
---        if Object.On_Mouse_Leave_Event /= null then
---           Object.On_Mouse_Leave_Event (Object);
---        end if;
---     end Fire_On_Mouse_Leave;
---
---     --------------------
---     -- On_Mouse_Over --
---     --------------------
---
---     procedure On_Mouse_Over_Handler (Object  : in out Base_Type;
---                                 Handler : in     Action_Event)
---     is
---     begin
---        if Object.On_Mouse_Over_Event /= null then
---           Object.Unbind_Event ("mouseover");
---        end if;
---
---        Object.On_Mouse_Over_Event := Handler;
---
---        if Handler /= null then
---           Object.Bind_Event (Event   => "mouseover",
---                              Message => "");
---        end if;
---     end On_Mouse_Over_Handler;
---
---     procedure Fire_On_Mouse_Over (Object : in out Base_Type)
---     is
---     begin
---        if Object.On_Mouse_Over_Event /= null then
---           Object.On_Mouse_Over_Event (Object);
---        end if;
---     end Fire_On_Mouse_Over;
---
---     ------------------
---     -- On_Mouse_Out --
---     ------------------
---
---     procedure On_Mouse_Out_Handler (Object  : in out Base_Type;
---                                     Handler : in     Action_Event)
---     is
---     begin
---        if Object.On_Mouse_Out_Event /= null then
---           Object.Unbind_Event ("mouseout");
---        end if;
---
---        Object.On_Mouse_Out_Event := Handler;
---
---        if Handler /= null then
---           Object.Bind_Event (Event   => "mouseout",
---                              Message => "");
---        end if;
---     end On_Mouse_Out_Handler;
---
---     procedure Fire_On_Mouse_Out (Object : in out Base_Type)
---     is
---     begin
---        if Object.On_Mouse_Out_Event /= null then
---           Object.On_Mouse_Out_Event (Object);
---        end if;
---     end Fire_On_Mouse_Out;
---
---     -------------------
---     -- On_Mouse_Down --
---     -------------------
---
---     procedure On_Mouse_Down_Handler (Object  : in out Base_Type;
---                                      Handler : in     Mouse_Event)
---     is
---     begin
---        if Object.On_Mouse_Down_Event /= null then
---           Object.Unbind_Event ("mousedown");
---        end if;
---
---        Object.On_Mouse_Down_Event := Handler;
---
---        if Handler /= null then
---           Object.Bind_Event (Event   => "mousedown",
---                              Message => "",
---                              Script  => Mouse_Event_Script);
---        end if;
---     end On_Mouse_Down_Handler;
---
---     procedure Fire_On_Mouse_Down (Object   : in out Base_Type;
---                                   Event    : in     Mouse_Event_Record)
---     is
---     begin
---        if Object.On_Mouse_Down_Event /= null then
---           Object.On_Mouse_Down_Event (Object, Event);
---        end if;
---     end Fire_On_Mouse_Down;
---
---     -----------------
---     -- On_Mouse_Up --
---     -----------------
---
---     procedure On_Mouse_Up_Handler (Object  : in out Base_Type;
---                                    Handler : in     Mouse_Event)
---     is
---     begin
---        if Object.On_Mouse_Up_Event /= null then
---           Object.Unbind_Event ("mouseup");
---        end if;
---
---        Object.On_Mouse_Up_Event := Handler;
---
---        if Handler /= null then
---           Object.Bind_Event (Event   => "mouseup",
---                              Message => "",
---                              Script  => Mouse_Event_Script);
---        end if;
---     end On_Mouse_Up_Handler;
---
---     procedure Fire_On_Mouse_Up (Object   : in out Base_Type;
---                                 Event    : in     Mouse_Event_Record)
---     is
---     begin
---        if Object.On_Mouse_Up_Event /= null then
---           Object.On_Mouse_Up_Event (Object, Event);
---        end if;
---     end Fire_On_Mouse_Up;
---
---     -------------------
---     -- On_Mouse_Move --
---     -------------------
---
---     procedure On_Mouse_Move_Handler (Object  : in out Base_Type;
---                                      Handler : in     Mouse_Event)
---     is
---     begin
---        if Object.On_Mouse_Move_Event /= null then
---           Object.Unbind_Event ("mousemove");
---        end if;
---
---        Object.On_Mouse_Move_Event := Handler;
---
---        if Handler /= null then
---           Object.Bind_Event (Event   => "mousemove",
---                              Message => "",
---                              Script  => Mouse_Event_Script);
---        end if;
---     end On_Mouse_Move_Handler;
---
---     procedure Fire_On_Mouse_Move (Object   : in out Base_Type;
---                                   Event    : in     Mouse_Event_Record)
---     is
---     begin
---        if Object.On_Mouse_Move_Event /= null then
---           Object.On_Mouse_Move_Event (Object, Event);
---        end if;
---     end Fire_On_Mouse_Move;
---
---     procedure On_Drag_Start_Handler (Object    : in out Base_Type;
---                                      Handler   : in     Action_Event;
---                                      Drag_Text : in     String;
---                                      Drag_Type : in     String := "text/plain")
---     is
---     begin
---        if Object.On_Drag_Start_Event /= null then
---           Object.Unbind_Event ("dragstart");
---        end if;
---
---        Object.On_Drag_Start_Event := Handler;
---
---        if Handler /= null then
---           Object.Bind_Event
---             (Event   => "dragstart",
---              Message => "",
---              Eval  =>
---               "e.originalEvent.dataTransfer.setData('" & Drag_Type & "', '" &
---               Escape_Quotes (Drag_Text) & "');");
---        end if;
---     end On_Drag_Start_Handler;
---
---     procedure Fire_On_Drag_Start (Object : in out Base_Type)
---     is
---     begin
---        if Object.On_Drag_Start_Event /= null then
---           Object.On_Drag_Start_Event (Object);
---        end if;
---     end Fire_On_Drag_Start;
---
---     procedure On_Drag_Handler (Object  : in out Base_Type;
---                                Handler : in     Action_Event)
---     is
---     begin
---        if Object.On_Drag_Event /= null then
---           Object.Unbind_Event ("drag");
---        end if;
---
---        Object.On_Drag_Event := Handler;
---
---        if Handler /= null then
---           Object.Bind_Event (Event   => "drag",
---                              Message => "");
---        end if;
---     end On_Drag_Handler;
---
---     procedure Fire_On_Drag (Object : in out Base_Type)
---     is
---     begin
---        if Object.On_Drag_Event /= null then
---           Object.On_Drag_Event (Object);
---        end if;
---     end Fire_On_Drag;
---
---     procedure On_Drag_End_Handler (Object  : in out Base_Type;
---                                    Handler : in     Action_Event)
---     is
---     begin
---        if Object.On_Drag_End_Event /= null then
---           Object.Unbind_Event ("dragend");
---        end if;
---
---        Object.On_Drag_End_Event := Handler;
---
---        if Handler /= null then
---           Object.Bind_Event (Event   => "dragend",
---                              Message => "");
---        end if;
---     end On_Drag_End_Handler;
---
---     procedure Fire_On_Drag_End (Object : in out Base_Type)
---     is
---     begin
---        if Object.On_Drag_End_Event /= null then
---           Object.On_Drag_End_Event (Object);
---        end if;
---     end Fire_On_Drag_End;
---
---     procedure On_Drag_Enter_Handler (Object  : in out Base_Type;
---                                      Handler : in     Action_Event)
---     is
---     begin
---        if Object.On_Drag_Enter_Event /= null then
---           Object.Unbind_Event ("dragenter");
---        end if;
---
---        Object.On_Drag_Enter_Event := Handler;
---
---        if Handler /= null then
---           Object.Bind_Event (Event   => "dragenter",
---                              Message => "");
---        end if;
---     end On_Drag_Enter_Handler;
---
---     procedure Fire_On_Drag_Enter (Object : in out Base_Type)
---     is
---     begin
---        if Object.On_Drag_Enter_Event /= null then
---           Object.On_Drag_Enter_Event (Object);
---        end if;
---     end Fire_On_Drag_Enter;
---
---     procedure On_Drag_Leave_Handler (Object  : in out Base_Type;
---                                      Handler : in     Action_Event)
---     is
---     begin
---        if Object.On_Drag_Leave_Event /= null then
---           Object.Unbind_Event ("dragleave");
---        end if;
---
---        Object.On_Drag_Leave_Event := Handler;
---
---        if Handler /= null then
---           Object.Bind_Event (Event   => "dragleave",
---                              Message => "");
---        end if;
---     end On_Drag_Leave_Handler;
---
---     procedure Fire_On_Drag_Leave (Object : in out Base_Type)
---     is
---     begin
---        if Object.On_Drag_Leave_Event /= null then
---           Object.On_Drag_Leave_Event (Object);
---        end if;
---     end Fire_On_Drag_Leave;
---
---     procedure On_Drop_Handler (Object    : in out Base_Type;
---                                Handler   : in     Drop_Event;
---                                Drag_Type : in     String := "text/plain")
---     is
---     begin
---        if Object.On_Drop_Event /= null then
---           Object.Unbind_Event ("dragover");
---           Object.Unbind_Event ("drop");
---        end if;
---
---        Object.On_Drop_Event := Handler;
---
---        if Handler /= null then
---           Object.Bind_Event (Event   => "dragover",
---                              Message => "",
---                              Eval  => "e.preventDefault();");
---           Object.Bind_Event
---             (Event   => "drop",
---              Message => "",
---              Eval    => "e.preventDefault();",
---              Script  =>
---                "(e.originalEvent.clientX - " &
---                "e.target.getBoundingClientRect().left) + '|' + " &
---                "(e.originalEvent.clientY - " &
---                "e.target.getBoundingClientRect().top)  + '|' + " &
---                "e.originalEvent.dataTransfer.getData('" &
---                Drag_Type & "') + '|'");
---        end if;
---     end On_Drop_Handler;
---
---     procedure Fire_On_Drop (Object    : in out Base_Type;
---                             X, Y      : in     Integer;
---                             Drag_Text : in     String)
---     is
---     begin
---        if Object.On_Drop_Event /= null then
---           Object.On_Drop_Event (Object, X, Y, Drag_Text);
---        end if;
---     end Fire_On_Drop;
---
---     ------------------
---     -- On_Character --
---     ------------------
---
---     procedure On_Character_Handler (Object  : in out Base_Type;
---                                     Handler : in     Character_Event)
---     is
---     begin
---        if
---          Object.On_Character_Event /= null and
---          Object.On_Wide_Character_Event = null and
---          Object.On_Key_Press_Event = null
---        then
---           Object.Unbind_Event ("keypress");
---        end if;
---
---        Object.On_Character_Event := Handler;
---
---        if
---          Handler /= null and
---          Object.On_Wide_Character_Event = null and
---          Object.On_Key_Press_Event = null
---        then
---           Object.Bind_Event (Event   => "keypress",
---                              Message => "",
---                              Script  => Keyboard_Event_Script);
---        end if;
---     end On_Character_Handler;
---
---     procedure Fire_On_Character (Object : in out Base_Type;
---                                  Key    : in     Character)
---     is
---     begin
---        if Object.On_Character_Event /= null then
---           Object.On_Character_Event (Object, Key);
---        end if;
---     end Fire_On_Character;
---
---     -----------------------
---     -- On_Wide_Character --
---     -----------------------
---
---     procedure On_Wide_Character_Handler (Object  : in out Base_Type;
---                                          Handler : in     Wide_Character_Event)
---     is
---     begin
---        if
---          Object.On_Character_Event = null and
---          Object.On_Wide_Character_Event /= null and
---          Object.On_Key_Press_Event = null
---        then
---           Object.Unbind_Event ("keypress");
---        end if;
---
---        Object.On_Wide_Character_Event := Handler;
---
---        if
---          Handler /= null and
---          Object.On_Character_Event = null and
---          Object.On_Key_Press_Event = null
---        then
---           Object.Bind_Event (Event   => "keypress",
---                              Message => "",
---                              Script  => Keyboard_Event_Script);
---        end if;
---     end On_Wide_Character_Handler;
---
---     procedure Fire_On_Wide_Character (Object : in out Base_Type;
---                                       Key    : in     Wide_Character)
---     is
---     begin
---        if Object.On_Wide_Character_Event /= null then
---           Object.On_Wide_Character_Event (Object, Key);
---        end if;
---     end Fire_On_Wide_Character;
---
---     ------------------
---     -- On_Key_Down --
---     ------------------
---
---     procedure On_Key_Down_Handler (Object  : in out Base_Type;
---                                    Handler : in     Keyboard_Event)
---     is
---     begin
---        if Object.On_Key_Down_Event /= null then
---           Object.Unbind_Event ("keydown");
---        end if;
---
---        Object.On_Key_Down_Event := Handler;
---
---        if Handler /= null then
---           Object.Bind_Event (Event   => "keydown",
---                              Message => "",
---                              Script  => Keyboard_Event_Script);
---        end if;
---     end On_Key_Down_Handler;
---
---     procedure Fire_On_Key_Down (Object : in out Base_Type;
---                                 Event  : in     Keyboard_Event_Record)
---     is
---     begin
---        if Object.On_Key_Down_Event /= null then
---           Object.On_Key_Down_Event (Object, Event);
---        end if;
---     end Fire_On_Key_Down;
---
---     ---------------
---     -- On_Key_Up --
---     ---------------
---
---     procedure On_Key_Up_Handler (Object  : in out Base_Type;
---                                  Handler : in     Keyboard_Event)
---     is
---     begin
---        if Object.On_Key_Up_Event /= null then
---           Object.Unbind_Event ("keyup");
---        end if;
---
---        Object.On_Key_Up_Event := Handler;
---
---        if Handler /= null then
---           Object.Bind_Event (Event   => "keyup",
---                              Message => "",
---                              Script  => Keyboard_Event_Script);
---        end if;
---     end On_Key_Up_Handler;
---
---     procedure Fire_On_Key_Up (Object : in out Base_Type;
---                               Event  : in     Keyboard_Event_Record)
---     is
---     begin
---        if Object.On_Key_Up_Event /= null then
---           Object.On_Key_Up_Event (Object, Event);
---        end if;
---     end Fire_On_Key_Up;
---
---     ------------------
---     -- On_Key_Press --
---     ------------------
---
---     procedure On_Key_Press_Handler (Object  : in out Base_Type;
---                                    Handler : in     Keyboard_Event)
---     is
---     begin
---        if
---          Object.On_Character_Event = null and
---          Object.On_Wide_Character_Event = null and
---          Object.On_Key_Press_Event /= null
---        then
---           Object.Unbind_Event ("keypress");
---        end if;
---
---        Object.On_Key_Press_Event := Handler;
---
---        if
---          Handler /= null and
---          Object.On_Character_Event = null and
---          Object.On_Wide_Character_Event = null
---        then
---           Object.Bind_Event (Event   => "keypress",
---                              Message => "",
---                              Script  => Keyboard_Event_Script);
---        end if;
---     end On_Key_Press_Handler;
---
---     procedure Fire_On_Key_Press (Object : in out Base_Type;
---                                 Event  : in     Keyboard_Event_Record)
---     is
---     begin
---        if Object.On_Key_Press_Event /= null then
---           Object.On_Key_Press_Event (Object, Event);
---        end if;
---     end Fire_On_Key_Press;
---
---     -------------
---     -- On_Copy --
---     -------------
---
---     procedure On_Copy_Handler (Object  : in out Base_Type;
---                                Handler : in     Action_Event)
---     is
---     begin
---        if Object.On_Copy_Event /= null then
---           Object.Unbind_Event ("copy");
---        end if;
---
---        Object.On_Copy_Event := Handler;
---
---        if Handler /= null then
---           Object.Bind_Event (Event   => "copy",
---                              Message => "");
---        end if;
---     end On_Copy_Handler;
---
---     procedure Fire_On_Copy (Object : in out Base_Type)
---     is
---     begin
---        if Object.On_Copy_Event /= null then
---           Object.On_Copy_Event (Object);
---        end if;
---     end Fire_On_Copy;
---
---     ------------
---     -- On_Cut --
---     ------------
---
---     procedure On_Cut_Handler (Object  : in out Base_Type;
---                               Handler : in     Action_Event)
---     is
---     begin
---        if Object.On_Cut_Event /= null then
---           Object.Unbind_Event ("cut");
---        end if;
---
---        Object.On_Cut_Event := Handler;
---
---        if Handler /= null then
---           Object.Bind_Event (Event   => "cut",
---                              Message => "");
---        end if;
---     end On_Cut_Handler;
---
---     procedure Fire_On_Cut (Object : in out Base_Type)
---     is
---     begin
---        if Object.On_Cut_Event /= null then
---           Object.On_Cut_Event (Object);
---        end if;
---     end Fire_On_Cut;
---
---     --------------
---     -- On_Paste --
---     --------------
---
---     procedure On_Paste_Handler (Object  : in out Base_Type;
---                                 Handler : in     Action_Event)
---     is
---     begin
---        if Object.On_Paste_Event /= null then
---           Object.Unbind_Event ("paste");
---        end if;
---
---        Object.On_Paste_Event := Handler;
---
---        if Handler /= null then
---           Object.Bind_Event (Event   => "paste",
---                              Message => "");
---        end if;
---     end On_Paste_Handler;
---
---     procedure Fire_On_Paste (Object : in out Base_Type)
---     is
---     begin
---        if Object.On_Paste_Event /= null then
---           Object.On_Paste_Event (Object);
---        end if;
---     end Fire_On_Paste;
---
---     ---------------
---     -- On_Create --
---     ---------------
---
---     procedure On_Create (Object : in out Base_Type)
---     is
---     begin
---        Object.Fire_On_Create;
---     end On_Create;
---
---     procedure On_Create_Handler (Object  : in out Base_Type;
---                                  Handler : in     Action_Event)
---     is
---     begin
---        Object.On_Create_Event := Handler;
---     end On_Create_Handler;
---
---     procedure Fire_On_Create (Object : in out Base_Type)
---     is
---     begin
---        if Object.On_Create_Event /= null then
---           Object.On_Create_Event (Object);
---        end if;
---     end Fire_On_Create;
---
---     ----------------
---     -- On_Destroy --
---     ----------------
---
---     procedure On_Destroy (Object : in out Base_Type)
---     is
---     begin
---        Object.Fire_On_Destroy;
---     end On_Destroy;
---
---     procedure On_Destroy_Handler (Object  : in out Base_Type;
---                                   Handler : in     Action_Event)
---     is
---     begin
---        Object.On_Destroy_Event := Handler;
---     end On_Destroy_Handler;
---
---     procedure Fire_On_Destroy (Object : in out Base_Type)
---     is
---     begin
---        if Object.On_Destroy_Event /= null then
---           Object.On_Destroy_Event (Object);
---        end if;
---     end Fire_On_Destroy;
+
+   ---------------
+   -- On_Scroll --
+   ---------------
+
+   procedure On_Scroll_Handler (Object  : in out Base_Type;
+                                Handler : in     Action_Event)
+   is
+   begin
+      if Object.On_Scroll_Event /= null then
+         Object.Unbind_Event ("scroll");
+      end if;
+
+      Object.On_Scroll_Event := Handler;
+
+      if Handler /= null then
+         Object.Bind_Event (Event   => "scroll",
+                            Message => "");
+      end if;
+   end On_Scroll_Handler;
+
+   procedure Fire_On_Scroll (Object : in out Base_Type)
+   is
+   begin
+      if Object.On_Scroll_Event /= null then
+         Object.On_Scroll_Event (Object);
+      end if;
+   end Fire_On_Scroll;
+
+   --------------
+   -- On_Focus --
+   --------------
+
+   procedure On_Focus_Handler (Object  : in out Base_Type;
+                               Handler : in     Action_Event)
+   is
+   begin
+      if Object.On_Focus_Event /= null then
+         Object.Unbind_Event ("focus");
+      end if;
+
+      Object.On_Focus_Event := Handler;
+
+      if Handler /= null then
+         Object.Bind_Event (Event   => "focus",
+                            Message => "");
+      end if;
+   end On_Focus_Handler;
+
+   procedure Fire_On_Focus (Object : in out Base_Type)
+   is
+   begin
+      if Object.On_Focus_Event /= null then
+         Object.On_Focus_Event (Object);
+      end if;
+   end Fire_On_Focus;
+
+   -------------
+   -- On_Blur --
+   -------------
+
+   procedure On_Blur_Handler (Object  : in out Base_Type;
+                               Handler : in     Action_Event)
+   is
+   begin
+      if Object.On_Blur_Event /= null then
+         Object.Unbind_Event ("blur");
+      end if;
+
+      Object.On_Blur_Event := Handler;
+
+      if Handler /= null then
+         Object.Bind_Event (Event   => "blur",
+                            Message => "");
+      end if;
+   end On_Blur_Handler;
+
+   procedure Fire_On_Blur (Object : in out Base_Type)
+   is
+   begin
+      if Object.On_Blur_Event /= null then
+         Object.On_Blur_Event (Object);
+      end if;
+   end Fire_On_Blur;
+
+   ---------------
+   -- On_Change --
+   ---------------
+
+   procedure On_Change_Handler (Object  : in out Base_Type;
+                                Handler : in     Action_Event)
+   is
+   begin
+      if Object.On_Change_Event /= null then
+         Object.Unbind_Event ("change");
+      end if;
+
+      Object.On_Change_Event := Handler;
+
+      if Handler /= null then
+         Object.Bind_Event (Event   => "change",
+                            Message => "");
+      end if;
+   end On_Change_Handler;
+
+   procedure Fire_On_Change (Object : in out Base_Type)
+   is
+   begin
+      if Object.On_Change_Event /= null then
+         Object.On_Change_Event (Object);
+      end if;
+   end Fire_On_Change;
+
+   -----------------
+   -- On_Focus_In --
+   -----------------
+
+   procedure On_Focus_In_Handler (Object  : in out Base_Type;
+                                  Handler : in     Action_Event)
+   is
+   begin
+      if Object.On_Focus_In_Event /= null then
+         Object.Unbind_Event ("focusin");
+      end if;
+
+      Object.On_Focus_In_Event := Handler;
+
+      if Handler /= null then
+         Object.Bind_Event (Event   => "focusin",
+                            Message => "");
+      end if;
+   end On_Focus_In_Handler;
+
+   procedure Fire_On_Focus_In (Object : in out Base_Type)
+   is
+   begin
+      if Object.On_Focus_In_Event /= null then
+         Object.On_Focus_In_Event (Object);
+      end if;
+   end Fire_On_Focus_In;
+
+   ------------------
+   -- On_Focus_Out --
+   ------------------
+
+   procedure On_Focus_Out_Handler (Object  : in out Base_Type;
+                                   Handler : in     Action_Event)
+   is
+   begin
+      if Object.On_Focus_Out_Event /= null then
+         Object.Unbind_Event ("focusout");
+      end if;
+
+      Object.On_Focus_Out_Event := Handler;
+
+      if Handler /= null then
+         Object.Bind_Event (Event   => "focusout",
+                            Message => "");
+      end if;
+   end On_Focus_Out_Handler;
+
+   procedure Fire_On_Focus_Out (Object : in out Base_Type)
+   is
+   begin
+      if Object.On_Focus_Out_Event /= null then
+         Object.On_Focus_Out_Event (Object);
+      end if;
+   end Fire_On_Focus_Out;
+
+   --------------
+   -- On_Input --
+   --------------
+
+   procedure On_Input_Handler (Object  : in out Base_Type;
+                               Handler : in     Action_Event)
+   is
+   begin
+      if Object.On_Input_Event /= null then
+         Object.Unbind_Event ("input");
+      end if;
+
+      Object.On_Input_Event := Handler;
+
+      if Handler /= null then
+         Object.Bind_Event (Event   => "input",
+                            Message => "");
+      end if;
+   end On_Input_Handler;
+
+   procedure Fire_On_Input (Object : in out Base_Type)
+   is
+   begin
+      if Object.On_Input_Event /= null then
+         Object.On_Input_Event (Object);
+      end if;
+   end Fire_On_Input;
+
+   --------------
+   -- On_Reset --
+   --------------
+
+   procedure On_Reset_Handler (Object  : in out Base_Type;
+                               Handler : in     Action_Event)
+   is
+   begin
+      if Object.On_Reset_Event /= null then
+         Object.Unbind_Event ("reset");
+      end if;
+
+      Object.On_Reset_Event := Handler;
+
+      if Handler /= null then
+         Object.Bind_Event (Event   => "reset",
+                            Message => "",
+                            Cancel  => True);
+      end if;
+   end On_Reset_Handler;
+
+   procedure Fire_On_Reset (Object : in out Base_Type)
+   is
+   begin
+      if Object.On_Reset_Event /= null then
+         Object.On_Reset_Event (Object);
+      end if;
+   end Fire_On_Reset;
+
+   ---------------
+   -- On_Search --
+   ---------------
+
+   procedure On_Search_Handler (Object  : in out Base_Type;
+                                Handler : in     Action_Event)
+   is
+   begin
+      if Object.On_Search_Event /= null then
+         Object.Unbind_Event ("search");
+      end if;
+
+      Object.On_Search_Event := Handler;
+
+      if Handler /= null then
+         Object.Bind_Event (Event   => "search",
+                            Message => "");
+      end if;
+   end On_Search_Handler;
+
+   procedure Fire_On_Search (Object : in out Base_Type)
+   is
+   begin
+      if Object.On_Search_Event /= null then
+         Object.On_Search_Event (Object);
+      end if;
+   end Fire_On_Search;
+
+   ---------------
+   -- On_Select --
+   ---------------
+
+   procedure On_Select_Handler (Object  : in out Base_Type;
+                                Handler : in     Action_Event)
+   is
+   begin
+      if Object.On_Select_Event /= null then
+         Object.Unbind_Event ("select");
+      end if;
+
+      Object.On_Select_Event := Handler;
+
+      if Handler /= null then
+         Object.Bind_Event (Event   => "select",
+                            Message => "");
+      end if;
+   end On_Select_Handler;
+
+   procedure Fire_On_Select (Object : in out Base_Type)
+   is
+   begin
+      if Object.On_Select_Event /= null then
+         Object.On_Select_Event (Object);
+      end if;
+   end Fire_On_Select;
+
+   ---------------
+   -- On_Submit --
+   ---------------
+
+   procedure On_Submit_Handler (Object  : in out Base_Type;
+                                Handler : in     Action_Event)
+   is
+   begin
+      if Object.On_Submit_Event /= null then
+         Object.Unbind_Event ("submit");
+      end if;
+
+      Object.On_Submit_Event := Handler;
+
+      if Handler /= null then
+         Object.Bind_Event (Event   => "submit",
+                            Message => "",
+                            Cancel  => True);
+      end if;
+   end On_Submit_Handler;
+
+   procedure Fire_On_Submit (Object : in out Base_Type)
+   is
+   begin
+      if Object.On_Submit_Event /= null then
+         Object.On_Submit_Event (Object);
+      end if;
+   end Fire_On_Submit;
+
+   --------------
+   -- On_Click --
+   --------------
+
+   procedure On_Click_Handler (Object  : in out Base_Type;
+                               Handler : in     Action_Event)
+   is
+   begin
+      If Object.On_Click_Event /= null And Object.On_Mouse_Click_Event = Null then
+         Object.Unbind_Event ("click");
+      end if;
+
+      Object.On_Click_Event := Handler;
+
+      if Handler /= null then --and Object.On_Mouse_Click_Event = null then
+         Object.Bind_Event (Event   => "click",
+                            Message => "",
+                            Script  => Mouse_Event_Script);
+      end if;
+   end On_Click_Handler;
+
+   procedure Fire_On_Click (Object : in out Base_Type)
+   is
+   begin
+      if Object.On_Click_Event /= null then
+         Object.On_Click_Event (Object);
+      end if;
+   end Fire_On_Click;
+
+   --------------------
+   -- On_Mouse_Click --
+   --------------------
+
+   procedure On_Mouse_Click_Handler (Object  : in out Base_Type;
+                                     Handler : in     Mouse_Event)
+   is
+   begin
+      if
+        Object.On_Click_Event = null and
+        Object.On_Mouse_Click_Event /= null
+      then
+         Object.Unbind_Event ("click");
+      end if;
+
+      Object.On_Mouse_Click_Event := Handler;
+
+      if Handler /= null and Object.On_Click_Event = null then
+         Object.Bind_Event (Event   => "click",
+                            Message => "",
+                            Script  => Mouse_Event_Script);
+      end if;
+   end On_Mouse_Click_Handler;
+
+   procedure Fire_On_Mouse_Click (Object   : in out Base_Type;
+                                  Event    : in     Mouse_Event_Record)
+   is
+   begin
+      if Object.On_Mouse_Click_Event /= null then
+         Object.On_Mouse_Click_Event (Object, Event);
+      end if;
+   end Fire_On_Mouse_Click;
+
+   ---------------------
+   -- On_Context_Menu --
+   ---------------------
+
+   procedure On_Context_Menu_Handler (Object  : in out Base_Type;
+                                      Handler : in     Action_Event)
+   is
+   begin
+      if
+        Object.On_Mouse_Right_Click_Event = null and
+        Object.On_Context_Menu_Event /= null
+      then
+         Object.Unbind_Event ("contextmenu");
+      end if;
+
+      Object.On_Context_Menu_Event := Handler;
+
+      if Handler /= null and Object.On_Mouse_Right_Click_Event = null then
+         Object.Bind_Event (Event   => "contextmenu",
+                            Message => "",
+                            Script  => Mouse_Event_Script,
+                            Cancel  => True);
+      end if;
+   end On_Context_Menu_Handler;
+
+   procedure Fire_On_Context_Menu (Object : in out Base_Type)
+   is
+   begin
+      if Object.On_Context_Menu_Event /= null then
+         Object.On_Context_Menu_Event (Object);
+      end if;
+   end Fire_On_Context_Menu;
+
+   --------------------------
+   -- On_Mouse_Right_Click --
+   --------------------------
+
+   procedure On_Mouse_Right_Click_Handler (Object  : in out Base_Type;
+                                           Handler : in     Mouse_Event)
+   is
+   begin
+      if
+        Object.On_Mouse_Right_Click_Event /= null and
+        Object.On_Context_Menu_Event = null
+      then
+         Object.Unbind_Event ("contextmenu");
+      end if;
+
+      Object.On_Mouse_Right_Click_Event := Handler;
+
+      if Handler /= null and Object.On_Context_Menu_Event = null then
+         Object.Bind_Event (Event   => "contextmenu",
+                            Message => "",
+                            Script  => Mouse_Event_Script,
+                            Cancel  => True);
+      end if;
+   end On_Mouse_Right_Click_Handler;
+
+   procedure Fire_On_Mouse_Right_Click (Object   : in out Base_Type;
+                                        Event    : in     Mouse_Event_Record)
+   is
+   begin
+      if Object.On_Mouse_Right_Click_Event /= null then
+         Object.On_Mouse_Right_Click_Event (Object, Event);
+      end if;
+   end Fire_On_Mouse_Right_Click;
+
+   ---------------------
+   -- On_Double_Click --
+   ---------------------
+
+   procedure On_Double_Click_Handler (Object  : in out Base_Type;
+                                      Handler : in     Action_Event)
+   is
+   begin
+      if
+        Object.On_Double_Click_Event /= null and
+        Object.On_Mouse_Double_Click_Event = null
+      then
+         Object.Unbind_Event ("dblclick");
+      end if;
+
+      Object.On_Double_Click_Event := Handler;
+
+      if Handler /= null and Object.On_Mouse_Double_Click_Event = null then
+         Object.Bind_Event (Event   => "dblclick",
+                            Message => "",
+                            Script  => Mouse_Event_Script);
+      end if;
+   end On_Double_Click_Handler;
+
+   procedure Fire_On_Double_Click (Object : in out Base_Type)
+   is
+   begin
+      if Object.On_Double_Click_Event /= null then
+         Object.On_Double_Click_Event (Object);
+      end if;
+   end Fire_On_Double_Click;
+
+   ---------------------------
+   -- On_Mouse_Double_Click --
+   ---------------------------
+
+   procedure On_Mouse_Double_Click_Handler (Object  : in out Base_Type;
+                                            Handler : in     Mouse_Event)
+   is
+   begin
+      if
+        Object.On_Double_Click_Event = null and
+        Object.On_Mouse_Double_Click_Event /= null
+      then
+         Object.Unbind_Event ("dblclick");
+      end if;
+
+      Object.On_Mouse_Double_Click_Event := Handler;
+
+      if Handler /= null and Object.On_Double_Click_Event = null then
+         Object.Bind_Event (Event   => "dblclick",
+                            Message => "",
+                            Script  => Mouse_Event_Script);
+      end if;
+   end On_Mouse_Double_Click_Handler;
+
+   procedure Fire_On_Mouse_Double_Click (Object   : in out Base_Type;
+                                         Event    : in     Mouse_Event_Record)
+   is
+   begin
+      if Object.On_Mouse_Double_Click_Event /= null then
+         Object.On_Mouse_Double_Click_Event (Object, Event);
+      end if;
+   end Fire_On_Mouse_Double_Click;
+
+   --------------------
+   -- On_Mouse_Enter --
+   --------------------
+
+   procedure On_Mouse_Enter_Handler (Object  : in out Base_Type;
+                                     Handler : in     Action_Event)
+   is
+   begin
+      if Object.On_Mouse_Enter_Event /= null then
+         Object.Unbind_Event ("mouseenter");
+      end if;
+
+      Object.On_Mouse_Enter_Event := Handler;
+
+      if Handler /= null then
+         Object.Bind_Event (Event   => "mouseenter",
+                            Message => "");
+      end if;
+   end On_Mouse_Enter_Handler;
+
+   procedure Fire_On_Mouse_Enter (Object : in out Base_Type)
+   is
+   begin
+      if Object.On_Mouse_Enter_Event /= null then
+         Object.On_Mouse_Enter_Event (Object);
+      end if;
+   end Fire_On_Mouse_Enter;
+
+   --------------------
+   -- On_Mouse_Leave --
+   --------------------
+
+   procedure On_Mouse_Leave_Handler (Object  : in out Base_Type;
+                               Handler : in     Action_Event)
+   is
+   begin
+      if Object.On_Mouse_Leave_Event /= null then
+         Object.Unbind_Event ("mouseleave");
+      end if;
+
+      Object.On_Mouse_Leave_Event := Handler;
+
+      if Handler /= null then
+         Object.Bind_Event (Event   => "mouseleave",
+                            Message => "");
+      end if;
+   end On_Mouse_Leave_Handler;
+
+   procedure Fire_On_Mouse_Leave (Object : in out Base_Type)
+   is
+   begin
+      if Object.On_Mouse_Leave_Event /= null then
+         Object.On_Mouse_Leave_Event (Object);
+      end if;
+   end Fire_On_Mouse_Leave;
+
+   --------------------
+   -- On_Mouse_Over --
+   --------------------
+
+   procedure On_Mouse_Over_Handler (Object  : in out Base_Type;
+                               Handler : in     Action_Event)
+   is
+   begin
+      if Object.On_Mouse_Over_Event /= null then
+         Object.Unbind_Event ("mouseover");
+      end if;
+
+      Object.On_Mouse_Over_Event := Handler;
+
+      if Handler /= null then
+         Object.Bind_Event (Event   => "mouseover",
+                            Message => "");
+      end if;
+   end On_Mouse_Over_Handler;
+
+   procedure Fire_On_Mouse_Over (Object : in out Base_Type)
+   is
+   begin
+      if Object.On_Mouse_Over_Event /= null then
+         Object.On_Mouse_Over_Event (Object);
+      end if;
+   end Fire_On_Mouse_Over;
+
+   ------------------
+   -- On_Mouse_Out --
+   ------------------
+
+   procedure On_Mouse_Out_Handler (Object  : in out Base_Type;
+                                   Handler : in     Action_Event)
+   is
+   begin
+      if Object.On_Mouse_Out_Event /= null then
+         Object.Unbind_Event ("mouseout");
+      end if;
+
+      Object.On_Mouse_Out_Event := Handler;
+
+      if Handler /= null then
+         Object.Bind_Event (Event   => "mouseout",
+                            Message => "");
+      end if;
+   end On_Mouse_Out_Handler;
+
+   procedure Fire_On_Mouse_Out (Object : in out Base_Type)
+   is
+   begin
+      if Object.On_Mouse_Out_Event /= null then
+         Object.On_Mouse_Out_Event (Object);
+      end if;
+   end Fire_On_Mouse_Out;
+
+   -------------------
+   -- On_Mouse_Down --
+   -------------------
+
+   procedure On_Mouse_Down_Handler (Object  : in out Base_Type;
+                                    Handler : in     Mouse_Event)
+   is
+   begin
+      if Object.On_Mouse_Down_Event /= null then
+         Object.Unbind_Event ("mousedown");
+      end if;
+
+      Object.On_Mouse_Down_Event := Handler;
+
+      if Handler /= null then
+         Object.Bind_Event (Event   => "mousedown",
+                            Message => "",
+                            Script  => Mouse_Event_Script);
+      end if;
+   end On_Mouse_Down_Handler;
+
+   procedure Fire_On_Mouse_Down (Object   : in out Base_Type;
+                                 Event    : in     Mouse_Event_Record)
+   is
+   begin
+      if Object.On_Mouse_Down_Event /= null then
+         Object.On_Mouse_Down_Event (Object, Event);
+      end if;
+   end Fire_On_Mouse_Down;
+
+   -----------------
+   -- On_Mouse_Up --
+   -----------------
+
+   procedure On_Mouse_Up_Handler (Object  : in out Base_Type;
+                                  Handler : in     Mouse_Event)
+   is
+   begin
+      if Object.On_Mouse_Up_Event /= null then
+         Object.Unbind_Event ("mouseup");
+      end if;
+
+      Object.On_Mouse_Up_Event := Handler;
+
+      if Handler /= null then
+         Object.Bind_Event (Event   => "mouseup",
+                            Message => "",
+                            Script  => Mouse_Event_Script);
+      end if;
+   end On_Mouse_Up_Handler;
+
+   procedure Fire_On_Mouse_Up (Object   : in out Base_Type;
+                               Event    : in     Mouse_Event_Record)
+   is
+   begin
+      if Object.On_Mouse_Up_Event /= null then
+         Object.On_Mouse_Up_Event (Object, Event);
+      end if;
+   end Fire_On_Mouse_Up;
+
+   -------------------
+   -- On_Mouse_Move --
+   -------------------
+
+   procedure On_Mouse_Move_Handler (Object  : in out Base_Type;
+                                    Handler : in     Mouse_Event)
+   is
+   begin
+      if Object.On_Mouse_Move_Event /= null then
+         Object.Unbind_Event ("mousemove");
+      end if;
+
+      Object.On_Mouse_Move_Event := Handler;
+
+      if Handler /= null then
+         Object.Bind_Event (Event   => "mousemove",
+                            Message => "",
+                            Script  => Mouse_Event_Script);
+      end if;
+   end On_Mouse_Move_Handler;
+
+   procedure Fire_On_Mouse_Move (Object   : in out Base_Type;
+                                 Event    : in     Mouse_Event_Record)
+   is
+   begin
+      if Object.On_Mouse_Move_Event /= null then
+         Object.On_Mouse_Move_Event (Object, Event);
+      end if;
+   end Fire_On_Mouse_Move;
+
+   procedure On_Drag_Start_Handler (Object    : in out Base_Type;
+                                    Handler   : in     Action_Event;
+                                    Drag_Text : in     String;
+                                    Drag_Type : in     String := "text/plain")
+   is
+   begin
+      if Object.On_Drag_Start_Event /= null then
+         Object.Unbind_Event ("dragstart");
+      end if;
+
+      Object.On_Drag_Start_Event := Handler;
+
+      if Handler /= null then
+         Object.Bind_Event
+           (Event   => "dragstart",
+            Message => "",
+            Eval  =>
+             "e.originalEvent.dataTransfer.setData('" & Drag_Type & "', '" &
+             Escape_Quotes (Drag_Text) & "');");
+      end if;
+   end On_Drag_Start_Handler;
+
+   procedure Fire_On_Drag_Start (Object : in out Base_Type)
+   is
+   begin
+      if Object.On_Drag_Start_Event /= null then
+         Object.On_Drag_Start_Event (Object);
+      end if;
+   end Fire_On_Drag_Start;
+
+   procedure On_Drag_Handler (Object  : in out Base_Type;
+                              Handler : in     Action_Event)
+   is
+   begin
+      if Object.On_Drag_Event /= null then
+         Object.Unbind_Event ("drag");
+      end if;
+
+      Object.On_Drag_Event := Handler;
+
+      if Handler /= null then
+         Object.Bind_Event (Event   => "drag",
+                            Message => "");
+      end if;
+   end On_Drag_Handler;
+
+   procedure Fire_On_Drag (Object : in out Base_Type)
+   is
+   begin
+      if Object.On_Drag_Event /= null then
+         Object.On_Drag_Event (Object);
+      end if;
+   end Fire_On_Drag;
+
+   procedure On_Drag_End_Handler (Object  : in out Base_Type;
+                                  Handler : in     Action_Event)
+   is
+   begin
+      if Object.On_Drag_End_Event /= null then
+         Object.Unbind_Event ("dragend");
+      end if;
+
+      Object.On_Drag_End_Event := Handler;
+
+      if Handler /= null then
+         Object.Bind_Event (Event   => "dragend",
+                            Message => "");
+      end if;
+   end On_Drag_End_Handler;
+
+   procedure Fire_On_Drag_End (Object : in out Base_Type)
+   is
+   begin
+      if Object.On_Drag_End_Event /= null then
+         Object.On_Drag_End_Event (Object);
+      end if;
+   end Fire_On_Drag_End;
+
+   procedure On_Drag_Enter_Handler (Object  : in out Base_Type;
+                                    Handler : in     Action_Event)
+   is
+   begin
+      if Object.On_Drag_Enter_Event /= null then
+         Object.Unbind_Event ("dragenter");
+      end if;
+
+      Object.On_Drag_Enter_Event := Handler;
+
+      if Handler /= null then
+         Object.Bind_Event (Event   => "dragenter",
+                            Message => "");
+      end if;
+   end On_Drag_Enter_Handler;
+
+   procedure Fire_On_Drag_Enter (Object : in out Base_Type)
+   is
+   begin
+      if Object.On_Drag_Enter_Event /= null then
+         Object.On_Drag_Enter_Event (Object);
+      end if;
+   end Fire_On_Drag_Enter;
+
+   procedure On_Drag_Leave_Handler (Object  : in out Base_Type;
+                                    Handler : in     Action_Event)
+   is
+   begin
+      if Object.On_Drag_Leave_Event /= null then
+         Object.Unbind_Event ("dragleave");
+      end if;
+
+      Object.On_Drag_Leave_Event := Handler;
+
+      if Handler /= null then
+         Object.Bind_Event (Event   => "dragleave",
+                            Message => "");
+      end if;
+   end On_Drag_Leave_Handler;
+
+   procedure Fire_On_Drag_Leave (Object : in out Base_Type)
+   is
+   begin
+      if Object.On_Drag_Leave_Event /= null then
+         Object.On_Drag_Leave_Event (Object);
+      end if;
+   end Fire_On_Drag_Leave;
+
+   procedure On_Drop_Handler (Object    : in out Base_Type;
+                              Handler   : in     Drop_Event;
+                              Drag_Type : in     String := "text/plain")
+   is
+   begin
+      if Object.On_Drop_Event /= null then
+         Object.Unbind_Event ("dragover");
+         Object.Unbind_Event ("drop");
+      end if;
+
+      Object.On_Drop_Event := Handler;
+
+      if Handler /= null then
+         Object.Bind_Event (Event   => "dragover",
+                            Message => "",
+                            Eval  => "e.preventDefault();");
+         Object.Bind_Event
+           (Event   => "drop",
+            Message => "",
+            Eval    => "e.preventDefault();",
+            Script  =>
+              "(e.originalEvent.clientX - " &
+              "e.target.getBoundingClientRect().left) + '|' + " &
+              "(e.originalEvent.clientY - " &
+              "e.target.getBoundingClientRect().top)  + '|' + " &
+              "e.originalEvent.dataTransfer.getData('" &
+              Drag_Type & "') + '|'");
+      end if;
+   end On_Drop_Handler;
+
+   procedure Fire_On_Drop (Object    : in out Base_Type;
+                           X, Y      : in     Integer;
+                           Drag_Text : in     String)
+   is
+   begin
+      if Object.On_Drop_Event /= null then
+         Object.On_Drop_Event (Object, X, Y, Drag_Text);
+      end if;
+   end Fire_On_Drop;
+
+   ------------------
+   -- On_Character --
+   ------------------
+
+   procedure On_Character_Handler (Object  : in out Base_Type;
+                                   Handler : in     Character_Event)
+   is
+   begin
+      if
+        Object.On_Character_Event /= null and
+        Object.On_Wide_Character_Event = null and
+        Object.On_Key_Press_Event = null
+      then
+         Object.Unbind_Event ("keypress");
+      end if;
+
+      Object.On_Character_Event := Handler;
+
+      if
+        Handler /= null and
+        Object.On_Wide_Character_Event = null and
+        Object.On_Key_Press_Event = null
+      then
+         Object.Bind_Event (Event   => "keypress",
+                            Message => "",
+                            Script  => Keyboard_Event_Script);
+      end if;
+   end On_Character_Handler;
+
+   procedure Fire_On_Character (Object : in out Base_Type;
+                                Key    : in     Character)
+   is
+   begin
+      if Object.On_Character_Event /= null then
+         Object.On_Character_Event (Object, Key);
+      end if;
+   end Fire_On_Character;
+
+   -----------------------
+   -- On_Wide_Character --
+   -----------------------
+
+   procedure On_Wide_Character_Handler (Object  : in out Base_Type;
+                                        Handler : in     Wide_Character_Event)
+   is
+   begin
+      if
+        Object.On_Character_Event = null and
+        Object.On_Wide_Character_Event /= null and
+        Object.On_Key_Press_Event = null
+      then
+         Object.Unbind_Event ("keypress");
+      end if;
+
+      Object.On_Wide_Character_Event := Handler;
+
+      if
+        Handler /= null and
+        Object.On_Character_Event = null and
+        Object.On_Key_Press_Event = null
+      then
+         Object.Bind_Event (Event   => "keypress",
+                            Message => "",
+                            Script  => Keyboard_Event_Script);
+      end if;
+   end On_Wide_Character_Handler;
+
+   procedure Fire_On_Wide_Character (Object : in out Base_Type;
+                                     Key    : in     Wide_Character)
+   is
+   begin
+      if Object.On_Wide_Character_Event /= null then
+         Object.On_Wide_Character_Event (Object, Key);
+      end if;
+   end Fire_On_Wide_Character;
+
+   ------------------
+   -- On_Key_Down --
+   ------------------
+
+   procedure On_Key_Down_Handler (Object  : in out Base_Type;
+                                  Handler : in     Keyboard_Event)
+   is
+   begin
+      if Object.On_Key_Down_Event /= null then
+         Object.Unbind_Event ("keydown");
+      end if;
+
+      Object.On_Key_Down_Event := Handler;
+
+      if Handler /= null then
+         Object.Bind_Event (Event   => "keydown",
+                            Message => "",
+                            Script  => Keyboard_Event_Script);
+      end if;
+   end On_Key_Down_Handler;
+
+   procedure Fire_On_Key_Down (Object : in out Base_Type;
+                               Event  : in     Keyboard_Event_Record)
+   is
+   begin
+      if Object.On_Key_Down_Event /= null then
+         Object.On_Key_Down_Event (Object, Event);
+      end if;
+   end Fire_On_Key_Down;
+
+   ---------------
+   -- On_Key_Up --
+   ---------------
+
+   procedure On_Key_Up_Handler (Object  : in out Base_Type;
+                                Handler : in     Keyboard_Event)
+   is
+   begin
+      if Object.On_Key_Up_Event /= null then
+         Object.Unbind_Event ("keyup");
+      end if;
+
+      Object.On_Key_Up_Event := Handler;
+
+      if Handler /= null then
+         Object.Bind_Event (Event   => "keyup",
+                            Message => "",
+                            Script  => Keyboard_Event_Script);
+      end if;
+   end On_Key_Up_Handler;
+
+   procedure Fire_On_Key_Up (Object : in out Base_Type;
+                             Event  : in     Keyboard_Event_Record)
+   is
+   begin
+      if Object.On_Key_Up_Event /= null then
+         Object.On_Key_Up_Event (Object, Event);
+      end if;
+   end Fire_On_Key_Up;
+
+   ------------------
+   -- On_Key_Press --
+   ------------------
+
+   procedure On_Key_Press_Handler (Object  : in out Base_Type;
+                                  Handler : in     Keyboard_Event)
+   is
+   begin
+      if
+        Object.On_Character_Event = null and
+        Object.On_Wide_Character_Event = null and
+        Object.On_Key_Press_Event /= null
+      then
+         Object.Unbind_Event ("keypress");
+      end if;
+
+      Object.On_Key_Press_Event := Handler;
+
+      if
+        Handler /= null and
+        Object.On_Character_Event = null and
+        Object.On_Wide_Character_Event = null
+      then
+         Object.Bind_Event (Event   => "keypress",
+                            Message => "",
+                            Script  => Keyboard_Event_Script);
+      end if;
+   end On_Key_Press_Handler;
+
+   procedure Fire_On_Key_Press (Object : in out Base_Type;
+                               Event  : in     Keyboard_Event_Record)
+   is
+   begin
+      if Object.On_Key_Press_Event /= null then
+         Object.On_Key_Press_Event (Object, Event);
+      end if;
+   end Fire_On_Key_Press;
+
+   -------------
+   -- On_Copy --
+   -------------
+
+   procedure On_Copy_Handler (Object  : in out Base_Type;
+                              Handler : in     Action_Event)
+   is
+   begin
+      if Object.On_Copy_Event /= null then
+         Object.Unbind_Event ("copy");
+      end if;
+
+      Object.On_Copy_Event := Handler;
+
+      if Handler /= null then
+         Object.Bind_Event (Event   => "copy",
+                            Message => "");
+      end if;
+   end On_Copy_Handler;
+
+   procedure Fire_On_Copy (Object : in out Base_Type)
+   is
+   begin
+      if Object.On_Copy_Event /= null then
+         Object.On_Copy_Event (Object);
+      end if;
+   end Fire_On_Copy;
+
+   ------------
+   -- On_Cut --
+   ------------
+
+   procedure On_Cut_Handler (Object  : in out Base_Type;
+                             Handler : in     Action_Event)
+   is
+   begin
+      if Object.On_Cut_Event /= null then
+         Object.Unbind_Event ("cut");
+      end if;
+
+      Object.On_Cut_Event := Handler;
+
+      if Handler /= null then
+         Object.Bind_Event (Event   => "cut",
+                            Message => "");
+      end if;
+   end On_Cut_Handler;
+
+   procedure Fire_On_Cut (Object : in out Base_Type)
+   is
+   begin
+      if Object.On_Cut_Event /= null then
+         Object.On_Cut_Event (Object);
+      end if;
+   end Fire_On_Cut;
+
+   --------------
+   -- On_Paste --
+   --------------
+
+   procedure On_Paste_Handler (Object  : in out Base_Type;
+                               Handler : in     Action_Event)
+   is
+   begin
+      if Object.On_Paste_Event /= null then
+         Object.Unbind_Event ("paste");
+      end if;
+
+      Object.On_Paste_Event := Handler;
+
+      if Handler /= null then
+         Object.Bind_Event (Event   => "paste",
+                            Message => "");
+      end if;
+   end On_Paste_Handler;
+
+   procedure Fire_On_Paste (Object : in out Base_Type)
+   is
+   begin
+      if Object.On_Paste_Event /= null then
+         Object.On_Paste_Event (Object);
+      end if;
+   end Fire_On_Paste;
+
+   ---------------
+   -- On_Create --
+   ---------------
+
+   procedure On_Create (Object : in out Base_Type)
+   is
+   begin
+      Object.Fire_On_Create;
+   end On_Create;
+
+   procedure On_Create_Handler (Object  : in out Base_Type;
+                                Handler : in     Action_Event)
+   is
+   begin
+      Object.On_Create_Event := Handler;
+   end On_Create_Handler;
+
+   procedure Fire_On_Create (Object : in out Base_Type)
+   is
+   begin
+      if Object.On_Create_Event /= null then
+         Object.On_Create_Event (Object);
+      end if;
+   end Fire_On_Create;
+
+   ----------------
+   -- On_Destroy --
+   ----------------
+
+   procedure On_Destroy (Object : in out Base_Type)
+   is
+   begin
+      Object.Fire_On_Destroy;
+   end On_Destroy;
+
+   procedure On_Destroy_Handler (Object  : in out Base_Type;
+                                 Handler : in     Action_Event)
+   is
+   begin
+      Object.On_Destroy_Event := Handler;
+   end On_Destroy_Handler;
+
+   procedure Fire_On_Destroy (Object : in out Base_Type)
+   is
+   begin
+      if Object.On_Destroy_Event /= null then
+         Object.On_Destroy_Event (Object);
+      end if;
+   end Fire_On_Destroy;
 
    --------------------
    -- On_Child_Added --
@@ -1834,168 +1956,168 @@ package body Ada_GUI.Gnoga.Gui is
    -- On_Child_Removed --
    ----------------------
 
---     procedure On_Child_Removed (Object : in out Base_Type;
---                                 Child  : in out Base_Type'Class)
---     is
---     begin
---        Object.Fire_On_Child_Removed (Child);
---     end On_Child_Removed;
---
---     procedure On_Child_Removed_Handler (Object  : in out Base_Type;
---                                         Handler : in     Child_Changed_Event)
---     is
---     begin
---        Object.On_Child_Removed_Event := Handler;
---     end On_Child_Removed_Handler;
---
---     procedure Fire_On_Child_Removed (Object : in out Base_Type;
---                                      Child  : in out Base_Type'Class)
---     is
---     begin
---        if Object.On_Child_Removed_Event /= null then
---           Object.On_Child_Removed_Event (Object, Child);
---        end if;
---     end Fire_On_Child_Removed;
+   procedure On_Child_Removed (Object : in out Base_Type;
+                               Child  : in out Base_Type'Class)
+   is
+   begin
+      Object.Fire_On_Child_Removed (Child);
+   end On_Child_Removed;
+
+   procedure On_Child_Removed_Handler (Object  : in out Base_Type;
+                                       Handler : in     Child_Changed_Event)
+   is
+   begin
+      Object.On_Child_Removed_Event := Handler;
+   end On_Child_Removed_Handler;
+
+   procedure Fire_On_Child_Removed (Object : in out Base_Type;
+                                    Child  : in out Base_Type'Class)
+   is
+   begin
+      if Object.On_Child_Removed_Event /= null then
+         Object.On_Child_Removed_Event (Object, Child);
+      end if;
+   end Fire_On_Child_Removed;
 
    ----------------
    -- On_Message --
    ----------------
 
---     procedure On_Message (Object  : in out Base_Type;
---                           Event   : in     String;
---                           Message : in     String)
---     is
---     begin
---        -- Object Events --
---        if Event = "scroll" then
---           Object.Fire_On_Scroll;
---
---        -- Form Events --
---        elsif Event = "focus" then
---           Object.Fire_On_Focus;
---        elsif Event = "blur" then
---           Object.Fire_On_Blur;
---        elsif Event = "change" then
---           Object.Fire_On_Change;
---        elsif Event = "focusin" then
---           Object.Fire_On_Focus_In;
---        elsif Event = "focusout" then
---           Object.Fire_On_Focus_Out;
---        elsif Event = "input" then
---           Object.Fire_On_Input;
---        elsif Event = "reset" then
---           Object.Fire_On_Reset;
---        elsif Event = "search" then
---           Object.Fire_On_Search;
---        elsif Event = "select" then
---           Object.Fire_On_Select;
---        elsif Event = "submit" then
---           Object.Fire_On_Submit;
---
---        -- Mouse Events --
---
---        elsif Event = "click" then
---           Object.Fire_On_Click;
---           Object.Fire_On_Mouse_Click (Parse_Mouse_Event (Message, Click));
---        elsif Event = "dblclick" then
---           Object.Fire_On_Double_Click;
---           Object.Fire_On_Mouse_Double_Click
---             (Parse_Mouse_Event (Message, Double_Click));
---        elsif Event = "contextmenu" then
---           Object.Fire_On_Context_Menu;
---           Object.Fire_On_Mouse_Right_Click
---             (Parse_Mouse_Event (Message, Right_Click));
---        elsif Event = "mouseenter" then
---           Object.Fire_On_Mouse_Enter;
---        elsif Event = "mouseleave" then
---           Object.Fire_On_Mouse_Leave;
---        elsif Event = "mouseover" then
---           Object.Fire_On_Mouse_Over;
---        elsif Event = "mouseout" then
---           Object.Fire_On_Mouse_Out;
---        elsif Event = "mousedown" then
---           Object.Fire_On_Mouse_Down (Parse_Mouse_Event (Message, Mouse_Down));
---        elsif Event = "mouseup" then
---           Object.Fire_On_Mouse_Up (Parse_Mouse_Event (Message, Mouse_Up));
---        elsif Event = "mousemove" then
---           Object.Fire_On_Mouse_Move (Parse_Mouse_Event (Message, Mouse_Move));
---
---        elsif Event = "dragstart" then
---           Object.Fire_On_Drag_Start;
---        elsif Event = "drag" then
---           Object.Fire_On_Drag;
---        elsif Event = "dragend" then
---           Object.Fire_On_Drag_End;
---        elsif Event = "dragenter" then
---           Object.Fire_On_Drag_Enter;
---        elsif Event = "dragleave" then
---           Object.Fire_On_Drag_Leave;
---        elsif Event = "dragover" then
---           null;
---        elsif Event = "drop" then
---           declare
---              D_X, D_Y : Integer;
---              D_S      : constant String := Parse_Drop_Event (D_X, D_Y, Message);
---           begin
---              Object.Fire_On_Drop (D_X, D_Y, D_S);
---           end;
---
---        -- Keyboard Events --
---
---        elsif Event = "keydown" then
---           Object.Fire_On_Key_Down (Parse_Keyboard_Event (Message, Key_Down));
---        elsif Event = "keyup" then
---           Object.Fire_On_Key_Up (Parse_Keyboard_Event (Message, Key_Up));
---        elsif Event = "keypress" then
---           declare
---              E : constant Keyboard_Event_Record :=
---                Parse_Keyboard_Event (Message, Key_Press);
---              C : constant Character :=
---                Ada.Characters.Conversions.To_Character (E.Key_Char);
---           begin
---              Object.Fire_On_Key_Press (E);
---              Object.Fire_On_Wide_Character (E.Key_Char);
---              Object.Fire_On_Character (C);
---           end;
---
---        -- Clipboard Events --
---
---        elsif Event = "copy" then
---           Object.Fire_On_Copy;
---        elsif Event = "cut" then
---           Object.Fire_On_Cut;
---        elsif Event = "paste" then
---           Object.Fire_On_Paste;
---        elsif Event = "resize" then
---           if not Object.In_Resize then
---              Object.In_Resize := True;
---              Base_Type'Class (Object).On_Resize;
---              Object.In_Resize := False;
---           end if;
---        else
---           Gnoga.Log ("Unhandled Event : " & Event);
---        end if;
---     end On_Message;
+   procedure On_Message (Object  : in out Base_Type;
+                         Event   : in     String;
+                         Message : in     String)
+   is
+   begin
+      -- Object Events --
+      if Event = "scroll" then
+         Object.Fire_On_Scroll;
 
---     procedure On_Message_Handler (Object  : in out Base_Type;
---                                   Handler : in     Message_Event)
---     is
---     begin
---        Object.On_Message_Event := Handler;
---     end On_Message_Handler;
---
---     procedure Fire_On_Message (Object   : in out Base_Type;
---                                Event    : in     String;
---                                Message  : in     String;
---                                Continue : out    Boolean)
---     is
---     begin
---        Continue := True;
---
---        if Object.On_Message_Event /= null then
---           Object.On_Message_Event (Object, Event, Message, Continue);
---        end if;
---     end Fire_On_Message;
+      -- Form Events --
+      elsif Event = "focus" then
+         Object.Fire_On_Focus;
+      elsif Event = "blur" then
+         Object.Fire_On_Blur;
+      elsif Event = "change" then
+         Object.Fire_On_Change;
+      elsif Event = "focusin" then
+         Object.Fire_On_Focus_In;
+      elsif Event = "focusout" then
+         Object.Fire_On_Focus_Out;
+      elsif Event = "input" then
+         Object.Fire_On_Input;
+      elsif Event = "reset" then
+         Object.Fire_On_Reset;
+      elsif Event = "search" then
+         Object.Fire_On_Search;
+      elsif Event = "select" then
+         Object.Fire_On_Select;
+      elsif Event = "submit" then
+         Object.Fire_On_Submit;
+
+      -- Mouse Events --
+
+      elsif Event = "click" then
+         Object.Fire_On_Click;
+         Object.Fire_On_Mouse_Click (Parse_Mouse_Event (Message, Click));
+      elsif Event = "dblclick" then
+         Object.Fire_On_Double_Click;
+         Object.Fire_On_Mouse_Double_Click
+           (Parse_Mouse_Event (Message, Double_Click));
+      elsif Event = "contextmenu" then
+         Object.Fire_On_Context_Menu;
+         Object.Fire_On_Mouse_Right_Click
+           (Parse_Mouse_Event (Message, Right_Click));
+      elsif Event = "mouseenter" then
+         Object.Fire_On_Mouse_Enter;
+      elsif Event = "mouseleave" then
+         Object.Fire_On_Mouse_Leave;
+      elsif Event = "mouseover" then
+         Object.Fire_On_Mouse_Over;
+      elsif Event = "mouseout" then
+         Object.Fire_On_Mouse_Out;
+      elsif Event = "mousedown" then
+         Object.Fire_On_Mouse_Down (Parse_Mouse_Event (Message, Mouse_Down));
+      elsif Event = "mouseup" then
+         Object.Fire_On_Mouse_Up (Parse_Mouse_Event (Message, Mouse_Up));
+      elsif Event = "mousemove" then
+         Object.Fire_On_Mouse_Move (Parse_Mouse_Event (Message, Mouse_Move));
+
+      elsif Event = "dragstart" then
+         Object.Fire_On_Drag_Start;
+      elsif Event = "drag" then
+         Object.Fire_On_Drag;
+      elsif Event = "dragend" then
+         Object.Fire_On_Drag_End;
+      elsif Event = "dragenter" then
+         Object.Fire_On_Drag_Enter;
+      elsif Event = "dragleave" then
+         Object.Fire_On_Drag_Leave;
+      elsif Event = "dragover" then
+         null;
+      elsif Event = "drop" then
+         declare
+            D_X, D_Y : Integer;
+            D_S      : constant String := Parse_Drop_Event (D_X, D_Y, Message);
+         begin
+            Object.Fire_On_Drop (D_X, D_Y, D_S);
+         end;
+
+      -- Keyboard Events --
+
+      elsif Event = "keydown" then
+         Object.Fire_On_Key_Down (Parse_Keyboard_Event (Message, Key_Down));
+      elsif Event = "keyup" then
+         Object.Fire_On_Key_Up (Parse_Keyboard_Event (Message, Key_Up));
+      elsif Event = "keypress" then
+         declare
+            E : constant Keyboard_Event_Record :=
+              Parse_Keyboard_Event (Message, Key_Press);
+            C : constant Character :=
+              Ada.Characters.Conversions.To_Character (E.Key_Char);
+         begin
+            Object.Fire_On_Key_Press (E);
+            Object.Fire_On_Wide_Character (E.Key_Char);
+            Object.Fire_On_Character (C);
+         end;
+
+      -- Clipboard Events --
+
+      elsif Event = "copy" then
+         Object.Fire_On_Copy;
+      elsif Event = "cut" then
+         Object.Fire_On_Cut;
+      elsif Event = "paste" then
+         Object.Fire_On_Paste;
+      elsif Event = "resize" then
+         if not Object.In_Resize then
+            Object.In_Resize := True;
+            Base_Type'Class (Object).On_Resize;
+            Object.In_Resize := False;
+         end if;
+      else
+         Gnoga.Log ("Unhandled Event : " & Event);
+      end if;
+   end On_Message;
+
+   procedure On_Message_Handler (Object  : in out Base_Type;
+                                 Handler : in     Message_Event)
+   is
+   begin
+      Object.On_Message_Event := Handler;
+   end On_Message_Handler;
+
+   procedure Fire_On_Message (Object   : in out Base_Type;
+                              Event    : in     String;
+                              Message  : in     String;
+                              Continue : out    Boolean)
+   is
+   begin
+      Continue := True;
+
+      if Object.On_Message_Event /= null then
+         Object.On_Message_Event (Object, Event, Message, Continue);
+      end if;
+   end Fire_On_Message;
 
    -------------------------------------------------------------------------
    --  Base_Type - Event Internals

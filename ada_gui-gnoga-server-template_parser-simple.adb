@@ -49,7 +49,7 @@ package body Ada_GUI.Gnoga.Server.Template_Parser.Simple is
    end Load_View;
 
    function Load_View (Name     : String;
-                       Data_Map : Data_Map_Type;
+                       Data_Map : Gnoga.Data_Map_Type;
                        Var_Name : String := "data")
                        return String
    is
@@ -122,8 +122,8 @@ package body Ada_GUI.Gnoga.Server.Template_Parser.Simple is
       end Parse_Data;
 
       procedure Replace_Values (D : View_Data) is
-         use Data_Maps;
-         use Maps_of_Data_Maps;
+         use Gnoga.Data_Maps;
+         use Gnoga.Maps_of_Data_Maps;
 
          Var_Name : constant String := To_String (D.Name);
       begin

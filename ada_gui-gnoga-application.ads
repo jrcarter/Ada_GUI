@@ -35,7 +35,7 @@
 --  For more information please go to http://www.gnoga.com                  --
 ------------------------------------------------------------------------------
 --
--- Changed by J. Carter 2021 June to only run "singleton" applications
+-- Changed by J. Carter 2021 to only run "singleton" applications
 
 with Ada_GUI.Gnoga.Gui.Window;
 

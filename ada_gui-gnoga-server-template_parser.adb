@@ -93,7 +93,7 @@ package body Ada_GUI.Gnoga.Server.Template_Parser is
    ------------------
 
    procedure Insert_Array (Data   : in out View_Data;
-                           Vector : Data_Array_Type)
+                           Vector : Gnoga.Data_Array_Type)
    is
    begin
       for I in Vector.First_Index .. Vector.Last_Index loop
@@ -111,9 +111,9 @@ package body Ada_GUI.Gnoga.Server.Template_Parser is
 
    procedure Insert_Array_Item (Data   : in out View_Data;
                                 Key    : String;
-                                Vector : Data_Array_Type)
+                                Vector : Gnoga.Data_Array_Type)
    is
-      Map : Data_Map_Type;
+      Map : Gnoga.Data_Map_Type;
    begin
       for I in Vector.First_Index .. Vector.Last_Index loop
          declare
@@ -131,15 +131,15 @@ package body Ada_GUI.Gnoga.Server.Template_Parser is
    ----------------
 
    procedure Insert_Map (Data : in out View_Data;
-                         Map  : Data_Map_Type)
+                         Map  : Gnoga.Data_Map_Type)
    is
-      procedure foreach (Cursor : Data_Maps.Cursor);
+      procedure foreach (Cursor : Gnoga.Data_Maps.Cursor);
       --  Iterate through required members
 
-      procedure foreach (Cursor : Data_Maps.Cursor) is
+      procedure foreach (Cursor : Gnoga.Data_Maps.Cursor) is
       begin
-         Data.Insert (Data_Maps.Key (Cursor),
-                      Data_Maps.Element (Cursor));
+         Data.Insert (Gnoga.Data_Maps.Key (Cursor),
+                      Gnoga.Data_Maps.Element (Cursor));
       end foreach;
    begin
       Map.Iterate (foreach'Access);
@@ -151,7 +151,7 @@ package body Ada_GUI.Gnoga.Server.Template_Parser is
 
    procedure Insert_Map_Item (Data : in out View_Data;
                               Key  : String;
-                              Map  : Data_Map_Type)
+                              Map  : Gnoga.Data_Map_Type)
    is
    begin
       Data.Map_Values.Insert (Key, Map);

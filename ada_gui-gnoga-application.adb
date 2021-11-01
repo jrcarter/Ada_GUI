@@ -35,7 +35,7 @@
 --  For more information please go to http://www.gnoga.com                  --
 ------------------------------------------------------------------------------
 --
--- Changed by J. Carter 2021 June to only run "singleton" applications
+-- Changed by J. Carter 2021 to only run "singleton" applications
 
 with GNAT.OS_Lib;
 
@@ -52,9 +52,7 @@ package body Ada_GUI.Gnoga.Application is
 
    procedure Set_Favicon (Name : in String);
 
-   App_Name : Ada.Strings.Unbounded.Unbounded_String :=
-     Ada.Strings.Unbounded.To_Unbounded_String
-       ("Gnoga - The GNU Omnificent GUI for Ada");
+   App_Name : Ada.Strings.Unbounded.Unbounded_String := Ada.Strings.Unbounded.To_Unbounded_String ("Ada GUI - An Ada-oriented GUI");
 
    HTML_For_On_Close : Ada.Strings.Unbounded.Unbounded_String;
 

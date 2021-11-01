@@ -70,7 +70,17 @@ package body Ada_GUI.Gnoga.Gui.View.Grid is
 
       Column_Object : View_Base_Access := null;
 
+      function TR_Height return String;
       function TD_Width  return String;
+
+      function TR_Height return String is
+      begin
+         if Set_Sizes then
+            return " height:" & P_Height & ";";
+         else
+            return "";
+         end if;
+      end TR_Height;
 
       function TD_Width return String is
       begin

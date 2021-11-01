@@ -37,9 +37,6 @@
 
 with Ada.Strings.Unbounded;
 
---  with Gnoga.Server.Connection;
---  pragma Elaborate_All (Gnoga.Server.Connection);
-
 with Ada_GUI.Gnoga.Gui.Document;
 with Ada_GUI.Gnoga.Gui.Location;
 
@@ -55,6 +52,13 @@ package Ada_GUI.Gnoga.Gui.Window is
    type Window_Access is access all Window_Type;
    type Pointer_To_Window_Class is access all Window_Type'Class;
 
+   overriding
+   procedure Finalize (Object : in out Window_Type);
+   --  Will deallocate the Connection Data if marked dynamic.
+   --  Will deallocate an attached View (see Set_View) if the view is
+   --  marked dynamic.
+   --  See Base_Type.Dynamic
+
    Invalid_ID_Type    : exception;
 
    Not_A_Gnoga_Window : exception;
@@ -63,7 +67,7 @@ package Ada_GUI.Gnoga.Gui.Window is
      (Window        : in out Window_Type;
       Connection_ID : in     Gnoga.Connection_ID;
       ID            : in     String                     := "window";
-      ID_Type       : in     ID_Enumeration := Script);
+      ID_Type       : in     Gnoga.ID_Enumeration := Gnoga.Script);
    --  Attach a Gnoga Window_Type to Connection_ID.
    --  If ID_Type = DOM_ID it will raise Invalid_ID_Type
    --
@@ -75,7 +79,7 @@ package Ada_GUI.Gnoga.Gui.Window is
      (Window  : in out Window_Type;
       Parent  : in out Window_Type'Class;
       ID      : in     String;
-      ID_Type : in     ID_Enumeration := Script);
+      ID_Type : in     Gnoga.ID_Enumeration := Gnoga.Script);
    --  Attach a Window with script ID with in the Parent window.
    --  If ID_Type = DOM_ID it will raise Invalid_ID_Type
    --
@@ -205,7 +209,7 @@ package Ada_GUI.Gnoga.Gui.Window is
 
    procedure Connection_Data
      (Window  : in out Window_Type;
-      Data    : access Connection_Data_Type'Class;
+      Data    : access Gnoga.Connection_Data_Type'Class;
       Dynamic : in     Boolean := True);
    --  Associates Data with the the connection Window is on.
    --  If Dynamic is true, Data will be unallocated when Window is
@@ -266,39 +270,38 @@ package Ada_GUI.Gnoga.Gui.Window is
      procedure (Object        : in out Gnoga.Gui.Base_Type'Class;
                 Storage_Event : in     Storage_Event_Record);
 
-private
---     procedure On_Abort_Handler (Window  : in out Window_Type;
---                                 Handler : in     Gnoga.Gui.Action_Event);
---     procedure Fire_On_Abort (Window : in out Window_Type);
---
---     procedure On_Error_Handler (Window  : in out Window_Type;
---                                 Handler : in     Gnoga.Gui.Action_Event);
---     procedure Fire_On_Error (Window : in out Window_Type);
---
---     procedure On_Before_Unload_Handler
---       (Window  : in out Window_Type;
---        Handler : in     Gnoga.Gui.Action_Event);
---     procedure Fire_On_Before_Unload (Window : in out Window_Type);
---
---     procedure On_Hash_Change_Handler
---       (Window  : in out Window_Type;
---        Handler : in     Gnoga.Gui.Action_Event);
---     procedure Fire_On_Hash_Change (Window : in out Window_Type);
---
---     procedure On_Orientation_Change_Handler
---       (Window  : in out Window_Type;
---        Handler : in     Gnoga.Gui.Action_Event);
---     procedure Fire_On_Orientation_Change (Window : in out Window_Type);
---
---     procedure On_Storage_Handler (Window  : in out Window_Type;
---                                   Handler : in     Storage_Event);
---     procedure Fire_On_Storage (Window        : in out Window_Type;
---                                Storage_Event : in     Storage_Event_Record);
-   -- Storage data was changed in another session
+   procedure On_Abort_Handler (Window  : in out Window_Type;
+                               Handler : in     Gnoga.Gui.Action_Event);
+   procedure Fire_On_Abort (Window : in out Window_Type);
 
-   -----------------------------------------------------------------------
-   -- Window_Type - Event Methods
-   -----------------------------------------------------------------------
+   procedure On_Error_Handler (Window  : in out Window_Type;
+                               Handler : in     Gnoga.Gui.Action_Event);
+   procedure Fire_On_Error (Window : in out Window_Type);
+
+   procedure On_Before_Unload_Handler
+     (Window  : in out Window_Type;
+      Handler : in     Gnoga.Gui.Action_Event);
+   procedure Fire_On_Before_Unload (Window : in out Window_Type);
+
+   procedure On_Hash_Change_Handler
+     (Window  : in out Window_Type;
+      Handler : in     Gnoga.Gui.Action_Event);
+   procedure Fire_On_Hash_Change (Window : in out Window_Type);
+
+   procedure On_Orientation_Change_Handler
+     (Window  : in out Window_Type;
+      Handler : in     Gnoga.Gui.Action_Event);
+   procedure Fire_On_Orientation_Change (Window : in out Window_Type);
+
+   procedure On_Storage_Handler (Window  : in out Window_Type;
+                                 Handler : in     Storage_Event);
+   procedure Fire_On_Storage (Window        : in out Window_Type;
+                              Storage_Event : in     Storage_Event_Record);
+   --  Storage data was changed in another session
+
+   -------------------------------------------------------------------------
+   --  Window_Type - Event Methods
+   -------------------------------------------------------------------------
 
    overriding
    procedure On_Resize (Window : in out Window_Type);
@@ -310,34 +313,24 @@ private
                              Child  : in out Gnoga.Gui.Base_Type'Class);
    --  Handles auto attaching Views to Window.
 
---     overriding
---     procedure On_Message (Object  : in out Window_Type;
---                           Event   : in     String;
---                           Message : in     String);
-
-   type Window_Type is new Gnoga.Gui.Base_Type with
-      record
-         DOM_Document         : aliased Gnoga.Gui.Document.Document_Type;
-         Location             : aliased Gnoga.Gui.Location.Location_Type;
-         View                 : Gnoga.Gui.Pointer_To_Base_Class := null;
-         View_Is_Dynamic      : Boolean := False;
-         Free_Connection_Data : Boolean := False;
-         Auto_Set_View        : Boolean := True;
-
---           On_Abort_Event              : Gnoga.Gui.Action_Event := null;
---           On_Error_Event              : Gnoga.Gui.Action_Event := null;
---           On_Before_Unload_Event      : Gnoga.Gui.Action_Event := null;
---           On_Hash_Change_Event        : Gnoga.Gui.Action_Event := null;
---           On_Orientation_Change_Event : Gnoga.Gui.Action_Event := null;
---           On_Storage_Event            : Storage_Event               := null;
-      end record;
-
    overriding
-   procedure Finalize (Object : in out Window_Type);
-   --  Will deallocate the Connection Data if marked dynamic.
-   --  Will deallocate an attached View (see Set_View) if the view is
-   --  marked dynamic.
-   --  See Base_Type.Dynamic
+   procedure On_Message (Object  : in out Window_Type;
+                         Event   : in     String;
+                         Message : in     String);
+private
+   type Window_Type is new Gnoga.Gui.Base_Type With record
+      DOM_Document         : aliased Gnoga.Gui.Document.Document_Type;
+      Location             : aliased Gnoga.Gui.Location.Location_Type;
+      View                 : Gnoga.Gui.Pointer_To_Base_Class := null;
+      View_Is_Dynamic      : Boolean := False;
+      Free_Connection_Data : Boolean := False;
+      Auto_Set_View        : Boolean := True;
 
-   overriding procedure Resize_Message (Object : in out Window_Type);
+      On_Abort_Event              : Gnoga.Gui.Action_Event := null;
+      On_Error_Event              : Gnoga.Gui.Action_Event := null;
+      On_Before_Unload_Event      : Gnoga.Gui.Action_Event := null;
+      On_Hash_Change_Event        : Gnoga.Gui.Action_Event := null;
+      On_Orientation_Change_Event : Gnoga.Gui.Action_Event := null;
+      On_Storage_Event            : Storage_Event               := null;
+   end record;
 end Ada_GUI.Gnoga.Gui.Window;

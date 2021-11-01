@@ -88,9 +88,11 @@ package Ada_GUI.Gnoga.Client_Storage is
    function Script_Accessor (Storage : Session_Storage_Type) return String;
 
 private
-   type Storage_Type is tagged record
-      Connection_ID : Gnoga.Connection_ID := No_Connection;
-   end record;
+   type Storage_Type is tagged
+      record
+         Connection_ID : Gnoga.Connection_ID :=
+                           Gnoga.No_Connection;
+      end record;
 
    type Local_Storage_Type is new Storage_Type with null record;
    type Session_Storage_Type is new Storage_Type with null record;

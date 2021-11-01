@@ -91,7 +91,7 @@ package Ada_GUI.Gnoga.Gui.Element.Common is
                      Content : in     String := "";
                      ID      : in     String := "");
    --  Create an HTML button. The content will be placed inside the button.
-   --  For forms use Ada_GUI.Gnoga.Gui.Element.Form.Button instead.
+   --  For forms use Gnoga.Gui.Element.Form.Button instead.
    --  Button_Type's can contain other elements like images.
 
    -------------------------------------------------------------------------

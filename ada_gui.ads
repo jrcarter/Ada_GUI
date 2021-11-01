@@ -61,15 +61,15 @@ package Ada_GUI is
    -- 2 |  |     |
    --   +--+-----+
 
+   procedure End_GUI with Pre => Set_Up, Post => not Set_Up;
+   -- Destroys the GUI
+
    -- For the New_[Widget] functions below, if Break_Before, the button appears below any existing widgets;
    -- otherwise, it appears to the right of the most recent widget
    -- All New_[Widget] functions return the ID of the new widget
    -- All New_[Widget] functions take the Row and Column of the display area in which the widget will be created
    -- The Column should refer to an area with Kind = Area, but if it does not, it will be adjusted to the column
    -- of the aread that Column extends
-
-   procedure End_GUI with Pre => Set_Up, Post => not Set_Up;
-   -- Destroys the GUI
 
    function New_Audio_Player (Row          : Positive := 1;
                               Column       : Positive := 1;
