@@ -127,6 +127,7 @@ function Next_Event (Timeout : Duration := Duration'Last) return Next_Result_Inf
       return Event;
    end Parse_Keyboard_Event;
 
+   Resize_Text : constant String := "resize";
    Left_Text   : constant String := "click";
    Right_Text  : constant String := "contextmenu";
    Double_Text : constant String := "dblclick";
@@ -156,7 +157,11 @@ begin -- Next_Event
       select
          Gnoga.Gui.Event_Queue.Dequeue (Element => Event);
 
-         if Event.Event = Left_Text or Event.Event = Right_Text or Event.Event = Double_Text or Event.Event = Key_Text then
+         if Event.Event = Resize_Text then
+            Event.Object.Flush_Buffer;
+            Event.Object.On_Message (Event => Resize_Text, Message => Ada.Strings.Unbounded.To_String (Event.Data) );
+            Event.Object.Flush_Buffer;
+         elsif Event.Event = Left_Text or Event.Event = Right_Text or Event.Event = Double_Text or Event.Event = Key_Text then
             Make_Event : declare
                Local : Event_Info (Kind => (if Event.Event = Left_Text then Left_Click
                                             elsif Event.Event = Right_Text then Right_Click
@@ -174,9 +179,11 @@ begin -- Next_Event
 
                return (Timed_Out => False, Event => Local);
             exception -- Make_Event
-               when others => -- Event.Object.ID is not the image of an ID
-                  null;
+            when others => -- Event.Object.ID is not the image of an ID
+               null;
             end Make_Event;
+         else
+            null; -- Ignore event
          end if;
       or
          delay until Final_Time;

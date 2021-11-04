@@ -1729,97 +1729,6 @@ package body Ada_GUI.Gnoga.Server.Connection is
    -- Dispatch_Message --
    ----------------------
 
-   task type Dispatch_Task_Type
-     (Object : Gnoga.Gui.Pointer_To_Base_Class)
-   is
-      entry Start (Event : in String;
-                   Data  : in String;
-                   ID    : in Gnoga.Unique_ID);
-   end Dispatch_Task_Type;
-
-   type Dispatch_Task_Access is access all Dispatch_Task_Type;
-
-   procedure Free_Dispatch_Task is
-        new Ada.Unchecked_Deallocation (Dispatch_Task_Type,
-                                        Dispatch_Task_Access);
-
-   package Dispatch_Task_Maps is new Ada.Containers.Ordered_Maps
-     (Gnoga.Unique_ID, Dispatch_Task_Access);
-
-   protected Dispatch_Task_Objects is
-      procedure Add_Dispatch_Task (ID            : in Gnoga.Unique_ID;
-                                   Dispatch_Task : in Dispatch_Task_Access);
-
-      function Object (ID : Gnoga.Unique_ID) return Dispatch_Task_Access;
-
-      procedure Delete_Dispatch_Task (ID : in Gnoga.Unique_ID);
-   private
-      Dispatch_Task_Map : Dispatch_Task_Maps.Map;
-   end Dispatch_Task_Objects;
-
-   protected body Dispatch_Task_Objects is
-      procedure Add_Dispatch_Task (ID            : in Gnoga.Unique_ID;
-                                   Dispatch_Task : in Dispatch_Task_Access)
-      is
-      begin
-         Dispatch_Task_Map.Insert (ID, Dispatch_Task);
-      end Add_Dispatch_Task;
-
-      function Object (ID : Gnoga.Unique_ID) return Dispatch_Task_Access
-      is
-      begin
-         return Dispatch_Task_Map.Element (ID);
-      end Object;
-
-      procedure Delete_Dispatch_Task (ID : in Gnoga.Unique_ID)
-      is
-         Dummy_T : Dispatch_Task_Access := Dispatch_Task_Map.Element (ID);
-      begin
-         Free_Dispatch_Task (Dummy_T);
-         --  http://adacore.com/developers/development-log/NF-65-H911-007-gnat
-         --  This will cause Dummy_T to free upon task termination.
-         Dispatch_Task_Map.Delete (ID);
-      end Delete_Dispatch_Task;
-   end Dispatch_Task_Objects;
-
-   task body Dispatch_Task_Type is
-      E : Ada.Strings.Unbounded.Unbounded_String;
-      D : Ada.Strings.Unbounded.Unbounded_String;
-      I : Gnoga.Unique_ID;
-   begin
-      accept Start (Event : in String;
-                    Data  : in String;
-                    ID    : in Gnoga.Unique_ID)
-      do
-         E := Ada.Strings.Unbounded.To_Unbounded_String (Event);
-         D := Ada.Strings.Unbounded.To_Unbounded_String (Data);
-         I := ID;
-      end Start;
-
-      Object.Flush_Buffer;
-
-      declare
-         Continue : Boolean;
-
-         Event    : constant String  := Ada.Strings.Unbounded.To_String (E);
-         Data     : constant String  := Ada.Strings.Unbounded.To_String (D);
-      begin
-         Object.Fire_On_Message (Event, Data, Continue);
-
-         if Continue then
-            Object.On_Message (Event, Data);
-         end if;
-      end;
-
-      Object.Flush_Buffer;
-
-      Dispatch_Task_Objects.Delete_Dispatch_Task (I);
-   exception
-      when E : others =>
-         Log ("Dispatch Error");
-         Log (Ada.Exceptions.Exception_Information (E));
-   end Dispatch_Task_Type;
-
    procedure Dispatch_Message (Message : in String) is
       use Ada.Strings.Fixed;
    begin
@@ -1849,18 +1758,10 @@ package body Ada_GUI.Gnoga.Server.Connection is
 
             Object : constant Gnoga.Gui.Pointer_To_Base_Class :=
                        Object_Manager.Get_Object (Integer'Value (UID));
-
-            New_ID : Gnoga.Unique_ID;
          begin
             Gui.Event_Queue.Enqueue (New_Item => (Event  => Ada.Strings.Unbounded.To_Unbounded_String (Event),
                                                   Object => Object,
                                                   Data   => Ada.Strings.Unbounded.To_Unbounded_String (Event_Data) ) );
-
-            New_Unique_ID (New_ID);
-            Dispatch_Task_Objects.Add_Dispatch_Task
-              (New_ID, new Dispatch_Task_Type (Object));
-            Dispatch_Task_Objects.Object (New_ID).Start
-              (Event, Event_Data, New_ID);
          end;
       end if;
    exception
