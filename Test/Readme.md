@@ -8,4 +8,4 @@ Luhn_Gen calculates Luhn checksum digits. Enter the first 15 digits of your cred
 
 Random_Int is a Gnoga program (https://github.com/jrcarter/Random_Int) that has been revised to use Ada GUI instead. It will generate random integers in a desired range.
 
-Ada-GUI versions of Mine_Detector (https://github.com/jrcarter/Mine_Detector) and Password_Gen (https://github.com/jrcarter/Password_Gen) are available.
+Ada-GUI versions of Mine_Detector (https://github.com/jrcarter/Mine_Detector), Password_Gen (https://github.com/jrcarter/Password_Gen) and MP (https://github.com/jrcarter/MP) are available.
