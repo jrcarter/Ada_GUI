@@ -91,7 +91,7 @@ package body Ada_GUI.Gnoga.Application is
 
    type OS_ID is (Invalid, Mac, Windows, Unix);
 
-   OS : constant OS_ID := Unix;
+   OS : constant OS_ID := Invalid;
    pragma Assert (OS /= Invalid, "Operating system not set in body of Gnoga.Application");
 
    procedure Open_URL (URL : in String) is
