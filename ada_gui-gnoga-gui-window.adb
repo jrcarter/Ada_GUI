@@ -70,7 +70,6 @@ package body Ada_GUI.Gnoga.Gui.Window is
       F      : Integer := Message'First - 1;
 
       function Split return String;
-      function Split return Boolean;
       --  Split string and extract values
 
       function Split return String is
@@ -80,11 +79,6 @@ package body Ada_GUI.Gnoga.Gui.Window is
                      Pattern => "|",
                      From    => S);
          return Message (S .. (F - 1));
-      end Split;
-
-      function Split return Boolean is
-      begin
-         return Split = "true";
       end Split;
    begin
       Event.Name := To_Unbounded_String (Split);

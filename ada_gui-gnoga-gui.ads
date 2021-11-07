@@ -482,157 +482,6 @@ package Ada_GUI.Gnoga.Gui is
    --  Gnoga.Element.Form_Type.Submit must be called in the handler for
    --  the form to be submitted if desired.
 
-   -- Mouse Events --
-
-   procedure On_Click_Handler (Object  : in out Base_Type;
-                               Handler : in     Action_Event);
-   procedure Fire_On_Click (Object : in out Base_Type);
-   --  Handle mouse click events
-
-   procedure On_Mouse_Click_Handler (Object  : in out Base_Type;
-                                     Handler : in     Mouse_Event);
-   procedure Fire_On_Mouse_Click (Object : in out Base_Type;
-                                  Event  : in     Mouse_Event_Record);
-   --  Handle mouse click events, but also return mouse event data
-
-   procedure On_Context_Menu_Handler (Object  : in out Base_Type;
-                                      Handler : in     Action_Event);
-   procedure Fire_On_Context_Menu (Object : in out Base_Type);
-   --  Handle right mouse button click events
-
-   procedure On_Mouse_Right_Click_Handler (Object  : in out Base_Type;
-                                           Handler : in     Mouse_Event);
-   procedure Fire_On_Mouse_Right_Click (Object : in out Base_Type;
-                                        Event  : in     Mouse_Event_Record);
-   --  Handle mouse right click event, but also return mouse event data
-
-   procedure On_Double_Click_Handler (Object  : in out Base_Type;
-                                      Handler : in     Action_Event);
-   procedure Fire_On_Double_Click (Object : in out Base_Type);
-   --  Handle mouse double click events
-
-   procedure On_Mouse_Double_Click_Handler (Object  : in out Base_Type;
-                                            Handler : in     Mouse_Event);
-   procedure Fire_On_Mouse_Double_Click (Object : in out Base_Type;
-                                         Event  : in     Mouse_Event_Record);
-   --  Handle mouse double click events, but also return mouse event data
-
-   procedure On_Mouse_Enter_Handler (Object  : in out Base_Type;
-                                     Handler : in     Action_Event);
-   procedure Fire_On_Mouse_Enter (Object : in out Base_Type);
-   --  Handle mouse enter to object events
-
-   procedure On_Mouse_Leave_Handler (Object  : in out Base_Type;
-                                     Handler : in     Action_Event);
-   procedure Fire_On_Mouse_Leave (Object : in out Base_Type);
-   --  Handle mouse leave object events
-
-   procedure On_Mouse_Over_Handler (Object  : in out Base_Type;
-                                     Handler : in     Action_Event);
-   procedure Fire_On_Mouse_Over (Object : in out Base_Type);
-   --  Handle mouse enter to object events or it's children events
-
-   procedure On_Mouse_Out_Handler (Object  : in out Base_Type;
-                                   Handler : in     Action_Event);
-   procedure Fire_On_Mouse_Out (Object : in out Base_Type);
-   --  Handle mouse leave object events or it's children events
-
-   procedure On_Mouse_Down_Handler (Object  : in out Base_Type;
-                                    Handler : in     Mouse_Event);
-   procedure Fire_On_Mouse_Down (Object : in out Base_Type;
-                                 Event  : in     Mouse_Event_Record);
-   --  Handle mouse down events
-
-   procedure On_Mouse_Up_Handler (Object  : in out Base_Type;
-                                  Handler : in     Mouse_Event);
-   procedure Fire_On_Mouse_Up (Object : in out Base_Type;
-                               Event  : in     Mouse_Event_Record);
-   --  Handle mouse up events
-
-   procedure On_Mouse_Move_Handler (Object  : in out Base_Type;
-                                    Handler : in     Mouse_Event);
-   procedure Fire_On_Mouse_Move (Object : in out Base_Type;
-                                 Event  : in     Mouse_Event_Record);
-   --  Handle mouse move events
-
-   --  Drag and Drop Events --
-
-   procedure On_Drag_Start_Handler (Object    : in out Base_Type;
-                                    Handler   : in     Action_Event;
-                                    Drag_Text : in     String;
-                                    Drag_Type : in     String := "text/plain");
-   procedure Fire_On_Drag_Start (Object : in out Base_Type);
-   --  When setting the On_Drag_Start_Handler, Drag_Text is set to be the
-   --  text that will be delivered in a Drag_Event to an On_Drop event.
-   --  The Element_Type.Draggable property should also be true for Object.
-
-   procedure On_Drag_Handler (Object  : in out Base_Type;
-                              Handler : in     Action_Event);
-   procedure Fire_On_Drag (Object : in out Base_Type);
-
-   procedure On_Drag_End_Handler (Object  : in out Base_Type;
-                                  Handler : in     Action_Event);
-   procedure Fire_On_Drag_End (Object : in out Base_Type);
-
-   procedure On_Drag_Enter_Handler (Object  : in out Base_Type;
-                                  Handler : in     Action_Event);
-   procedure Fire_On_Drag_Enter (Object : in out Base_Type);
-
-   procedure On_Drag_Leave_Handler (Object  : in out Base_Type;
-                                  Handler : in     Action_Event);
-   procedure Fire_On_Drag_Leave (Object : in out Base_Type);
-
-   procedure On_Drop_Handler (Object    : in out Base_Type;
-                              Handler   : in     Drop_Event;
-                              Drag_Type : in     String := "text/plain");
-   procedure Fire_On_Drop (Object    : in out Base_Type;
-                           X, Y      : in     Integer;
-                           Drag_Text : in     String);
-   --  To become a drop target an element only needs to handle On_Drop
-   --  On_Drag_Enter and On_Drag_Leave can be used to show indication
-   --  of "ready to receive" object.
-
-   --  Keyboard Events --
-
-   procedure On_Character_Handler (Object  : in out Base_Type;
-                                   Handler : in     Character_Event);
-   procedure Fire_On_Character (Object : in out Base_Type;
-                                Key    : in     Character);
-
-   procedure On_Wide_Character_Handler (Object  : in out Base_Type;
-                                        Handler : in     Wide_Character_Event);
-   procedure Fire_On_Wide_Character (Object : in out Base_Type;
-                                     Key    : in     Wide_Character);
-
-   procedure On_Key_Down_Handler (Object  : in out Base_Type;
-                                  Handler : in     Keyboard_Event);
-   procedure Fire_On_Key_Down (Object : in out Base_Type;
-                               Event  : in     Keyboard_Event_Record);
-
-   procedure On_Key_Up_Handler (Object  : in out Base_Type;
-                                Handler : in     Keyboard_Event);
-   procedure Fire_On_Key_Up (Object : in out Base_Type;
-                             Event  : in     Keyboard_Event_Record);
-
-   procedure On_Key_Press_Handler (Object  : in out Base_Type;
-                                   Handler : in     Keyboard_Event);
-   procedure Fire_On_Key_Press (Object : in out Base_Type;
-                                Event  : in     Keyboard_Event_Record);
-
-   --  Clipboard Events  --
-
-   procedure On_Copy_Handler (Object  : in out Base_Type;
-                              Handler : in     Action_Event);
-   procedure Fire_On_Copy (Object : in out Base_Type);
-
-   procedure On_Cut_Handler (Object  : in out Base_Type;
-                             Handler : in     Action_Event);
-   procedure Fire_On_Cut (Object : in out Base_Type);
-
-   procedure On_Paste_Handler (Object  : in out Base_Type;
-                               Handler : in     Action_Event);
-   procedure Fire_On_Paste (Object : in out Base_Type);
-
    --  Generic Events --
 
    procedure On_Create_Handler (Object  : in out Base_Type;
@@ -713,11 +562,11 @@ private
       Is_Dynamic    : Boolean                    := False;
       In_Resize     : Boolean                    := False;
 
-         --  Object Events
+      --  Object Events
       On_Resize_Event             : Action_Event         := null;
       On_Scroll_Event             : Action_Event         := null;
 
-         --  Form Events
+      -- Form Events
       On_Focus_Event              : Action_Event         := null;
       On_Blur_Event               : Action_Event         := null;
       On_Change_Event             : Action_Event         := null;
@@ -729,42 +578,7 @@ private
       On_Select_Event             : Action_Event         := null;
       On_Submit_Event             : Action_Event         := null;
 
-         --  Mouse Events
-      On_Click_Event              : Action_Event         := null;
-      On_Mouse_Click_Event        : Mouse_Event          := null;
-      On_Mouse_Right_Click_Event  : Mouse_Event          := null;
-      On_Context_Menu_Event       : Action_Event         := null;
-      On_Double_Click_Event       : Action_Event         := null;
-      On_Mouse_Double_Click_Event : Mouse_Event          := null;
-      On_Mouse_Enter_Event        : Action_Event         := null;
-      On_Mouse_Leave_Event        : Action_Event         := null;
-      On_Mouse_Over_Event         : Action_Event         := null;
-      On_Mouse_Out_Event          : Action_Event         := null;
-      On_Mouse_Down_Event         : Mouse_Event          := null;
-      On_Mouse_Up_Event           : Mouse_Event          := null;
-      On_Mouse_Move_Event         : Mouse_Event          := null;
-
-         --  Drag and Drop Events
-      On_Drag_Start_Event         : Action_Event         := null;
-      On_Drag_Event               : Action_Event         := null;
-      On_Drag_End_Event           : Action_Event         := null;
-      On_Drag_Enter_Event         : Action_Event         := null;
-      On_Drag_Leave_Event         : Action_Event         := null;
-      On_Drop_Event               : Drop_Event           := null;
-
-         --  Keyboard Events
-      On_Character_Event          : Character_Event      := null;
-      On_Wide_Character_Event     : Wide_Character_Event := null;
-      On_Key_Down_Event           : Keyboard_Event       := null;
-      On_Key_Up_Event             : Keyboard_Event       := null;
-      On_Key_Press_Event          : Keyboard_Event       := null;
-
-         --  Clipboard Events
-      On_Copy_Event               : Action_Event         := null;
-      On_Cut_Event                : Action_Event         := null;
-      On_Paste_Event              : Action_Event         := null;
-
-         --  Generic Events
+      -- Generic Events
       On_Create_Event             : Action_Event         := null;
       On_Destroy_Event            : Action_Event         := null;
       On_Child_Added_Event        : Child_Changed_Event  := null;
