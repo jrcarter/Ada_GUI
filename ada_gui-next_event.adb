@@ -159,7 +159,7 @@ begin -- Next_Event
 
          if Event.Event = Resize_Text then
             Event.Object.Flush_Buffer;
-            Event.Object.On_Message (Event => Resize_Text, Message => Ada.Strings.Unbounded.To_String (Event.Data) );
+            Gnoga.Gui.Base_Type'Class (Event.Object.all).On_Resize;
             Event.Object.Flush_Buffer;
          elsif Event.Event = Left_Text or Event.Event = Right_Text or Event.Event = Double_Text or Event.Event = Key_Text then
             Make_Event : declare

@@ -420,104 +420,6 @@ package Ada_GUI.Gnoga.Gui is
 
    Event_Queue : Event_Queues.Queue;
 
-   -- Object Events --
-
-   procedure On_Resize_Handler (Object  : in out Base_Type;
-                                Handler : in     Action_Event);
-   procedure Fire_On_Resize (Object : in out Base_Type);
-   --  Handle object size change.
-
-   procedure On_Scroll_Handler (Object  : in out Base_Type;
-                                Handler : in     Action_Event);
-   procedure Fire_On_Scroll (Object : in out Base_Type);
-   --  Handle scroll changes.
-
-   -- Form Events --
-
-   procedure On_Focus_Handler (Object  : in out Base_Type;
-                               Handler : in     Action_Event);
-   procedure Fire_On_Focus (Object : in out Base_Type);
-   --  Handle focus on object
-
-   procedure On_Blur_Handler (Object  : in out Base_Type;
-                              Handler : in     Action_Event);
-   procedure Fire_On_Blur (Object : in out Base_Type);
-   --  Handle loss of focus, many browsers poorly support this event.
-
-   procedure On_Change_Handler (Object  : in out Base_Type;
-                                Handler : in     Action_Event);
-   procedure Fire_On_Change (Object : in out Base_Type);
-
-   procedure On_Focus_In_Handler (Object  : in out Base_Type;
-                                  Handler : in     Action_Event);
-   procedure Fire_On_Focus_In (Object : in out Base_Type);
-
-   procedure On_Focus_Out_Handler (Object  : in out Base_Type;
-                                   Handler : in     Action_Event);
-   procedure Fire_On_Focus_Out (Object : in out Base_Type);
-
-   procedure On_Input_Handler (Object  : in out Base_Type;
-                               Handler : in     Action_Event);
-   procedure Fire_On_Input (Object : in out Base_Type);
-
-   procedure On_Reset_Handler (Object  : in out Base_Type;
-                               Handler : in     Action_Event);
-   procedure Fire_On_Reset (Object : in out Base_Type);
-   --  If this event is bound it will stop automatic reset of form contents
-   --  Gnoga.Element.Form_Type.Reset must be called in the handler for the
-   --  form to be reset if desired.
-
-   procedure On_Search_Handler (Object  : in out Base_Type;
-                                Handler : in     Action_Event);
-   procedure Fire_On_Search (Object : in out Base_Type);
-
-   procedure On_Select_Handler (Object  : in out Base_Type;
-                                Handler : in     Action_Event);
-   procedure Fire_On_Select (Object : in out Base_Type);
-
-   procedure On_Submit_Handler (Object  : in out Base_Type;
-                                Handler : in     Action_Event);
-   procedure Fire_On_Submit (Object : in out Base_Type);
-   --  If this event is bound it will stop automatic submission of a form
-   --  Gnoga.Element.Form_Type.Submit must be called in the handler for
-   --  the form to be submitted if desired.
-
-   --  Generic Events --
-
-   procedure On_Create_Handler (Object  : in out Base_Type;
-                                Handler : in     Action_Event);
-   procedure Fire_On_Create (Object : in out Base_Type);
-   --  Called on creation of a new Gnoga object after attached to message
-   --  queue.
-
-   procedure On_Destroy_Handler (Object  : in out Base_Type;
-                                 Handler : in     Action_Event);
-   procedure Fire_On_Destroy (Object : in out Base_Type);
-   --  Called before detaching Gnoga object from message queue during
-   --  finalization of Object. As it is possible the connection has been
-   --  broken, and the reason for the event, it is imperative to check if the
-   --  connection is still valid before calling any Gnoga methods with in an
-   --  On_Destroy event.
-
-   procedure On_Child_Added_Handler (Object  : in out Base_Type;
-                                     Handler : in     Child_Changed_Event);
-   procedure Fire_On_Child_Added (Object : in out Base_Type;
-                                  Child  : in out Base_Type'Class);
-
-   procedure On_Child_Removed_Handler (Object  : in out Base_Type;
-                                       Handler : in     Child_Changed_Event);
-   procedure Fire_On_Child_Removed (Object : in out Base_Type;
-                                    Child  : in out Base_Type'Class);
-
-   procedure On_Message_Handler (Object  : in out Base_Type;
-                                 Handler : in     Message_Event);
-   procedure Fire_On_Message (Object   : in out Base_Type;
-                              Event    : in     String;
-                              Message  : in     String;
-                              Continue : out    Boolean);
-   --  Generic message event handler, if set is called before every event.
-   --  If Continue is set to false, no more event processing will occur.
-
    -------------------------------------------------------------------------
    --  Base_Type - Event Methods
    -------------------------------------------------------------------------
@@ -528,61 +430,29 @@ package Ada_GUI.Gnoga.Gui is
    --  Event Methods are always bound on creation of Gnoga object or do not
    --  require event binding.
 
-   procedure On_Create (Object : in out Base_Type);
-   --  Called on creation of a new Gnoga object after attached to message
-   --  queue.
+   -- For Ada GUI, these are null, but are overridden by some descendant types
 
-   procedure On_Destroy (Object : in out Base_Type);
-   --  Called before detaching Gnoga object from message queue during
-   --  finalization of Object.
-
-   procedure On_Child_Removed (Object : in out Base_Type;
-                               Child  : in out Base_Type'Class);
-   --  Called when a Child's Parent changed and was claiming Object as its
-   --  parent.
-
-   procedure On_Resize (Object : in out Base_Type);
+   procedure On_Resize (Object : in out Base_Type) is null;
    --  Called by all sizing methods to inform Object it has changed size.
 
    procedure On_Child_Added (Object : in out Base_Type;
-                             Child  : in out Base_Type'Class);
+                             Child  : in out Base_Type'Class)
+   is null;
    --  Called when a Child is created claiming Object as its parent.
 
    procedure On_Message (Object  : in out Base_Type;
                          Event   : in     String;
-                         Message : in     String);
+                         Message : in     String)
+   is null;
    --  Called on receiving any message or event from browser.
 private
    type Base_Type is new Ada.Finalization.Limited_Controlled with record
-      Unique_ID     : Gnoga.Unique_ID      := No_Unique_ID;
+      Unique_ID     : Gnoga.Unique_ID := No_Unique_ID;
       Web_ID        : Gnoga.Web_ID;
-      ID_Type       : ID_Enumeration := No_ID;
-      Connection_ID : Gnoga.Connection_ID  := No_Connection;
-      Parent_Object : Pointer_To_Base_Class      := null;
-      Is_Dynamic    : Boolean                    := False;
-      In_Resize     : Boolean                    := False;
-
-      --  Object Events
-      On_Resize_Event             : Action_Event         := null;
-      On_Scroll_Event             : Action_Event         := null;
-
-      -- Form Events
-      On_Focus_Event              : Action_Event         := null;
-      On_Blur_Event               : Action_Event         := null;
-      On_Change_Event             : Action_Event         := null;
-      On_Focus_In_Event           : Action_Event         := null;
-      On_Focus_Out_Event          : Action_Event         := null;
-      On_Input_Event              : Action_Event         := null;
-      On_Reset_Event              : Action_Event         := null;
-      On_Search_Event             : Action_Event         := null;
-      On_Select_Event             : Action_Event         := null;
-      On_Submit_Event             : Action_Event         := null;
-
-      -- Generic Events
-      On_Create_Event             : Action_Event         := null;
-      On_Destroy_Event            : Action_Event         := null;
-      On_Child_Added_Event        : Child_Changed_Event  := null;
-      On_Child_Removed_Event      : Child_Changed_Event  := null;
-      On_Message_Event            : Message_Event        := null;
+      ID_Type       : ID_Enumeration        := No_ID;
+      Connection_ID : Gnoga.Connection_ID   := No_Connection;
+      Parent_Object : Pointer_To_Base_Class := null;
+      Is_Dynamic    : Boolean               := False;
+      In_Resize     : Boolean               := False;
    end record;
 end Ada_GUI.Gnoga.Gui;

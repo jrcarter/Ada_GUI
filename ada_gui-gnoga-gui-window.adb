@@ -947,7 +947,6 @@ package body Ada_GUI.Gnoga.Gui.Window is
          end;
       elsif Event = "resize" then
          Window_Type'Class (Object).On_Resize;
-         Object.Fire_On_Resize;
       else
          Gnoga.Gui.Base_Type (Object).On_Message (Event, Message);
       end if;
