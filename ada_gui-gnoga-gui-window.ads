@@ -35,8 +35,6 @@
 --  For more information please go to http://www.gnoga.com                  --
 ------------------------------------------------------------------------------
 
-with Ada.Strings.Unbounded;
-
 with Ada_GUI.Gnoga.Gui.Document;
 with Ada_GUI.Gnoga.Gui.Location;
 
@@ -256,50 +254,6 @@ package Ada_GUI.Gnoga.Gui.Window is
    procedure Move_To (Window : in out Window_Type; X, Y : Integer);
 
    -------------------------------------------------------------------------
-   --  Window_Type - Event Handlers
-   -------------------------------------------------------------------------
-
-   type Storage_Event_Record is
-      record
-         Name            : Ada.Strings.Unbounded.Unbounded_String;
-         Old_Value       : Ada.Strings.Unbounded.Unbounded_String;
-         New_Value       : Ada.Strings.Unbounded.Unbounded_String;
-      end record;
-
-   type Storage_Event is access
-     procedure (Object        : in out Gnoga.Gui.Base_Type'Class;
-                Storage_Event : in     Storage_Event_Record);
-
-   procedure On_Abort_Handler (Window  : in out Window_Type;
-                               Handler : in     Gnoga.Gui.Action_Event);
-   procedure Fire_On_Abort (Window : in out Window_Type);
-
-   procedure On_Error_Handler (Window  : in out Window_Type;
-                               Handler : in     Gnoga.Gui.Action_Event);
-   procedure Fire_On_Error (Window : in out Window_Type);
-
-   procedure On_Before_Unload_Handler
-     (Window  : in out Window_Type;
-      Handler : in     Gnoga.Gui.Action_Event);
-   procedure Fire_On_Before_Unload (Window : in out Window_Type);
-
-   procedure On_Hash_Change_Handler
-     (Window  : in out Window_Type;
-      Handler : in     Gnoga.Gui.Action_Event);
-   procedure Fire_On_Hash_Change (Window : in out Window_Type);
-
-   procedure On_Orientation_Change_Handler
-     (Window  : in out Window_Type;
-      Handler : in     Gnoga.Gui.Action_Event);
-   procedure Fire_On_Orientation_Change (Window : in out Window_Type);
-
-   procedure On_Storage_Handler (Window  : in out Window_Type;
-                                 Handler : in     Storage_Event);
-   procedure Fire_On_Storage (Window        : in out Window_Type;
-                              Storage_Event : in     Storage_Event_Record);
-   --  Storage data was changed in another session
-
-   -------------------------------------------------------------------------
    --  Window_Type - Event Methods
    -------------------------------------------------------------------------
 
@@ -312,25 +266,13 @@ package Ada_GUI.Gnoga.Gui.Window is
    procedure On_Child_Added (Object : in out Window_Type;
                              Child  : in out Gnoga.Gui.Base_Type'Class);
    --  Handles auto attaching Views to Window.
-
-   overriding
-   procedure On_Message (Object  : in out Window_Type;
-                         Event   : in     String;
-                         Message : in     String);
 private
-   type Window_Type is new Gnoga.Gui.Base_Type With record
+   type Window_Type is new Gnoga.Gui.Base_Type with record
       DOM_Document         : aliased Gnoga.Gui.Document.Document_Type;
       Location             : aliased Gnoga.Gui.Location.Location_Type;
       View                 : Gnoga.Gui.Pointer_To_Base_Class := null;
-      View_Is_Dynamic      : Boolean := False;
-      Free_Connection_Data : Boolean := False;
-      Auto_Set_View        : Boolean := True;
-
-      On_Abort_Event              : Gnoga.Gui.Action_Event := null;
-      On_Error_Event              : Gnoga.Gui.Action_Event := null;
-      On_Before_Unload_Event      : Gnoga.Gui.Action_Event := null;
-      On_Hash_Change_Event        : Gnoga.Gui.Action_Event := null;
-      On_Orientation_Change_Event : Gnoga.Gui.Action_Event := null;
-      On_Storage_Event            : Storage_Event               := null;
+      View_Is_Dynamic      : Boolean                         := False;
+      Free_Connection_Data : Boolean                         := False;
+      Auto_Set_View        : Boolean                         := True;
    end record;
 end Ada_GUI.Gnoga.Gui.Window;

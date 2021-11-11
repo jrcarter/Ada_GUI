@@ -333,7 +333,6 @@ package body Ada_GUI.Gnoga.Gui is
    procedure Height (Object : in out Base_Type; Value : in Integer) is
    begin
       Object.jQuery_Execute ("height(" & Left_Trim (Value'Img) & ");");
-      Object.On_Message ("resize", "");
    end Height;
 
    function Height (Object : Base_Type) return Integer is
@@ -348,7 +347,6 @@ package body Ada_GUI.Gnoga.Gui is
    procedure Width (Object : in out Base_Type; Value : in Integer) is
    begin
       Object.jQuery_Execute ("width(" & Left_Trim (Value'Img) & ");");
-      Object.On_Message ("resize", "");
    end Width;
 
    function Width (Object : Base_Type) return Integer is

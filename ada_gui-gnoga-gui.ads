@@ -283,9 +283,6 @@ package Ada_GUI.Gnoga.Gui is
    --  of the event. In theory any event can be set on any object not all
    --  will be fired by every object.
 
-   type Action_Event is access
-     procedure (Object : in out Base_Type'Class);
-
    type Mouse_Message_Type is (Unknown, Click, Double_Click, Right_Click,
                                Mouse_Down, Mouse_Up, Mouse_Move);
 
@@ -439,12 +436,6 @@ package Ada_GUI.Gnoga.Gui is
                              Child  : in out Base_Type'Class)
    is null;
    --  Called when a Child is created claiming Object as its parent.
-
-   procedure On_Message (Object  : in out Base_Type;
-                         Event   : in     String;
-                         Message : in     String)
-   is null;
-   --  Called on receiving any message or event from browser.
 private
    type Base_Type is new Ada.Finalization.Limited_Controlled with record
       Unique_ID     : Gnoga.Unique_ID := No_Unique_ID;
