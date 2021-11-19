@@ -57,6 +57,9 @@ package body Ada_GUI.Gnoga.Application is
    HTML_For_On_Close : Ada.Strings.Unbounded.Unbounded_String;
 
    Favicon_URL : Ada.Strings.Unbounded.Unbounded_String;
+   Ending      : Boolean := False with Atomic;
+
+   function Application_Ending return Boolean is (Ending);
 
    ----------------------
    -- Application_Name --
@@ -91,7 +94,7 @@ package body Ada_GUI.Gnoga.Application is
 
    type OS_ID is (Invalid, Mac, Windows, Unix);
 
-   OS : constant OS_ID := Invalid;
+   OS : constant OS_ID := Unix;
    pragma Assert (OS /= Invalid, "Operating system not set in body of Gnoga.Application");
 
    procedure Open_URL (URL : in String) is
@@ -173,6 +176,7 @@ package body Ada_GUI.Gnoga.Application is
          Connection.Hold;
 
          Connection_Holder.Release;
+         Ending := True;
 
          Gnoga.Server.Connection.Stop;
       else

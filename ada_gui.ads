@@ -61,6 +61,10 @@ package Ada_GUI is
    -- 2 |  |     |
    --   +--+-----+
 
+   function Window_Closed return Boolean;
+   -- Returns True when the user has closed the application window
+   -- (Also returns True when End_GUI has been called)
+
    procedure End_GUI with Pre => Set_Up, Post => not Set_Up;
    -- Destroys the GUI
 
