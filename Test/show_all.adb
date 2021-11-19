@@ -96,7 +96,9 @@ begin -- Show_All
    File := Ada_GUI.New_Text_Box (Break_Before => True, Label => "Selected file:");
 
    Wait_To_Quit : loop
-      Event := Ada_GUI.Next_Event;
+      exit Wait_To_Quit when Ada_GUI.Window_Closed;
+
+      Event := Ada_GUI.Next_Event (Timeout => 1.0);
 
       if not Event.Timed_Out then
          if Event.Event.Kind = Ada_GUI.Key_Press then
@@ -107,11 +109,9 @@ begin -- Show_All
                Pressed.Set_Text (Text => Pressed.Text & " ?");
            end Handle_Invalid;
          else
-            if Event.Event.ID = Quit then
-               Ada_GUI.End_GUI;
+            exit Wait_To_Quit when Event.Event.ID = Quit;
 
-               exit Wait_To_Quit;
-            elsif Event.Event.ID = Visible then
+            if Event.Event.ID = Visible then
                Background.Set_Visibility (Visible => Visible.Active);
             elsif Event.Event.ID = Sel_File then
                File_Info := Ada_GUI.Selected_File;
@@ -122,4 +122,6 @@ begin -- Show_All
          end if;
       end if;
    end loop Wait_To_Quit;
+
+   Ada_GUI.End_GUI;
 end Show_All;

@@ -80,7 +80,9 @@ package body Random_Int.UI is
       accept Start;
 
       Forever : loop
-         Event := Ada_GUI.Next_Event;
+         exit Forever when Ada_GUI.Window_Closed;
+
+         Event := Ada_GUI.Next_Event (Timeout => 1.0);
 
          if not Event.Timed_Out and then Event.Event.Kind = Ada_GUI.Left_Click then
             ID := Event.Event.ID;
@@ -91,23 +93,29 @@ package body Random_Int.UI is
                      Event := Generate;
                   else
                      Event := Quit;
+                     Finished := True;
                   end if;
                end Get;
             end if;
 
-            if ID = Quitter then
-               Ada_GUI.End_GUI;
-               Finished := True;
-
-               exit Forever;
-            end if;
+            exit Forever when ID = Quitter;
          end if;
       end loop Forever;
+
+      Ada_GUI.End_GUI;
+
+      if not Finished then
+         accept Get (Event : out Event_ID) do
+            Event := Quit;
+         end Get;
+
+         Finished := True;
+      end if;
    end Event_Handler;
 
    Placeholder : constant String := "Enter an integer";
 begin -- Random_Int.UI
-   Ada_GUI.Set_Up (Grid => (1 => (1 .. 2 => Ada_GUI.Right) ), Title => "Random Integers");
+   Ada_GUI.Set_Up (Grid => (1 => (1 .. 2 => (Kind => Ada_GUI.Area, Alignment => Ada_GUI.Right) ) ), Title => "Random Integers");
    Min_Entry := Ada_GUI.New_Text_Box (Label => "Minimum value", Placeholder => Placeholder);
    Min_Entry.Set_Text_Aligbnment (Alignment => Ada_GUI.Right);
    Max_Entry := Ada_GUI.New_Text_Box (Break_Before => True, Label => "Maximum value", Placeholder => Placeholder);

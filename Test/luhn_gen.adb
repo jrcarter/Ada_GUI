@@ -114,21 +114,21 @@ begin -- Luhn_Gen
    Gen := Ada_GUI.New_Button (Text => "Generate", Break_Before => True);
    Quit := Ada_GUI.New_Button (Text => "Quit", Break_Before => True);
 
-   All_Events : Loop
-      Event := Ada_GUI.Next_Event;
+   All_Events : loop
+      exit All_Events when Ada_GUI.Window_Closed;
+
+      Event := Ada_GUI.Next_Event (Timeout => 1.0);
 
       if not Event.Timed_Out and then Event.Event.Kind = Ada_GUI.Left_Click then
          if Event.Event.ID = Gen then
             Generate;
-         elsif Event.Event.ID = Quit then
-            Ada_GUI.End_GUI;
-
-            exit All_Events;
-         else
-            null;
          end if;
+
+         exit All_Events when Event.Event.ID = Quit;
       end if;
    end loop All_Events;
+
+   Ada_GUI.End_GUI;
 exception -- Luhn_Gen
 when E : others =>
    Ada.Text_IO.Put_Line (Item => Ada.Exceptions.Exception_Information (E) );
