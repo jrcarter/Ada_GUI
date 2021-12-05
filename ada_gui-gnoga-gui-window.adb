@@ -680,7 +680,6 @@ package body Ada_GUI.Gnoga.Gui.Window is
    -- On_Resize --
    ---------------
 
-   overriding
    procedure On_Resize (Window : in out Window_Type) is
       use Gnoga.Gui.Element;
    begin

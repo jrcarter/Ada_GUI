@@ -257,7 +257,6 @@ package Ada_GUI.Gnoga.Gui.Window is
    --  Window_Type - Event Methods
    -------------------------------------------------------------------------
 
-   overriding
    procedure On_Resize (Window : in out Window_Type);
    --  Handles resizing the View attached to Window to new
    --  height and width of Window
