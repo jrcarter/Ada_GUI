@@ -62,9 +62,7 @@ package body Ada_GUI.Gnoga is
 
       function Translate_Character (C : Character) return String is
       begin
-         if C = '"' then
-            return "\x22";
-         elsif C = ''' then
+         if C = ''' then
             return "\x27";
          elsif C = '\' then
             return "\x5C";
@@ -131,6 +129,16 @@ package body Ada_GUI.Gnoga is
 
       return Ada.Strings.Unbounded.To_String (R);
    end Unescape_Quotes;
+
+   function Escape_Inner_Quotes (S : in String) return String is
+      R : Ada.Strings.Unbounded.Unbounded_String;
+   begin -- Escape_Inner_Quotes
+      All_Chars : for C of S loop
+         Ada.Strings.Unbounded.Append (Source => R, New_Item => (if C = ''' then "&apos;" else C & "") );
+      end loop All_Chars;
+
+      return Ada.Strings.Unbounded.To_String (R);
+   end Escape_Inner_Quotes;
 
    ----------------
    -- URL_Encode --

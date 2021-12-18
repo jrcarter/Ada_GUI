@@ -55,7 +55,7 @@ package body Ada_GUI.Gnoga.Gui.Element.Common is
    is
    begin
       A.Create_From_HTML (Parent, Escape_Quotes ("<a target='" & Target &
-                            "' href='" & Link & "'>" &
+                            "' href='" & Escape_Inner_Quotes (Link) & "'>" &
                             Content & "</a>"), ID);
    end Create;
 
@@ -178,8 +178,8 @@ package body Ada_GUI.Gnoga.Gui.Element.Common is
    is
    begin
       IMG.Create_From_HTML (Parent,
-                            Escape_Quotes ("<img src='" & URL_Source &
-                              "' Alt='" & Alternative_Text &
+                            Escape_Quotes ("<img src='" & Escape_Inner_Quotes (URL_Source) &
+                              "' Alt='" & Escape_Inner_Quotes (Alternative_Text) &
                               "'>"), ID);
    end Create;
 

@@ -55,7 +55,7 @@ package body Ada_GUI.Gnoga.Gui.Element.Form is
    is
    begin
       Form.Create_From_HTML (Parent, Escape_Quotes ("<form action='" &
-                               Action &
+                               Escape_Inner_Quotes (Action) &
                                "' method='" & Method'Img &
                                "' target='" & Target &
                                "' />"), ID);
@@ -240,7 +240,7 @@ package body Ada_GUI.Gnoga.Gui.Element.Form is
       function Is_Name return String is
       begin
          if Name /= "" then
-            return " name='" & Name & "'";
+            return " name='" & Escape_Inner_Quotes (Name) & "'";
          else
             return "";
          end if;
@@ -248,7 +248,7 @@ package body Ada_GUI.Gnoga.Gui.Element.Form is
    begin
       Element.Create_From_HTML (Form, Escape_Quotes ("<input type='" & Input_Type & "' " &
                                   "form='" & Form.ID & "' value='" &
-                                  Value & "' " &
+                                  Escape_Inner_Quotes (Value) & "' " &
                                   Is_Name & "/>"), ID);
    end Create_Element;
 
@@ -585,7 +585,7 @@ package body Ada_GUI.Gnoga.Gui.Element.Form is
    begin
       Element.Create_From_HTML (Form, Escape_Quotes ("<textarea " &
                                   "form='" & Form.ID & "' name='" &
-                                  Name & "' cols=" & Columns'Img &
+                                  Escape_Inner_Quotes (Name) & "' cols=" & Columns'Img &
                                   " rows=" & Rows'Img & ">" &
                                   Value &
                                   "</textarea>"), ID);
@@ -1309,7 +1309,7 @@ package body Ada_GUI.Gnoga.Gui.Element.Form is
       Dummy_D : Gnoga.Gui.Element.Element_Type;
    begin
       Dummy_D.Create_From_HTML
-        (List, Escape_Quotes ("<option value='" & Value & "'>"));
+        (List, Escape_Quotes ("<option value='" & Escape_Inner_Quotes (Value) & "'>"));
    end Add_Option;
 
    -------------------------------------------------------------------------
@@ -1330,7 +1330,7 @@ package body Ada_GUI.Gnoga.Gui.Element.Form is
       function Is_Name return String is
       begin
          if Name /= "" then
-            return " name='" & Name & "'";
+            return " name='" & Escape_Inner_Quotes (Name) & "'";
          else
             return "";
          end if;
@@ -1540,7 +1540,7 @@ package body Ada_GUI.Gnoga.Gui.Element.Form is
       end Last_Parameter;
    begin
       Element.Execute
-        ("add ($('" & Escape_Quotes ("<option value='" & Value &
+        ("add ($('" & Escape_Quotes ("<option value='" & Escape_Inner_Quotes (Value) &
            "'" & Is_Selected & Is_Disabled & Has_ID & ">" & Text &
            "</option>") & "').get(0)" & Last_Parameter & ")");
    end Add_Option;
@@ -1595,8 +1595,8 @@ package body Ada_GUI.Gnoga.Gui.Element.Form is
    begin
       Element.Create_From_HTML
         (Parent => Form,
-         HTML   => Escape_Quotes ("<option value='" & Value & "'>" &
-           Text & Is_Selected & Is_Disabled & "</option>"),
+         HTML   => Escape_Quotes ("<option value='" & Escape_Inner_Quotes (Value) & ''' &
+                   Is_Selected & Is_Disabled & '>' & Text & "</option>"),
          ID     => ID);
 
       Element.Place_Inside_Bottom_Of (Selection);
@@ -1694,7 +1694,7 @@ package body Ada_GUI.Gnoga.Gui.Element.Form is
    begin
       Element.Create_From_HTML
         (Parent => Form,
-         HTML   => Escape_Quotes ("<optgroup label='" & Label & "'" &
+         HTML   => Escape_Quotes ("<optgroup label='" & Escape_Inner_Quotes (Label) & "'" &
            Is_Disabled & "/>"),
          ID     => ID);
 

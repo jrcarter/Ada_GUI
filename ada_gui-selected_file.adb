@@ -28,20 +28,22 @@ function Selected_File (Initial_Directory : in String := ".") return File_Result
 
    procedure Fill_List (Directory : in String; List : in out Gnoga.Gui.Element.Form.Selection_Type) is
       procedure Add_Dir (Position : in Name_Lists.Cursor);
-         -- Adds the Name at Position to List with Directory_Tag added to the end
+      -- Adds the Name at Position to List with Directory_Tag added to the end
 
       procedure Add_File (Position : in Name_Lists.Cursor);
-         -- Adds the name at Position to List
+      -- Adds the name at Position to List
 
       procedure Add_Dir (Position : in Name_Lists.Cursor) is
          Name : constant String := Name_Lists.Element (Position) & Directory_Tag;
       begin -- Add_Dir
+--           List.Add_Option (Value => Encode_Quotes (Name), Text => Name);
          List.Add_Option (Value => Name, Text => Name);
       end Add_Dir;
 
       procedure Add_File (Position : in Name_Lists.Cursor) is
          Name : constant String := Name_Lists.Element (Position);
       begin -- Add_File
+--           List.Add_Option (Value => Encode_Quotes (Name), Text => Name);
          List.Add_Option (Value => Name, Text => Name);
       end Add_File;
 
@@ -194,6 +196,7 @@ begin -- Selected_File
             exit All_Events;
          elsif Event.Object.Unique_ID = OK.Unique_ID then
             Get_Name : declare
+--                 Name : constant String := Decode_Quotes (File_Input.Value);
                Name : constant String := File_Input.Value;
             begin -- Get_Name
                if Name /= "" then

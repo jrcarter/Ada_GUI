@@ -175,7 +175,7 @@ package body Ada_GUI.Gnoga.Gui.Element is
                     Value   : in String)
    is
    begin
-      Element.jQuery_Execute ("css ('" & Name & "', '" &
+      Element.jQuery_Execute ("css ('" & Escape_Quotes (Name) & "', '" &
                                 Escape_Quotes (Value) & "');");
    end Style;
 
@@ -184,7 +184,7 @@ package body Ada_GUI.Gnoga.Gui.Element is
                     Value   : in Integer)
    is
    begin
-      Element.jQuery_Execute ("css ('" & Name & "'," & Value'Img & ");");
+      Element.jQuery_Execute ("css ('" & Escape_Quotes (Name) & "'," & Value'Img & ");");
    end Style;
 
    function Style (Element : Element_Type; Name : String) return String is

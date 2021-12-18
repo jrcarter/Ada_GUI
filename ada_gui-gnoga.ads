@@ -61,6 +61,9 @@ package Ada_GUI.Gnoga is
    function Unescape_Quotes (S : String) return String;
    --  Unescape a string quoted for JavaScript
 
+   function Escape_Inner_Quotes (S : in String) return String;
+   -- Escape quotes for HTML attributes in Javascript.
+
    Substitution_Character : constant Character := '?';
    --  Character replacement if UTF-8 character is not existant in Latin-1
 
