@@ -43,7 +43,7 @@ package Ada_GUI.Gnoga.Application is
    procedure Initialize
      (Main_Window : in out Gnoga.Gui.Window.Window_Type'Class;
       ID          : in     Positive := 8080;
-      Title       : in     String   := "HTML-GUI Application";
+      Title       : in     String   := "Ada-GUI Application";
       Icon        : in     String   := "favicon.ico");
    -- Initializes the application with ID
    -- If the default browser is not running, starts it

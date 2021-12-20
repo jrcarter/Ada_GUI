@@ -36,14 +36,12 @@ function Selected_File (Initial_Directory : in String := ".") return File_Result
       procedure Add_Dir (Position : in Name_Lists.Cursor) is
          Name : constant String := Name_Lists.Element (Position) & Directory_Tag;
       begin -- Add_Dir
---           List.Add_Option (Value => Encode_Quotes (Name), Text => Name);
          List.Add_Option (Value => Name, Text => Name);
       end Add_Dir;
 
       procedure Add_File (Position : in Name_Lists.Cursor) is
          Name : constant String := Name_Lists.Element (Position);
       begin -- Add_File
---           List.Add_Option (Value => Encode_Quotes (Name), Text => Name);
          List.Add_Option (Value => Name, Text => Name);
       end Add_File;
 

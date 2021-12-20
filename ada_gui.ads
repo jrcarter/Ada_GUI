@@ -43,7 +43,7 @@ package Ada_GUI is
                   Grid'First (1) = 1  and
                   Grid'First (2) = 1  and
                   (for all R in Grid'Range (1) => Grid (R, 1).Kind = Area),
-        Post => Set_Up;
+           Post => Set_Up;
    -- Sets up a grid of Grid'Length (1) rows by Grid'Length (2) Columns of display areas
    -- Each display area has the alignment given by Grid for its row and column
    -- A display area is either a new Area, or an Extension of the area to its left

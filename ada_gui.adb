@@ -591,7 +591,7 @@ package body Ada_GUI is
          return Widget.Password.Value;
       when Selection_List =>
          return Widget.Selector.Value;
-     when Text_Area =>
+      when Text_Area =>
          return Widget.Area.Value;
       when Text_Box =>
          return Widget.Box.Value;
@@ -953,7 +953,7 @@ package body Ada_GUI is
       Widget : Widget_Info := Widget_List (ID.Value);
    begin -- Text
       return Widget.Selector.all.Value (Index);
-  end Text;
+   end Text;
 
    procedure Insert (ID : in Widget_ID; Text : in String; Before : in Positive := Integer'Last) is
       Widget : Widget_Info := Widget_List (ID.Value);

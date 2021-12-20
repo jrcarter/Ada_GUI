@@ -239,7 +239,6 @@ package body Ada_GUI.Gnoga.Gui.View is
    begin
       Document.Attach (View.Connection_ID);
       Document.Head_Element.jQuery_Execute
---          ("append ('<link rel='stylesheet' href='" & Escape_Quotes (URL) & "' />')");
          ("append ('" & Escape_Quotes ("<link rel='stylesheet' href='" &
           Escape_Inner_Quotes (URL) & "' />") & "')");
    end Load_CSS;

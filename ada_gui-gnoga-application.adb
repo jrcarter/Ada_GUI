@@ -94,7 +94,7 @@ package body Ada_GUI.Gnoga.Application is
 
    type OS_ID is (Invalid, Mac, Windows, Unix);
 
-   OS : constant OS_ID := Invalid;
+   OS : constant OS_ID := Unix;
    pragma Assert (OS /= Invalid, "Operating system not set in body of Gnoga.Application");
 
    procedure Open_URL (URL : in String) is
@@ -192,7 +192,7 @@ package body Ada_GUI.Gnoga.Application is
    procedure Initialize
      (Main_Window : in out Gnoga.Gui.Window.Window_Type'Class;
       ID          : in     Positive := 8080;
-      Title       : in     String   := "HTML-GUI Application";
+      Title       : in     String   := "Ada-GUI Application";
       Icon        : in     String   := "favicon.ico")
    is
    begin
