@@ -59,9 +59,6 @@ package Ada_GUI.Gnoga.Application is
    function Favicon return String;
    --  Returns the name of the Icon passed to Initialize
 
-   function Application_Ending return Boolean;
-   -- Returns True if the user has closed the application's "window" or End_Application has been called
-
    procedure End_Application;
    -- Terminate application.
 end Ada_GUI.Gnoga.Application;

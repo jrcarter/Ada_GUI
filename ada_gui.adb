@@ -79,8 +79,6 @@ package body Ada_GUI is
       Setup := True;
    end Set_Up;
 
-   function Window_Closed return Boolean renames Gnoga.Application.Application_Ending;
-
    type Radio_Info is record
       Button : Gnoga.Gui.Element.Form.Radio_Button_Type;
       Label  : Gnoga.Gui.Element.Form.Label_Type;

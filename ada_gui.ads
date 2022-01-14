@@ -37,13 +37,13 @@ package Ada_GUI is
                      ID    : in Positive := 8080;
                      Title : in String   := "Ada-GUI Application";
                      Icon  : in String   := "favicon.ico")
-      with Pre => not Set_Up          and
-                  Grid'Length (1) > 0 and
-                  Grid'Length (2) > 0 and
-                  Grid'First (1) = 1  and
-                  Grid'First (2) = 1  and
-                  (for all R in Grid'Range (1) => Grid (R, 1).Kind = Area),
-           Post => Set_Up;
+   with Pre => not Set_Up          and
+               Grid'Length (1) > 0 and
+               Grid'Length (2) > 0 and
+               Grid'First (1) = 1  and
+               Grid'First (2) = 1  and
+               (for all R in Grid'Range (1) => Grid (R, 1).Kind = Area),
+        Post => Set_Up;
    -- Sets up a grid of Grid'Length (1) rows by Grid'Length (2) Columns of display areas
    -- Each display area has the alignment given by Grid for its row and column
    -- A display area is either a new Area, or an Extension of the area to its left
@@ -60,10 +60,6 @@ package Ada_GUI is
    --   +--+--+--+
    -- 2 |  |     |
    --   +--+-----+
-
-   function Window_Closed return Boolean;
-   -- Returns True when the user has closed the application window
-   -- (Also returns True when End_GUI has been called)
 
    procedure End_GUI with Pre => Set_Up, Post => not Set_Up;
    -- Destroys the GUI
@@ -176,7 +172,7 @@ package Ada_GUI is
    -- If Placeholder /= "", Placeholder will appear in the text box when it is empty and awaiting input
    -- Width is width of box in characters
 
-   type Event_Kind_ID is (Left_Click, Right_Click, Double_Click, Key_Press);
+   type Event_Kind_ID is (Left_Click, Right_Click, Double_Click, Key_Press, Window_Closed);
 
    type Mouse_Event_Info is record
       X             : Integer;
@@ -184,7 +180,7 @@ package Ada_GUI is
       Screen_X      : Integer;
       Screen_Y      : Integer;
       Left_Button   : Boolean := False;
-      Middle_Button : Boolean := False; -- There does not appear any way for this to become True
+      Middle_Button : Boolean := False; -- There does not appear to be any way for this to become True
       Right_Button  : Boolean := False;
       Alt           : Boolean := False;
       Control       : Boolean := False;
@@ -202,14 +198,16 @@ package Ada_GUI is
    end record;
 
    type Event_Info (Kind : Event_Kind_ID := Left_Click) is record
-      ID   : Widget_ID;
-      Data : Ada.Strings.Unbounded.Unbounded_String; -- Event data that was parsed to give Info
+      ID   : Widget_ID; -- ID for Window (Kind => Window_Closed) is invalid for all operations
+      Data : Ada.Strings.Unbounded.Unbounded_String; -- Event data that was parsed to give Mouse or Key
 
       case Kind is
       when Left_Click | Right_Click | Double_Click =>
          Mouse : Mouse_Event_Info;
       when Key_Press =>
          Key : Keyboard_Event_Info;
+      when Window_Closed =>
+         null;
       end case;
    end record;
 

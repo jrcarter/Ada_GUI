@@ -57,9 +57,6 @@ package body Ada_GUI.Gnoga.Application is
    HTML_For_On_Close : Ada.Strings.Unbounded.Unbounded_String;
 
    Favicon_URL : Ada.Strings.Unbounded.Unbounded_String;
-   Ending      : Boolean := False with Atomic;
-
-   function Application_Ending return Boolean is (Ending);
 
    ----------------------
    -- Application_Name --
@@ -176,7 +173,8 @@ package body Ada_GUI.Gnoga.Application is
          Connection.Hold;
 
          Connection_Holder.Release;
-         Ending := True;
+         Gnoga.Gui.Event_Queue.Enqueue
+            (New_Item => (Event => Ada.Strings.Unbounded.To_Unbounded_String ("window_closed"), others => <>) );
 
          Gnoga.Server.Connection.Stop;
       else

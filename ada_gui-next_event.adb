@@ -132,6 +132,7 @@ function Next_Event (Timeout : Duration := Duration'Last) return Next_Result_Inf
    Right_Text  : constant String := "contextmenu";
    Double_Text : constant String := "dblclick";
    Key_Text    : constant String := "keypress";
+   Closed_Text : constant String := "window_closed";
 
    Final_Time : Ada.Real_Time.Time;
    Event      : Gnoga.Gui.Event_Info;
@@ -157,7 +158,7 @@ begin -- Next_Event
       select
          Gnoga.Gui.Event_Queue.Dequeue (Element => Event);
 
-         if Event.Event = Resize_Text and Event.Object.all in Gnoga.Gui.Window.Window_Type then
+         if Event.Event = Resize_Text and then Event.Object.all in Gnoga.Gui.Window.Window_Type then
             Event.Object.Flush_Buffer;
             Gnoga.Gui.Window.Window_Type (Event.Object.all).On_Resize;
             Event.Object.Flush_Buffer;
@@ -182,6 +183,8 @@ begin -- Next_Event
             when others => -- Event.Object.ID is not the image of an ID
                null;
             end Make_Event;
+         elsif Event.Event = Closed_Text then
+            return (Timed_Out => False, Event => (Kind => Window_Closed, others => <>) );
          else
             null; -- Ignore event
          end if;
