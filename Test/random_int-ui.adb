@@ -111,14 +111,6 @@ package body Random_Int.UI is
       end loop Forever;
 
       Ada_GUI.End_GUI;
-
---        if not Finished then
---           accept Get (Event : out Event_ID) do
---              Event := Quit;
---           end Get;
---
---           Finished := True;
---        end if;
    end Event_Handler;
 
    Placeholder : constant String := "Enter an integer";
