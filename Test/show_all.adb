@@ -96,18 +96,18 @@ begin -- Show_All
    File := Ada_GUI.New_Text_Box (Break_Before => True, Label => "Selected file:");
 
    Wait_To_Quit : loop
-      exit Wait_To_Quit when Ada_GUI.Window_Closed;
-
       Event := Ada_GUI.Next_Event (Timeout => 1.0);
 
       if not Event.Timed_Out then
+         exit Wait_To_Quit when Event.Event.Kind = Ada_GUI.Window_Closed;
+
          if Event.Event.Kind = Ada_GUI.Key_Press then
             Handle_Invalid : begin
                Pressed.Set_Text (Text => Pressed.Text & ' ' & Character'Val (Wide_Character'Pos (Event.Event.Key.Key_Char) ) );
             exception -- Handle_Invalid
             when others => -- Key_Char not in Character
                Pressed.Set_Text (Text => Pressed.Text & " ?");
-           end Handle_Invalid;
+            end Handle_Invalid;
          else
             exit Wait_To_Quit when Event.Event.ID = Quit;
 

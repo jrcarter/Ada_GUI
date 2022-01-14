@@ -80,37 +80,45 @@ package body Random_Int.UI is
       accept Start;
 
       Forever : loop
-         exit Forever when Ada_GUI.Window_Closed;
-
          Event := Ada_GUI.Next_Event (Timeout => 1.0);
 
-         if not Event.Timed_Out and then Event.Event.Kind = Ada_GUI.Left_Click then
-            ID := Event.Event.ID;
-
-            if ID = Generator or ID = Quitter then
+         if not Event.Timed_Out then
+            if Event.Event.Kind = Ada_GUI.Window_Closed then
                accept Get (Event : out Event_ID) do
-                  if ID = Generator then
-                     Event := Generate;
-                  else
-                     Event := Quit;
-                     Finished := True;
-                  end if;
+                  Event := Quit;
                end Get;
-            end if;
 
-            exit Forever when ID = Quitter;
+               Finished := True;
+
+               exit Forever;
+            elsif Event.Event.Kind = Ada_GUI.Left_Click then
+               ID := Event.Event.ID;
+
+               if ID = Generator or ID = Quitter then
+                  accept Get (Event : out Event_ID) do
+                     if ID = Generator then
+                        Event := Generate;
+                     else
+                        Event := Quit;
+                        Finished := True;
+                     end if;
+                  end Get;
+               end if;
+
+               exit Forever when ID = Quitter;
+            end if;
          end if;
       end loop Forever;
 
       Ada_GUI.End_GUI;
 
-      if not Finished then
-         accept Get (Event : out Event_ID) do
-            Event := Quit;
-         end Get;
-
-         Finished := True;
-      end if;
+--        if not Finished then
+--           accept Get (Event : out Event_ID) do
+--              Event := Quit;
+--           end Get;
+--
+--           Finished := True;
+--        end if;
    end Event_Handler;
 
    Placeholder : constant String := "Enter an integer";
