@@ -1,13 +1,11 @@
 -- An Ada-oriented GUI library
 -- Implementation derived from Gnoga
 --
--- Copyright (C) 2021 by PragmAda Software Engineering
+-- Copyright (C) 2022 by PragmAda Software Engineering
 --
 -- Released under the terms of the 3-Clause BSD License. See https://opensource.org/licenses/BSD-3-Clause
 
-with Ada.Containers.Indefinite_Ordered_Sets;
 with Ada.Containers.Vectors;
-with Ada.Directories;
 with Ada.Exceptions;
 with Ada.Numerics.Elementary_Functions;
 with Ada.Real_Time;

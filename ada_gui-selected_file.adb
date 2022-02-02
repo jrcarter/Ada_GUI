@@ -1,9 +1,12 @@
 -- An Ada-oriented GUI library
 -- Implementation derived from Gnoga
 --
--- Copyright (C) 2021 by PragmAda Software Engineering
+-- Copyright (C) 2022 by PragmAda Software Engineering
 --
 -- Released under the terms of the 3-Clause BSD License. See https://opensource.org/licenses/BSD-3-Clause
+
+with Ada.Containers.Indefinite_Ordered_Sets;
+with Ada.Directories;
 
 separate (Ada_GUI)
 function Selected_File (Initial_Directory : in String := ".") return File_Result_Info is
@@ -15,8 +18,8 @@ function Selected_File (Initial_Directory : in String := ".") return File_Result
    procedure File_Selected;
       -- User clicked on a file in the file list
 
-   procedure Clean_Up;
-      -- Clean-up actions before returning
+   procedure Clean_Up (Dialog_Exists : in Boolean);
+      -- Clean-up actions before returning; removes dialog if Dialog_Exists; signals window closed if not Dialog_Exists
 
    package Name_Lists is new Ada.Containers.Indefinite_Ordered_Sets (Element_Type => String);
 
@@ -49,8 +52,8 @@ function Selected_File (Initial_Directory : in String := ".") return File_Result
       File_Info   : Ada.Directories.Directory_Entry_Type;
       Dir_List    : Name_Lists.Set;
       File_List   : Name_Lists.Set;
+      Index       : Natural;
    begin -- Fill_List
-      List.Empty_Options;
       Ada.Directories.Start_Search (Search    => Search_Info,
                                     Directory => Directory,
                                     Pattern   => "*",
@@ -77,8 +80,17 @@ function Selected_File (Initial_Directory : in String := ".") return File_Result
          end case;
       end loop All_Entries;
 
+      Index := List.Selected_Index;
+      List.Visible (Value => False);
+      List.Empty_Options;
       Dir_List.Iterate (Process => Add_Dir'Access);
       File_List.Iterate (Process => Add_File'Access);
+
+      if Index /= 0 then
+         List.Selected (Index => Index);
+      end if;
+
+      List.Visible (Value => True);
    end Fill_List;
 
    Result      : File_Result_Info;
@@ -110,7 +122,9 @@ function Selected_File (Initial_Directory : in String := ".") return File_Result
    Modal_Background : Gnoga.Gui.View.View_Type;
    Modal_Frame      : Gnoga.Gui.View.View_Type;
 
-   procedure Clean_Up is
+   Window_Closed : constant Unbounded_String := To_Unbounded_String ("window_closed");
+
+   procedure Clean_Up (Dialog_Exists : in Boolean) is
       Event : Gnoga.Gui.Event_Info;
 
       use type Ada.Containers.Count_Type;
@@ -121,9 +135,16 @@ function Selected_File (Initial_Directory : in String := ".") return File_Result
          Gnoga.Gui.Event_Queue.Dequeue (Element => Event);
       end loop Empty;
 
-      Modal_Frame.Remove;
-      Modal_Background.Remove;
       File_Selection_Control.Set_Selecting (Value => False);
+
+      if Dialog_Exists then
+         Modal_Background.Remove;
+      else
+         Gnoga.Gui.Event_Queue.Enqueue (New_Item => (Event => Window_Closed, others => <>) );
+      end if;
+   exception -- Clean_Up
+   when E : others =>
+      Gnoga.Log (Message => "Selected_File.Clean_Up: " & Ada.Exceptions.Exception_Information (E) );
    end Clean_Up;
 
    View     : Gnoga.Gui.View.View_Type;
@@ -133,6 +154,7 @@ function Selected_File (Initial_Directory : in String := ".") return File_Result
    Cancel   : Gnoga.Gui.Element.Common.Button_Type;
    OK       : Gnoga.Gui.Element.Common.Button_Type;
    Event    : Gnoga.Gui.Event_Info;
+   Exists   : Boolean := False;
 begin -- Selected_File
    if File_Selection_Control.Selecting then
       return (Picked => False);
@@ -142,6 +164,7 @@ begin -- Selected_File
 
       --  Create the Dialog Background view
    Modal_Background.Create (Parent => Window);
+   Exists := True;
 
       --  Creating a view using Window as the parent sets the view as Window's main view.  This sets it back to the original.
    if Old_View /= null then
@@ -170,7 +193,7 @@ begin -- Selected_File
    Cancel.Create (Parent => Form, Content => "Cancel");
    OK.Create (Parent => Form, Content => "OK");
 
-   Center      : declare
+   Center : declare
       Top_Offset  : Integer := Integer'Max (Modal_Background.Height / 2 - Modal_Frame.Height / 2, 0);
       Left_Offset : Integer := Integer'Max (Modal_Background.Width / 2 - Modal_Frame.Width / 2, 0);
    begin -- Center
@@ -183,7 +206,12 @@ begin -- Selected_File
       Fill_List (Directory => To_String (Current_Dir), List => File_List);
       Gnoga.Gui.Event_Queue.Dequeue (Element => Event);
 
-      if Event.Event = "click" then
+      if Event.Event = Window_Closed then
+         Result := (Picked => False);
+         Exists := False;
+
+         exit All_Events;
+      elsif Event.Event = "click" then
          if Event.Object.Unique_ID = Up.Unique_ID then
             Current_Dir := To_Unbounded_String (Ada.Directories.Containing_Directory (To_String (Current_Dir) ) );
          elsif Event.Object.Unique_ID = File_List.Unique_ID then
@@ -194,7 +222,6 @@ begin -- Selected_File
             exit All_Events;
          elsif Event.Object.Unique_ID = OK.Unique_ID then
             Get_Name : declare
---                 Name : constant String := Decode_Quotes (File_Input.Value);
                Name : constant String := File_Input.Value;
             begin -- Get_Name
                if Name /= "" then
@@ -207,16 +234,18 @@ begin -- Selected_File
          else
             null;
          end if;
+      else
+         null;
       end if;
    end loop All_Events;
 
-   Clean_Up;
+   Clean_Up (Dialog_Exists => Exists);
 
    return Result;
 exception -- Selected_File
 when E : others =>
-   Clean_Up;
    Gnoga.Log (Message => "Selected_File: " & Ada.Exceptions.Exception_Information (E) );
+   Clean_Up (Dialog_Exists => Exists);
 
    return (Picked => False);
 end Selected_File;
