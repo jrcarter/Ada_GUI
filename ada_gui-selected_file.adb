@@ -122,8 +122,6 @@ function Selected_File (Initial_Directory : in String := ".") return File_Result
    Modal_Background : Gnoga.Gui.View.View_Type;
    Modal_Frame      : Gnoga.Gui.View.View_Type;
 
-   Window_Closed : constant Unbounded_String := To_Unbounded_String ("window_closed");
-
    procedure Clean_Up (Dialog_Exists : in Boolean) is
       Event : Gnoga.Gui.Event_Info;
 
@@ -140,7 +138,7 @@ function Selected_File (Initial_Directory : in String := ".") return File_Result
       if Dialog_Exists then
          Modal_Background.Remove;
       else
-         Gnoga.Gui.Event_Queue.Enqueue (New_Item => (Event => Window_Closed, others => <>) );
+         Gnoga.Gui.Event_Queue.Enqueue (New_Item => (Event => To_Unbounded_String (Closed_Text), others => <>) );
       end if;
    exception -- Clean_Up
    when E : others =>
@@ -206,7 +204,7 @@ begin -- Selected_File
       Fill_List (Directory => To_String (Current_Dir), List => File_List);
       Gnoga.Gui.Event_Queue.Dequeue (Element => Event);
 
-      if Event.Event = Window_Closed then
+      if Event.Event = Closed_Text then
          Result := (Picked => False);
          Exists := False;
 

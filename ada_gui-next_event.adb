@@ -132,7 +132,6 @@ function Next_Event (Timeout : Duration := Duration'Last) return Next_Result_Inf
    Right_Text  : constant String := "contextmenu";
    Double_Text : constant String := "dblclick";
    Key_Text    : constant String := "keypress";
-   Closed_Text : constant String := "window_closed";
 
    Final_Time : Ada.Real_Time.Time;
    Event      : Gnoga.Gui.Event_Info;

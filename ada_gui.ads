@@ -128,10 +128,10 @@ package Ada_GUI is
                                Label        : Text_List;
                                Break_Before : Boolean        := False;
                                Orientation  : Orientation_ID := Vertical)
-   return Widget_ID with Pre => Set_Up and Label'Length > 0;
+   return Widget_ID with Pre => Set_Up and Label'Length > 1;
    -- Creates Label'Length radio buttons; Label contains the labels for the buttons
    -- Orientation = Horizontal results in a row of buttons
-   --             = Vertical has each button after the 1st below the preceding buttons
+   --             = Vertical   has each button after the 1st below the preceding buttons
    -- The button for Label'First will be active
    -- The operations Set_Active and Active for radio buttons take an Index; Index will refer to the button for Label (Index)
 
@@ -508,4 +508,6 @@ private -- Ada_Gui
    type Widget_ID is tagged record
       Value : Natural := 0;
    end record;
+
+   Closed_Text : constant String := "window_closed";
 end Ada_Gui;

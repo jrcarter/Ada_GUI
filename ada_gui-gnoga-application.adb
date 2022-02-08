@@ -174,7 +174,7 @@ package body Ada_GUI.Gnoga.Application is
 
          Connection_Holder.Release;
          Gnoga.Gui.Event_Queue.Enqueue
-            (New_Item => (Event => Ada.Strings.Unbounded.To_Unbounded_String ("window_closed"), others => <>) );
+            (New_Item => (Event => Ada.Strings.Unbounded.To_Unbounded_String (Closed_Text), others => <>) );
 
          Gnoga.Server.Connection.Stop;
       else
