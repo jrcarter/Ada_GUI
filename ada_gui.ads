@@ -1,6 +1,6 @@
 -- An Ada-oriented GUI library that uses a browser as its platform
 --
--- Copyright (C) 2021 by PragmAda Software Engineering
+-- Copyright (C) 2022 by PragmAda Software Engineering
 --
 -- Released under the terms of the 3-Clause BSD License. See https://opensource.org/licenses/BSD-3-Clause
 
@@ -237,21 +237,37 @@ package Ada_GUI is
    -- Sets whether or not ID is visible
    -- Widgets are visible by default
 
-   type File_Result_Info (Picked : Boolean := False) is record
-      case Picked is
-      when False =>
-         null;
-      when True =>
-         Value : Ada.Strings.Unbounded.Unbounded_String;
-      end case;
-   end record;
+   package Dialogs is
+      -- During a dialog, events are not available and Next_Event will block
+      -- Only one dialog may proceed at a time; if a dialog is in progress, another dialog will return a specified value
 
-   function Selected_File (Initial_Directory : in String := ".") return File_Result_Info with Pre => Set_Up;
-   -- Opens a file-selection dialog with the files for Initial_Directory
-   -- If the user cancels the dialog, returns (Picked => False)
-   -- Otherwise, the return value has Picked => True and the Value component contains the full path of the selected file
-   -- Until the function returns, events are not available and Next_Event will block
-   -- Only one call may proceed at a time; if a call is in progress, another call will return  (Picked => False)
+      type File_Result_Info (Picked : Boolean := False) is record
+         case Picked is
+         when False =>
+            null;
+         when True =>
+            Value : Ada.Strings.Unbounded.Unbounded_String;
+         end case;
+      end record;
+
+      function Selected_File (Initial_Directory : in String := ".") return File_Result_Info with Pre => Set_Up;
+      -- Opens a file-selection dialog with the files for Initial_Directory
+      -- If the user cancels the dialog or closes the window, or another dialog is in progress, returns (Picked => False)
+      -- Otherwise, the return value has Picked => True and the Value component contains the full path of the selected file
+
+      function Selected_Button (Title : in String; Text : in String; Button : in Text_List) return String with
+         Pre => Set_Up and Button'Length > 1;
+      -- Displays Text under Title with a row of Button'Length buttons, each with the text given by the corresponding value in
+      -- Button
+      -- If the user clicks on a button returns the button text of the corresponding button
+      -- If the user closes the window, or another dialog is in progress, returns ""
+
+      Yes_No : constant Text_List := (Ada.Strings.Unbounded.To_Unbounded_String ("Yes"),
+                                      Ada.Strings.Unbounded.To_Unbounded_String ("No") );
+
+      function Yes_Or_No (Title : in String; Text : in String; Button : in Text_List := Yes_No) return String
+      renames Selected_Button;
+   end Dialogs;
 
    procedure Set_Source (ID : in Widget_ID; Source : in String) with Pre => Set_Up and ID.Kind = Audio_Player;
    -- Makes Source the audio source for ID

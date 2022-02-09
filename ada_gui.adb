@@ -382,18 +382,18 @@ package body Ada_GUI is
       Window.Alert (Message => Text);
    end Show_Message_Box;
 
-   protected File_Selection_Control is -- Controls multiple calls to Selected_File and calls to Next_Event while a call to
-      procedure Set_Selecting (Value : in Boolean);    -- Selected_File is in progress
-      -- Makes Selecting return Value
+   protected Dialog_Control is -- Controls multiple calls to dialogs and calls to Next_Event while a call to a dialog is in progress
+      procedure Set_Ongoing (Value : in Boolean);
+      -- Makes Ongoing return Value
 
-      function Selecting return Boolean;
-      -- Returns the last value passed to Set_Selecting; False initially
+      function Ongoing return Boolean;
+      -- Returns the last value passed to Set_Ongoing; False initially
 
       entry Block;
-      -- Blocks the caller until not Selecting
-   private -- File_Selection_Control
+      -- Blocks the caller until not Ongoing
+   private -- Dialog_Control
       In_Progress : Boolean := False;
-   end File_Selection_Control;
+   end Dialog_Control;
 
    function Next_Event (Timeout : Duration := Duration'Last) return Next_Result_Info is separate;
 
@@ -430,23 +430,23 @@ package body Ada_GUI is
       end case;
    end Set_Visibility;
 
-   function Selected_File (Initial_Directory : in String := ".") return File_Result_Info is separate;
+   package body Dialogs is separate;
 
-   protected body File_Selection_Control is
-      procedure Set_Selecting (Value : in Boolean) is
+   protected body Dialog_Control is
+      procedure Set_Ongoing (Value : in Boolean) is
          -- Empty
-      begin -- Set_Selecting
+      begin -- Set_Ongoing
          In_Progress := Value;
-      end Set_Selecting;
+      end Set_Ongoing;
 
-      function Selecting return Boolean is (In_Progress);
+      function Ongoing return Boolean is (In_Progress);
 
       entry Block when not In_Progress is
          -- Empty
       begin -- Block
          null;
       end Block;
-   end File_Selection_Control;
+   end Dialog_Control;
 
 
    procedure Set_Source (ID : in Widget_ID; Source : in String) is

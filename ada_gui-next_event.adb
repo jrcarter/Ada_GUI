@@ -146,7 +146,7 @@ begin -- Next_Event
    end Get_Final;
 
    select
-      File_Selection_Control.Block;
+      Dialog_Control.Block;
    or
       delay until Final_Time;
 
