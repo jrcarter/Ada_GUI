@@ -1,4 +1,5 @@
 -- Ada_GUI implementation based on Gnoga. Adapted 2021
+-- String_Replace corrected 2022
 --                                                                          --
 --                   GNOGA - The GNU Omnificent GUI for Ada                 --
 --                                                                          --
@@ -308,6 +309,10 @@ package body Ada_GUI.Gnoga is
 
       I : Natural;
    begin
+      if Pattern = Replacement then
+         return;
+      end if;
+
       loop
          I := Index (Source => Source, Pattern => Pattern);
 

@@ -1,4 +1,5 @@
 -- Ada_GUI implementation based on Gnoga. Adapted 2021
+-- Cleaned up alternative icon name processing 2022
 --                                                                          --
 --                   GNOGA - The GNU Omnificent GUI for Ada                 --
 --                                                                          --
@@ -566,17 +567,17 @@ package body Ada_GUI.Gnoga.Server.Connection is
                      Client.Content.Finalized := False;
 
                      declare
+                        Favicon_Name : constant String := "favicon.ico";
+
                         ID : Gnoga.Connection_ID;
-                        F  : Unbounded_String := To_Unbounded_String
-                          (Gnoga.Server.Template_Parser.Simple.Load_View
-                             (Adjust_Name));
+                        F  : Unbounded_String := To_Unbounded_String (Gnoga.Server.Template_Parser.Simple.Load_View (Adjust_Name) );
                      begin
-                        if Gnoga.Application.Favicon /= Null_Unbounded_String and
-                          Index (F, "<meta name=""generator"" content=""Gnoga"" />") > 0 and
-                          Index (F, "favicon.ico") > 0
+                        if Gnoga.Application.Favicon /= "" and
+                           Index (F, "<meta name=""generator"" content=""Gnoga"" />") > 0 and
+                           Index (F, Favicon_Name) > 0
                         then
                            String_Replace (Source      => F,
-                                           Pattern     => "favicon.ico",
+                                           Pattern     => Favicon_Name,
                                            Replacement => Gnoga.Application.Favicon);
                         end if;
                         if Index (F, "/js/ajax.js") > 0 then
