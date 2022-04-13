@@ -1,7 +1,7 @@
 -- A program for generating Luhn checksums with an Ada_GUI UI
 -- An Ada_GUI demo program
 --
--- Copyright (C) 2021 by PragmAda Software Ebgineering
+-- Copyright (C) 2022 by PragmAda Software Engineering
 -- Released under the terms of the BSD 3-Clause license; see https://opensource.org/licenses
 --
 with Ada.Exceptions;
@@ -115,7 +115,7 @@ begin -- Luhn_Gen
    Quit := Ada_GUI.New_Button (Text => "Quit", Break_Before => True);
 
    All_Events : loop
-      Event := Ada_GUI.Next_Event (Timeout => 1.0);
+      Event := Ada_GUI.Next_Event;
 
       if not Event.Timed_Out then
          exit All_Events when Event.Event.Kind = Ada_GUI.Window_Closed;
@@ -135,19 +135,3 @@ exception -- Luhn_Gen
 when E : others =>
    Ada.Text_IO.Put_Line (Item => Ada.Exceptions.Exception_Information (E) );
 end Luhn_Gen;
---
--- This is free software; you can redistribute it and/or modify it under
--- terms of the GNU General Public License as published by the Free Software
--- Foundation; either version 2, or (at your option) any later version.
--- This software is distributed in the hope that it will be useful, but WITH
--- OUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
--- or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
--- for more details. Free Software Foundation, 59 Temple Place - Suite
--- 330, Boston, MA 02111-1307, USA.
---
--- As a special exception, if other files instantiate generics from this
--- unit, or you link this unit with other files to produce an executable,
--- this unit does not by itself cause the resulting executable to be
--- covered by the GNU General Public License. This exception does not
--- however invalidate any other reasons why the executable file might be
--- covered by the GNU Public License.

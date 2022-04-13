@@ -1,7 +1,7 @@
 -- A program to show all of the Ada_GUI widgets
 -- An Ada_GUI demo program
 --
--- Copyright (C) 2021 by PragmAda Software Ebgineering
+-- Copyright (C) 2022 by PragmAda Software Engineering
 -- Released under the terms of the BSD 3-Clause license; see https://opensource.org/licenses
 --
 with Ada.Characters.Latin_1;
@@ -37,15 +37,15 @@ begin -- Show_All
    Audio.Set_Background_Color (Color => Ada_GUI.To_Color (Ada_GUI.Yellow) );
    Audio.Set_Foreground_Color (Color => Ada_GUI.To_Color (Ada_GUI.Red) );
    Background := Ada_GUI.New_Background_Text (Text => "Background_Text can <br><font color=" & '"' & "Green" & '"' &
-                                                      ">have</font> <b>at</b><i>tri</i><u>butes</u>&euro;",
+                                                      ">have</font> <b>at</b><i>tri</i><u>butes</u> &euro;",
                                               Break_Before => True);
    Background.Set_Background_Color (Color => Ada_GUI.To_Color (Ada_GUI.Yellow) );
    Background.Set_Foreground_Color (Color => Ada_GUI.To_Color (Ada_GUI.Red) );
-   Visible := Ada_GUI.New_Check_Box (Label => "Visible", Active => True);
+   Visible := Ada_GUI.New_Check_Box (Label => "Visible &euro;", Active => True);
    Quit := Ada_GUI.New_Button (Text => "Quit", Break_Before => True);
    Quit.Set_Background_Color (Color => Ada_GUI.To_Color (Ada_GUI.Yellow) );
    Quit.Set_Foreground_Color (Color => Ada_GUI.To_Color (Ada_GUI.Red) );
-   Check := Ada_GUI.New_Check_Box (Label => "Check_Box:", Break_Before => True);
+   Check := Ada_GUI.New_Check_Box (Label => "<b>Check</b>_Box:", Break_Before => True);
    Check.Set_Background_Color (Color => Ada_GUI.To_Color (Ada_GUI.Yellow) );
    Check.Set_Foreground_Color (Color => Ada_GUI.To_Color (Ada_GUI.Red) );
    Graphic := Ada_GUI.New_Graphic_Area (Width => 100, Height => 100, Break_Before => True);
@@ -68,7 +68,7 @@ begin -- Show_All
                       Line_Color => (None => False, Color => Ada_GUI.To_Color (Ada_GUI.Yellow) ),
                       Fill_Color => (None => False, Color => Ada_GUI.To_Color (Ada_GUI.Blue) ) );
    Graphic.Draw_Line (From_X => 0, From_Y => 75, To_X => 100, To_Y => 75);
-   Password := Ada_GUI.New_Password_Box (Break_Before => True, Label => "Password_Box:");
+   Password := Ada_GUI.New_Password_Box (Break_Before => True, Label => "<i>Password</i>_Box:");
    Password.Set_Background_Color (Color => Ada_GUI.To_Color (Ada_GUI.Yellow) );
    Password.Set_Foreground_Color (Color => Ada_GUI.To_Color (Ada_GUI.Red) );
    Radio := Ada_GUI.New_Radio_Buttons (Label => (To_Unbounded_String ("Yes"),
@@ -115,6 +115,10 @@ begin -- Show_All
 
             if Event.Event.ID = Visible then
                Background.Set_Visibility (Visible => Visible.Active);
+
+               if Visible.Active then
+                  Background.Set_Text (Text => "New contents cannot <b>have</b> attributes &euro;");
+               end if;
             elsif Event.Event.ID = Sel_File then
                File_Info := Ada_GUI.Dialogs.Selected_File;
                Selected.Set_Text (Text => (if File_Info.Picked then To_String (File_Info.Value) else "") );
