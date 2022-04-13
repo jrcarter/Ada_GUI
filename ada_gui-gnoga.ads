@@ -1,4 +1,4 @@
--- Ada_GUI implementation based on Gnoga. Adapted 2021
+-- Ada_GUI implementation based on Gnoga. Adapted 2022
 -- Implementation hierarchy rooted at Ada_GUI.Gnoga in recognition
 -- Clients should never with packages in the Ada_GUI.Gnoga hierarchy
 -- Original Gnoga headers have been left on the implemetation packages for reference
@@ -48,10 +48,7 @@ with Ada.Strings.Unbounded;
 with Ada.Task_Identification;
 
 package Ada_GUI.Gnoga is
-   Version        : constant String := "1.6a";
-   Version_High   : constant        := 1;
-   Version_Low    : constant        := 6;
-   Version_Status : constant String := "a";
+   Version : constant String := "1.0";
 
    HTTP_Server_Name : constant String := "gnoga/" & Version;
 

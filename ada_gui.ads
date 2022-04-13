@@ -237,6 +237,9 @@ package Ada_GUI is
    -- Sets whether or not ID is visible
    -- Widgets are visible by default
 
+   procedure Log (Message : in String) with Pre => Set_Up;
+   -- Writes Message with a time stamp to standard output
+
    package Dialogs is
       -- During a dialog, events are not available and Next_Event will block
       -- Only one dialog may proceed at a time; if a dialog is in progress, another dialog will return a specified value

@@ -430,6 +430,8 @@ package body Ada_GUI is
       end case;
    end Set_Visibility;
 
+   procedure Log (Message : in String) renames Gnoga.Log;
+
    package body Dialogs is separate;
 
    protected body Dialog_Control is
