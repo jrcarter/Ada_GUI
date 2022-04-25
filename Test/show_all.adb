@@ -96,6 +96,7 @@ begin -- Show_All
    Sel_File := Ada_GUI.New_Button (Text => "Select File", Break_Before => True);
    Sel_Yes_No := Ada_GUI.New_Button (Text => "Yes/No");
    Selected := Ada_GUI.New_Text_Box (Break_Before => True, Label => "Selected:");
+   Selected.Set_Read_Only;
 
    Wait_To_Quit : loop
       Event := Ada_GUI.Next_Event (Timeout => 1.0);
@@ -117,7 +118,9 @@ begin -- Show_All
                Background.Set_Visibility (Visible => Visible.Active);
 
                if Visible.Active then
-                  Background.Set_Text (Text => "New contents cannot <b>have</b> attributes &euro;");
+                  Background.Set_Text (Text => "New contents can also <b>have</b> attributes &euro;");
+                  Visible.Set_Label (Text => "<b>Visi</b>ble &euro;");
+                  Radio.Set_Label (Index => 3, Text => "<i>Don't</i> know");
                end if;
             elsif Event.Event.ID = Sel_File then
                File_Info := Ada_GUI.Dialogs.Selected_File;
