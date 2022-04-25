@@ -516,7 +516,7 @@ package body Ada_GUI is
    begin -- Set_Text
       case Widget.Kind is
       when Background_Text =>
-         Widget.Background.Text (Value => Text);
+         Widget.Background.Inner_HTML (Value => Text);
       when Button =>
          Widget.Switch.Text (Value => Text);
       when Password_Box =>
@@ -574,6 +574,34 @@ package body Ada_GUI is
          raise Program_Error;
       end case;
    end Set_Text_Font_Kind;
+
+   procedure Set_Label (ID : in Widget_ID; Text : in String) is
+      Widget : constant Widget_Info := Widget_List (ID.Value);
+   begin -- Set_Label
+      case Widget.Kind is
+      when Check_Box =>
+         Widget.Check_Label.Inner_HTML (Value => Text);
+      when Password_Box =>
+         Widget.Password_Label.Inner_HTML (Value => Text);
+      when Text_Box =>
+         Widget.Box_Label.Inner_HTML (Value => Text);
+      when others =>
+         raise Program_Error;
+      end case;
+   end Set_Label;
+
+   procedure Set_Read_Only (ID : in Widget_ID; Read_Only : in Boolean := True) is
+      Widget : constant Widget_Info := Widget_List (ID.Value);
+   begin -- Set_Read_Only
+      case Widget.Kind is
+      when Text_Area =>
+         Widget.Area.Read_Only (Value => Read_Only);
+      when Text_Box =>
+         Widget.Box.Read_Only (Value => Read_Only);
+      when others =>
+         raise Program_Error;
+      end case;
+   end Set_Read_Only;
 
    function Multiple_Select (ID : Widget_ID) return Boolean is (Widget_List (ID.Value).Element.Multi);
 
@@ -916,6 +944,12 @@ package body Ada_GUI is
 
       return Widget.Radio'Length + 1;
    end Active;
+
+   procedure Set_Label (ID : in Widget_ID; Index : in Positive; Text : in String) is
+      Widget : constant Widget_Info := Widget_List (ID.Value);
+   begin -- Set_Label
+      Widget.Radio (Index).Label.Inner_HTML (Value => Text);
+   end Set_Label;
 
    function Length (ID : Widget_ID) return Natural is
       Widget : Widget_Info := Widget_List (ID.Value);

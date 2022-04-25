@@ -320,6 +320,14 @@ package Ada_GUI is
    -- Sets the text font kind for ID to Kind
    -- Default is Proportional
 
+   procedure Set_Label (ID : in Widget_ID; Text : in String) with
+      Pre => Set_Up and Id.Kind in Check_Box | Password_Box | Text_Box;
+   -- Sets the label text for ID to Text
+
+   procedure Set_Read_Only (ID : in Widget_ID; Read_Only : in Boolean := True) with
+      Pre => Set_Up and ID.Kind in Text_Area | Text_Box;
+   -- Set the read-only status for ID to Read_Only
+
    function Multiple_Select (ID : Widget_ID) return Boolean with Pre => Set_Up and ID.Kind = Selection_List;
    -- Returns the value of Multiple_Select used to create ID
 
@@ -492,6 +500,9 @@ package Ada_GUI is
       Pre  => Set_Up and ID.Kind = Radio_Buttons,
       Post => Active'Result in 1 .. ID.Num_Buttons;
    -- Returns the index in ID of the active button
+
+   procedure Set_Label (ID : in Widget_ID; Index : in Positive; Text : in String) with
+      Pre => Set_Up and ID.Kind = Radio_Buttons and Index in 1 .. ID.Num_Buttons;
 
    function Length (ID : Widget_ID) return Natural with Pre => Set_Up and ID.Kind = Selection_List;
    -- Returns the number of options in ID
