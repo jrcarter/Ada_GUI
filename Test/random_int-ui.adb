@@ -117,11 +117,11 @@ package body Random_Int.UI is
 begin -- Random_Int.UI
    Ada_GUI.Set_Up (Grid => (1 => (1 .. 2 => (Kind => Ada_GUI.Area, Alignment => Ada_GUI.Right) ) ), Title => "Random Integers");
    Min_Entry := Ada_GUI.New_Text_Box (Label => "Minimum value", Placeholder => Placeholder);
-   Min_Entry.Set_Text_Aligbnment (Alignment => Ada_GUI.Right);
+   Min_Entry.Set_Text_Alignment (Alignment => Ada_GUI.Right);
    Max_Entry := Ada_GUI.New_Text_Box (Break_Before => True, Label => "Maximum value", Placeholder => Placeholder);
-   Max_Entry.Set_Text_Aligbnment (Alignment => Ada_GUI.Right);
+   Max_Entry.Set_Text_Alignment (Alignment => Ada_GUI.Right);
    Result := Ada_GUI.New_Text_Box (Break_Before => True);
-   Result.Set_Text_Aligbnment (Alignment => Ada_GUI.Right);
+   Result.Set_Text_Alignment (Alignment => Ada_GUI.Right);
    Generator := Ada_GUI.New_Button (Text => "Generate");
    Quitter   := Ada_GUI.New_Button (Text => "Quit", Break_Before => True);
    Event_Handler.Start;
