@@ -309,7 +309,7 @@ package Ada_GUI is
    -- Sets the text for ID to Text
    -- For a Text_Area, embedded LFs cause line breaks
 
-   procedure Set_Text_Aligbnment (ID : in Widget_ID; Alignment : in Alignment_ID) with
+   procedure Set_Text_Alignment (ID : in Widget_ID; Alignment : in Alignment_ID) with
       Pre => Set_Up and ID.Kind in Background_Text | Button | Password_Box | Selection_List | Text_Area | Text_Box;
    -- Sets the text aligbnmanet for ID to Alignment
 

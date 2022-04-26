@@ -530,9 +530,9 @@ package body Ada_GUI is
       end case;
    end Set_Text;
 
-   procedure Set_Text_Aligbnment (ID : in Widget_ID; Alignment : in Alignment_ID) is
+   procedure Set_Text_Alignment (ID : in Widget_ID; Alignment : in Alignment_ID) is
       Widget : Widget_Info := Widget_List (ID.Value);
-   begin -- Set_Text_Aligbnment
+   begin -- Set_Text_Alignment
       case Widget.Kind is
       when Background_Text =>
          Widget.Background.Text_Alignment (Value => Converted (Alignment) );
@@ -549,7 +549,7 @@ package body Ada_GUI is
       when others =>
          raise Program_Error;
       end case;
-   end Set_Text_Aligbnment;
+   end Set_Text_Alignment;
 
    procedure Set_Text_Font_Kind (ID : in Widget_ID; Kind : in Font_Kind_ID) is
       function Family return String is
