@@ -1572,16 +1572,14 @@ package body Ada_GUI.Gnoga.Server.Connection is
      (Client : in out Gnoga_HTTP_Client;
       Error  : in     Ada.Exceptions.Exception_Occurrence)
    is
-      S  : constant Socket_Type := Client'Unchecked_Access;
-
-      ID : constant Gnoga.Connection_ID :=
-             Connection_Manager.Find_Connection_ID (S);
+      ID : constant Gnoga.Connection_ID := Connection_Manager.Find_Connection_ID (Client'Unchecked_Access);
    begin
-      S.Content.Finalized := True;
+      Client.Content.Finalized := True;
 
-      Gnoga.Log ("Connection error ID" & ID'Img &
-                   " with message : " &
-                   Ada.Exceptions.Exception_Information (Error));
+      if not Exit_Application_Requested then
+         Gnoga.Log
+            (Message => "Connection error ID" & ID'Image & " with message: " & Ada.Exceptions.Exception_Information (Error) );
+      end if;
       --  If not reconnected by next watchdog ping connection will be deleted.
    end WebSocket_Error;
 
