@@ -24,8 +24,11 @@ procedure Show_All is
    Sel_File   : Ada_GUI.Widget_ID;
    Sel_Yes_No : Ada_GUI.Widget_ID;
    Selected   : Ada_GUI.Widget_ID;
+   Progress   : Ada_GUI.Widget_ID;
    Event      : Ada_GUI.Next_Result_Info;
    File_Info  : Ada_GUI.Dialogs.File_Result_Info;
+   Value      : Natural := 0;
+   Inc        : Boolean := True;
 
    use Ada.Strings.Unbounded;
    use type Ada_GUI.Event_Kind_ID;
@@ -97,11 +100,19 @@ begin -- Show_All
    Sel_Yes_No := Ada_GUI.New_Button (Text => "Yes/No");
    Selected := Ada_GUI.New_Text_Box (Break_Before => True, Label => "Selected:");
    Selected.Set_Read_Only;
+   Progress := Ada_GUI.New_Progress_Bar (Break_Before => True);
 
    Wait_To_Quit : loop
-      Event := Ada_GUI.Next_Event (Timeout => 1.0);
+      Event := Ada_GUI.Next_Event (Timeout => 0.1);
 
-      if not Event.Timed_Out then
+      if Event.Timed_Out then
+         Value := Value + (if Inc then 1 else -1);
+         Progress.Set_Value (Value => Value);
+
+         if (Inc and Value = 100) or (not Inc and Value = 0) then
+            Inc := not Inc;
+         end if;
+      else
          exit Wait_To_Quit when Event.Event.Kind = Ada_GUI.Window_Closed;
 
          if Event.Event.Kind = Ada_GUI.Key_Press then
