@@ -7,8 +7,8 @@
 with Ada.Strings.Unbounded;
 
 package Ada_GUI is
-   type Widget_Kind_ID is (Audio_Player,   Background_Text, Button, Check_Box, Graphic_Area, Password_Box, Radio_Buttons,
-                           Selection_List, Text_Area,       Text_Box);
+   type Widget_Kind_ID is (Audio_Player,  Background_Text, Button,    Check_Box, Graphic_Area, Password_Box, Progress_Bar,
+                           Radio_Buttons, Selection_List,  Text_Area, Text_Box);
 
    type Widget_ID is tagged private;
 
@@ -117,6 +117,15 @@ package Ada_GUI is
                               Width        : Positive := 20)
    return Widget_ID with Pre => Set_Up;
    -- Same as New_Text_Box, but the result box does not echo the characters in it
+
+   function New_Progress_Bar (Row          : Positive :=   1;
+                              Column       : Positive :=   1;
+                              Value        : Natural  :=   0;
+                              Maximum      : Natural  := 100;
+                              Break_Before : Boolean  := False)
+   return Widget_ID with Pre => Set_Up;
+   -- Creates a new Progress_Bar with given Value and Maximum
+   -- The real value Value / Maximum represents the proportion of the progrss that has been completed
 
    type Text_List is array (Positive range <>) of Ada.Strings.Unbounded.Unbounded_String with
       Dynamic_Predicate => Text_List'First = 1;
@@ -484,6 +493,20 @@ package Ada_GUI is
       Pre => Set_Up and ID.Kind = Graphic_Area and Image.Kind = Graphic_Area;
    -- Replaces pixels in ID starting at (X, Y) and extending to the right by the width of Image, and down by the height of Image,
    -- with the pixels in Image
+
+   function Maximum (ID : Widget_ID) return Natural with Pre => Set_Up and ID.Kind = Progress_Bar;
+   -- Returns the current Maximum value for ID
+
+   function Value (ID : Widget_ID) return Natural with Pre => Set_Up and ID.Kind = Progress_Bar;
+   -- Returns the current Value for ID
+
+   procedure Set_Value (ID : in Widget_ID; Value : in Natural) with
+      Pre => Set_Up and ID.Kind = Progress_Bar and Value in 0 .. ID.Maximum;
+   -- Sets the current value for for ID to Value
+
+   procedure Set_Maximum (ID : in Widget_ID; Maximum : in Natural) with
+      Pre => Set_Up and ID.Kind = Progress_Bar and Maximum >= ID.Value;
+   -- Sets the current maximum for ID to Maximum
 
    function Num_Buttons (ID : Widget_ID) return Positive with Pre => Set_Up and ID.Kind = Radio_Buttons;
    -- Returns the number of buttons in the radio-button set

@@ -101,6 +101,8 @@ package body Ada_GUI is
       when Password_Box =>
          Password       : Gnoga.Gui.Element.Form.Password_Access;
          Password_Label : Gnoga.Gui.Element.Form.Label_Access;
+      when Progress_Bar =>
+         Progress : Gnoga.Gui.Element.Common.Progress_Bar_Access;
       when Radio_Buttons =>
          Radio : Radio_Ptr;
       when Selection_List =>
@@ -254,6 +256,24 @@ package body Ada_GUI is
 
       return ID;
    end New_Password_Box;
+
+   function New_Progress_Bar (Row          : Positive :=   1;
+                              Column       : Positive :=   1;
+                              Value        : Natural  :=   0;
+                              Maximum      : Natural  := 100;
+                              Break_Before : Boolean  := False)
+   return Widget_ID is
+      ID : constant Widget_ID := (Value => Widget_List.Last_Index + 1);
+
+      Widget : Widget_Info (Kind => Progress_Bar);
+   begin -- New_Progress_Bar
+      Break (Desired => Break_Before, Row => Row, Column => Adjusted (Row, Column) );
+      Widget.Progress := new Gnoga.Gui.Element.Common.Progress_Bar_Type;
+      Widget.Progress.Create (Parent => Form (Row, Adjusted (Row, Column) ), Value => Value, Maximum => Maximum);
+      Widget_List.Append (New_Item => Widget);
+
+      return ID;
+   end New_Progress_Bar;
 
    use Ada.Strings.Unbounded;
 
@@ -415,6 +435,8 @@ package body Ada_GUI is
       when Password_Box =>
          Widget.Password.Visible (Value => Visible);
          Widget.Password_Label.Visible (Value => Visible);
+      when Progress_Bar =>
+         Widget.Progress.Visible (Value => Visible);
       when Radio_Buttons =>
          All_Buttons : for I in Widget.Radio'Range loop
             Widget.Radio (I).Button.Visible (Value => Visible);
@@ -694,6 +716,8 @@ package body Ada_GUI is
       when Password_Box =>
          Widget.Password.Background_Color (RGBA => Gnoga_Color (Color) );
          Widget.Password_Label.Background_Color (RGBA => Gnoga_Color (Color) );
+      when Progress_Bar =>
+         Widget.Progress.Background_Color (RGBA => Gnoga_Color (Color) );
       when Radio_Buttons =>
          All_Buttons : for I in Widget.Radio'Range loop
             Widget.Radio (I).Button.Background_Color (RGBA => Gnoga_Color (Color) );
@@ -727,6 +751,8 @@ package body Ada_GUI is
       when Password_Box =>
          Widget.Password.Color (RGBA => Gnoga_Color (Color) );
          Widget.Password_Label.Color (RGBA => Gnoga_Color (Color) );
+      when Progress_Bar =>
+         Widget.Progress.Color (RGBA => Gnoga_Color (Color) );
       when Radio_Buttons =>
          All_Buttons : for I in Widget.Radio'Range loop
             Widget.Radio (I).Button.Color (RGBA => Gnoga_Color (Color) );
@@ -917,6 +943,24 @@ package body Ada_GUI is
       Context.Get_Drawing_Context_2D (Canvas => Widget.Canvas.all);
       Context.Draw_Image (Image => Widget_List (Image.Value).Canvas.all, X => X, Y => Y);
    end Replace_Pixels;
+
+   function Maximum (ID : Widget_ID) return Natural is
+      (Widget_List (ID.Value).Progress.Maximum);
+
+   function Value (ID : Widget_ID) return Natural is
+      (Widget_List (ID.Value).Progress.Value);
+
+   procedure Set_Value (ID : in Widget_ID; Value : in Natural) is
+      Widget : Widget_Info := Widget_List (ID.Value);
+   begin -- Set_Value
+      Widget.Progress.Value (Value => Value);
+   end Set_Value;
+
+   procedure Set_Maximum (ID : in Widget_ID; Maximum : in Natural) is
+      Widget : Widget_Info := Widget_List (ID.Value);
+   begin -- Set_Maximum
+      Widget.Progress.Maximum (Value => Maximum);
+   end Set_Maximum;
 
    function Num_Buttons (ID : Widget_ID) return Positive is
       (Widget_List (ID.Value).Radio'Length);
