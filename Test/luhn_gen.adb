@@ -21,6 +21,7 @@ procedure Luhn_Gen is
    Err_Msg : constant String := "Enter some digits";
 
    procedure Generate is
+      -- Empty
    begin -- Generate
       Err.Set_Visibility (Visible => False);
       Checksum.Set_Text (Text => Integer'Image (PragmARC.Luhn_Generation.Checksum (Input.Text) ) );
