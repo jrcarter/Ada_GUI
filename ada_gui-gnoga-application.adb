@@ -36,9 +36,11 @@
 ------------------------------------------------------------------------------
 --
 -- Changed by J. Carter 2021 to only run "singleton" applications
+--                      2022 Improved OS detection
 
 with GNAT.OS_Lib;
 
+with Ada.Directories;
 with Ada.Task_Identification;
 
 with Ada_GUI.Gnoga.Server.Connection;
@@ -85,27 +87,20 @@ package body Ada_GUI.Gnoga.Application is
    -- Open_URL --
    --------------
 
-   Open_Mac     : constant String := "/usr/bin/open ";
-   Open_Windows : constant String := "cmd /c start ";
-   Open_Unix    : constant String := "/usr/bin/xdg-open ";
-
-   type OS_ID is (Invalid, Mac, Windows, Unix);
-
-   OS : constant OS_ID := Invalid;
-   pragma Assert (OS /= Invalid, "Operating system not set in body of Gnoga.Application");
+   Open_Mac     : constant String := "/usr/bin/open";
+   Open_Unix    : constant String := "/usr/bin/xdg-open";
+   Open_Windows : constant String := "cmd /c start";
 
    procedure Open_URL (URL : in String) is
       Args : GNAT.OS_Lib.Argument_List_Access;
       PID  : GNAT.OS_Lib.Process_Id;
-      pragma Unreferenced (PID);
    begin
       Args := GNAT.OS_Lib.Argument_String_To_List
-         ( (case OS is
-            when Mac     => Open_Mac,
-            when Windows => Open_Windows,
-            when Unix    => Open_Unix,
-            when Invalid => raise Program_Error with "Operating system not set in body of Gnoga.Application") &
-          URL);
+         ( (if    Ada.Directories.Current_Directory (1) /= '/' then Open_Windows
+            elsif Ada.Directories.Exists (Open_Unix)           then Open_Unix
+            elsif Ada.Directories.Exists (Open_Mac)            then Open_Mac
+            else raise Program_Error with "Operating system cannot be determined") &
+          ' ' & URL);
       PID := GNAT.OS_Lib.Non_Blocking_Spawn
         (Program_Name => Args (Args'First).all,
          Args         => Args (Args'First + 1 .. Args'Last));
