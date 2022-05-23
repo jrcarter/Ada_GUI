@@ -21,8 +21,6 @@ Random_Int is a Gnoga program that has been revised to use Ada GUI instead. It w
 
 ## Installation
 
-Before compiling Ada_GUI, you have to specify the OS on which it will be used. Open ada_gui-gnoga-application.adb in an editor and search for "OS_ID". Change the constant OS in the next line to match your OS (anything other than Mac OSX or Windows should use Unix). You can then compile the library.
-
 Gnoga and the Simple Components require a recent GNAT compiler, so Ada_GUI cannot be compiled with another compiler. The file gnat.adc is needed to compile the Simple Components extensions to GNAT.Sockets. The use of gnatmake is recommended, as gprbuild is for mixed-language or complicated builds, which this is not. After compiling, it is recommended that you write-protect the .ali files. Typically, you can use a command such as
 
 gnatmake -m -j0 -gnatan -gnato2 -O2 -fstack-check show_all.adb
