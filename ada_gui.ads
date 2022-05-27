@@ -242,9 +242,19 @@ package Ada_GUI is
    procedure Show_Message_Box (Text : in String) with Pre => Set_Up;
    -- Shows a dialog box with Text and an OK button
 
-   procedure Set_Visibility (ID : in Widget_ID; Visible : in Boolean := True) With Pre => Set_Up;
+   procedure Set_Hidden (ID : in Widget_ID; Hidden : in Boolean := True) with Pre => Set_Up;
+   -- Set whether or not ID is hidden
+   -- Widgets are not hidden by default
+
+   procedure Set_Visibility (ID : in Widget_ID; Visible : in Boolean := True) with Pre => Set_Up;
    -- Sets whether or not ID is visible
    -- Widgets are visible by default
+
+   -- Difference between visibile/invisible and hidden/not hidden:
+   -- An invisible widget does not show up, but does take up space
+   -- Making a widget invisible does not change the poisition of other widgets
+   -- A hidden widget does not show and does not take up space
+   -- Making a widget hidden may change the poisition of other widgets
 
    procedure Log (Message : in String) with Pre => Set_Up;
    -- Writes Message with a time stamp to standard output
@@ -271,8 +281,9 @@ package Ada_GUI is
          Pre => Set_Up and Button'Length > 1;
       -- Displays Text under Title with a row of Button'Length buttons, each with the text given by the corresponding value in
       -- Button
-      -- If the user clicks on a button returns the button text of the corresponding button
+      -- If the user clicks on a button, returns the button text of the corresponding button
       -- If the user closes the window, or another dialog is in progress, returns ""
+      -- For a dialog with one OK button, use Show_Message_Box
 
       Yes_No : constant Text_List := (Ada.Strings.Unbounded.To_Unbounded_String ("Yes"),
                                       Ada.Strings.Unbounded.To_Unbounded_String ("No") );

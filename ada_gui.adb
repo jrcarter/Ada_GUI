@@ -417,6 +417,41 @@ package body Ada_GUI is
 
    function Next_Event (Timeout : Duration := Duration'Last) return Next_Result_Info is separate;
 
+   procedure Set_Hidden (ID : in Widget_ID; Hidden : in Boolean := True) is
+      Widget : Widget_Info renames Widget_List (ID.Value);
+   begin -- Set_Hidden
+      case Widget.Kind is
+      when Audio_Player =>
+         Widget.Audio.Hidden (Value => Hidden);
+      when Background_Text =>
+         Widget.Background.Hidden (Value => Hidden);
+      when Button =>
+         Widget.Switch.Hidden (Value => Hidden);
+      when Check_Box =>
+         Widget.Check.Hidden (Value => Hidden);
+         Widget.Check_Label.Hidden (Value => Hidden);
+      when Graphic_Area =>
+         Widget.Canvas.Hidden (Value => Hidden);
+      when Password_Box =>
+         Widget.Password.Hidden (Value => Hidden);
+         Widget.Password_Label.Hidden (Value => Hidden);
+      when Progress_Bar =>
+         Widget.Progress.Hidden (Value => Hidden);
+      when Radio_Buttons =>
+         All_Buttons : for I in Widget.Radio'Range loop
+            Widget.Radio (I).Button.Hidden (Value => Hidden);
+            Widget.Radio (I).Label.Hidden (Value => Hidden);
+         end loop All_Buttons;
+      when Selection_List =>
+         Widget.Selector.Hidden (Value => Hidden);
+      when Text_Area =>
+         Widget.Area.Hidden (Value => Hidden);
+      when Text_Box =>
+         Widget.Box.Hidden (Value => Hidden);
+         Widget.Box_Label.Hidden (Value => Hidden);
+      end case;
+   end Set_Hidden;
+
    procedure Set_Visibility (ID : in Widget_ID; Visible : in Boolean := True) is
       Widget : Widget_Info renames Widget_List (ID.Value);
    begin -- Set_Visibility
