@@ -25,6 +25,10 @@ procedure Show_All is
    Sel_Yes_No : Ada_GUI.Widget_ID;
    Selected   : Ada_GUI.Widget_ID;
    Progress   : Ada_GUI.Widget_ID;
+   One        : Ada_GUI.Widget_ID;
+   Two        : Ada_GUI.Widget_ID;
+   Three      : Ada_GUI.Widget_ID;
+   Hider      : Ada_GUI.Widget_ID;
    Event      : Ada_GUI.Next_Result_Info;
    File_Info  : Ada_GUI.Dialogs.File_Result_Info;
    Value      : Natural := 0;
@@ -101,6 +105,14 @@ begin -- Show_All
    Selected := Ada_GUI.New_Text_Box (Break_Before => True, Label => "Selected:");
    Selected.Set_Read_Only;
    Progress := Ada_GUI.New_Progress_Bar (Break_Before => True);
+   One := Ada_GUI.New_Button (Text => "One", Break_Before => True);
+   Two := Ada_GUI.New_Button (Text => "Two");
+   Three := Ada_GUI.New_Button (Text => "Three");
+   Hider := Ada_GUI.New_Radio_Buttons (Label => (To_Unbounded_String ("Normal"),
+                                                 To_Unbounded_String ("Invisible"),
+                                                 To_Unbounded_String ("Hidden") ),
+                                       Break_Before => True,
+                                       Orientation  => Ada_GUI.Horizontal);
 
    Wait_To_Quit : loop
       Event := Ada_GUI.Next_Event (Timeout => 0.1);
@@ -139,6 +151,20 @@ begin -- Show_All
             elsif Event.Event.ID = Sel_Yes_No then
                Selected.Set_Text
                   (Text => Ada_GUI.Dialogs.Yes_Or_No (Title => "Yes/No Dialog", Text => "Do you want 'Yes' to appear?") );
+            elsif Event.Event.ID = Hider then
+               case Positive'(Hider.Active) is
+               when 1 => -- Normal
+                  Two.Set_Hidden (Hidden => False);
+                  Two.Set_Visibility (Visible => True);
+               when 2 => --Invisible
+                  Two.Set_Hidden (Hidden => False);
+                  Two.Set_Visibility (Visible => False);
+               when 3 => -- Hidden
+                  Two.Set_Hidden (Hidden => True);
+                  Two.Set_Visibility (Visible => True);
+               when others =>
+                  raise Program_Error with "Invalid Hider button index";
+               end case;
             else
                null;
             end if;
