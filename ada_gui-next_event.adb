@@ -1,7 +1,7 @@
 -- An Ada-oriented GUI library
 -- Implementation derived from Gnoga
 --
--- Copyright (C) 2021 by PragmAda Software Engineering
+-- Copyright (C) 2022 by PragmAda Software Engineering
 --
 -- Released under the terms of the 3-Clause BSD License. See https://opensource.org/licenses/BSD-3-Clause
 
@@ -163,12 +163,15 @@ begin -- Next_Event
             Event.Object.Flush_Buffer;
          elsif Event.Event = Left_Text or Event.Event = Right_Text or Event.Event = Double_Text or Event.Event = Key_Text then
             Make_Event : declare
+               ID    : constant String  := Event.Object.ID;
+               Index : constant Natural := Ada.Strings.Fixed.Index (ID, "R"); -- R indicates a radio button
+
                Local : Event_Info (Kind => (if Event.Event = Left_Text then Left_Click
                                             elsif Event.Event = Right_Text then Right_Click
                                             elsif Event.Event = Double_Text then Double_Click
                                             else Key_Press) );
             begin -- Make_Event
-               Local.ID   := (Value => Integer'Value (Event.Object.ID) );
+               Local.ID   := (Value => Integer'Value ( (if Index > 0 then ID (Index + 1 .. ID'Last) else ID) ) );
                Local.Data := Event.Data;
 
                if Local.Kind in Left_Click | Right_Click | Double_Click then
