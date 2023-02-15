@@ -1,6 +1,6 @@
 -- An Ada-oriented GUI library that uses a browser as its platform
 --
--- Copyright (C) 2022 by PragmAda Software Engineering
+-- Copyright (C) 2023 by PragmAda Software Engineering
 --
 -- Released under the terms of the 3-Clause BSD License. See https://opensource.org/licenses/BSD-3-Clause
 
@@ -93,6 +93,7 @@ package Ada_GUI is
    return Widget_ID With Pre => Set_Up;
    -- Creates a Button with button label Text.
    -- Left clicks on buttons generate events
+   -- Button text may contain HTML text attributes such as "<b>...</b>" and embedding "<br>" will cause new lines
 
    function New_Check_Box (Row          : Positive := 1;
                            Column       : Positive := 1;
@@ -102,6 +103,7 @@ package Ada_GUI is
    return Widget_ID with Pre => Set_Up;
    -- Creates a new Check_Box with label Label
    -- If Active, the box will be checked; otherwise, it will be unchecked
+   -- A check-box label may contain HTML text attributes such as "<b>...</b>" and embedding "<br>" will cause new lines
 
    function New_Graphic_Area
       (Row : Positive := 1; Column : Positive := 1; Width : Positive; Height : Positive; Break_Before : Boolean := False)
@@ -143,6 +145,7 @@ package Ada_GUI is
    --             = Vertical   has each button after the 1st below the preceding buttons
    -- The button for Label'First will be active
    -- The operations Set_Active and Active for radio buttons take an Index; Index will refer to the button for Label (Index)
+   -- Radio-button labels may contain HTML text attributes such as "<b>...</b>" and embedding "<br>" will cause new lines
 
    function New_Selection_List (Row             : Positive  := 1;
                                 Column          : Positive  := 1;
@@ -164,9 +167,10 @@ package Ada_GUI is
                            Width        : Positive := 20;
                            Height       : Positive := 2)
    return Widget_ID with Pre => Set_Up;
-   -- Creates a new Text_Box with initial content of Text.
+   -- Creates a new Text_Area with initial content of Text.
    -- Width is width of area in characters
    -- Height is height of area in lines
+   -- Text-area text may contain HTML text attributes such as "<b>...</b>" and embedding "<br>" will cause new lines
 
    function New_Text_Box (Row          : Positive := 1;
                           Column       : Positive := 1;
@@ -327,7 +331,8 @@ package Ada_GUI is
    procedure Set_Text (ID : in Widget_ID; Text : in String) with
       Pre => Set_Up and ID.Kind in Background_Text | Button | Password_Box | Text_Area | Text_Box;
    -- Sets the text for ID to Text
-   -- For a Text_Area, embedded LFs cause line breaks
+   -- All kinds except Password_Box and Text_Box may contain HTML text attributes such as "<b>...</b>" and embedding "<br>" will
+   -- cause new lines
 
    procedure Set_Text_Alignment (ID : in Widget_ID; Alignment : in Alignment_ID) with
       Pre => Set_Up and ID.Kind in Background_Text | Button | Password_Box | Selection_List | Text_Area | Text_Box;
@@ -343,6 +348,7 @@ package Ada_GUI is
    procedure Set_Label (ID : in Widget_ID; Text : in String) with
       Pre => Set_Up and Id.Kind in Check_Box | Password_Box | Text_Box;
    -- Sets the label text for ID to Text
+   -- A label may contain HTML text attributes such as "<b>...</b>" and embedding "<br>" will cause new lines
 
    procedure Set_Read_Only (ID : in Widget_ID; Read_Only : in Boolean := True) with
       Pre => Set_Up and ID.Kind in Text_Area | Text_Box;
@@ -356,7 +362,6 @@ package Ada_GUI is
              ID.Kind in Background_Text | Button | Password_Box | Selection_List | Text_Area | Text_Box and
              (if ID.Kind = Selection_List then not ID.Multiple_Select else True);
    -- Returns the text for ID; for a Selection_List with no selection, returns ""
-   -- For a Text_Area, line breaks are encoded as LFs
 
    procedure Set_Active (ID : in Widget_ID; Active : in Boolean) with Pre => Set_Up and ID.Kind = Check_Box;
    -- If Active, makes ID checked, else makes ID unchecked
@@ -537,6 +542,7 @@ package Ada_GUI is
 
    procedure Set_Label (ID : in Widget_ID; Index : in Positive; Text : in String) with
       Pre => Set_Up and ID.Kind = Radio_Buttons and Index in 1 .. ID.Num_Buttons;
+   -- A label may contain HTML text attributes such as "<b>...</b>" and embedding "<br>" will cause new lines
 
    function Length (ID : Widget_ID) return Natural with Pre => Set_Up and ID.Kind = Selection_List;
    -- Returns the number of options in ID

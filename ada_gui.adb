@@ -1,7 +1,7 @@
 -- An Ada-oriented GUI library
 -- Implementation derived from Gnoga
 --
--- Copyright (C) 2022 by PragmAda Software Engineering
+-- Copyright (C) 2023 by PragmAda Software Engineering
 --
 -- Released under the terms of the 3-Clause BSD License. See https://opensource.org/licenses/BSD-3-Clause
 
@@ -575,11 +575,11 @@ package body Ada_GUI is
       when Background_Text =>
          Widget.Background.Inner_HTML (Value => Text);
       when Button =>
-         Widget.Switch.Text (Value => Text);
+         Widget.Switch.Inner_HTML (Value => Text);
       when Password_Box =>
          Widget.Password.Value (Value => Text);
       when Text_Area =>
-         Widget.Area.Value (Value => Text);
+         Widget.Area.Inner_HTML (Value => Text);
       when Text_Box =>
          Widget.Box.Value (Value => Text);
       when others =>
