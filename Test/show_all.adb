@@ -1,7 +1,7 @@
 -- A program to show all of the Ada_GUI widgets
 -- An Ada_GUI demo program
 --
--- Copyright (C) 2022 by PragmAda Software Engineering
+-- Copyright (C) 2023 by PragmAda Software Engineering
 -- Released under the terms of the BSD 3-Clause license; see https://opensource.org/licenses
 --
 with Ada.Characters.Latin_1;
@@ -49,7 +49,7 @@ begin -- Show_All
    Background.Set_Background_Color (Color => Ada_GUI.To_Color (Ada_GUI.Yellow) );
    Background.Set_Foreground_Color (Color => Ada_GUI.To_Color (Ada_GUI.Red) );
    Visible := Ada_GUI.New_Check_Box (Label => "Visible &euro;", Active => True);
-   Quit := Ada_GUI.New_Button (Text => "Quit", Break_Before => True);
+   Quit := Ada_GUI.New_Button (Text => "Quit &euro;", Break_Before => True);
    Quit.Set_Background_Color (Color => Ada_GUI.To_Color (Ada_GUI.Yellow) );
    Quit.Set_Foreground_Color (Color => Ada_GUI.To_Color (Ada_GUI.Red) );
    Check := Ada_GUI.New_Check_Box (Label => "<b>Check</b>_Box:", Break_Before => True);
@@ -128,8 +128,11 @@ begin -- Show_All
          exit Wait_To_Quit when Event.Event.Kind = Ada_GUI.Window_Closed;
 
          if Event.Event.Kind = Ada_GUI.Key_Press then
-            Handle_Invalid : begin
-               Pressed.Set_Text (Text => Pressed.Text & ' ' & Character'Val (Wide_Character'Pos (Event.Event.Key.Key_Char) ) );
+            Handle_Invalid : declare
+               Text : constant String := Pressed.Text;
+            begin -- Handle_Invalid
+               Pressed.Set_Text
+                  (Text =>  Text (1 .. Text'Last - 1) & Character'Val (Wide_Character'Pos (Event.Event.Key.Key_Char) ) & " &euro;");
             exception -- Handle_Invalid
             when others => -- Key_Char not in Character
                Pressed.Set_Text (Text => Pressed.Text & " ?");
@@ -144,6 +147,7 @@ begin -- Show_All
                   Background.Set_Text (Text => "New contents can also <b>have</b> attributes &euro;");
                   Visible.Set_Label (Text => "<b>Visi</b>ble &euro;");
                   Radio.Set_Label (Index => 3, Text => "<i>Don't</i> know");
+                  Quit.Set_Text (Text => "<b>Depart</b> &euro;");
                end if;
             elsif Event.Event.ID = Sel_File then
                File_Info := Ada_GUI.Dialogs.Selected_File;
