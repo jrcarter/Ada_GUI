@@ -1,4 +1,4 @@
--- An Ada-oriented GUI library that uses a browser as its platform
+-- An Ada-oriented GUI library specification. The included sample implementation uses a browser as its platform
 --
 -- Copyright (C) 2023 by PragmAda Software Engineering
 --
@@ -48,8 +48,10 @@ package Ada_GUI is
    -- Each display area has the alignment given by Grid for its row and column
    -- A display area is either a new Area, or an Extension of the area to its left
    -- Title is the initial window title
-   -- Each application has an Ada-GUI ID; two applications with the same ID cannot run at the same time
+   -- In the sample implementation, each application has an Ada-GUI ID; two applications with the same ID cannot run at the same
+   -- time
    -- (The ID is used as the port for talking to the browser, hence the restriction)
+   -- Other implementations may ignore or remove ID
    --
    -- Grid example: if Grid = (1 => (1 => (Area, Left), 2 => (Extension),  3 => (Area, Left) )
    --                          2 => (1 => (Area, Left), 2 => (Area, Left), 3 => (Extension) ) )
@@ -79,7 +81,7 @@ package Ada_GUI is
    return Widget_ID with Pre => Set_Up;
    -- Creates an Audio_Player
    -- Source is the source of audio; if "", then no audio is loaded
-   -- Audio sources seem to be relative path names of audio files and URLs
+   -- In the sample implementation, Audio sources seem to be relative path names of audio files and URLs
    -- If Controls, then controls are displayed for the player and the user can use them to control the player
    -- Otherwise, no controls are displayed and control of the player must be done by the program
 
@@ -87,13 +89,15 @@ package Ada_GUI is
    return Widget_ID with Pre => Set_Up;
    -- Creates a new Background_Text with contents Text
    -- Like a label, background text is not in any visible widget; unlike a label, background text is not associated with a widget
-   -- Background text may contain HTML text attributes such as "<b>...</b>" and embedding "<br>" will cause new lines
+   -- In the sample implementation, background text may contain HTML text attributes such as "<b>...</b>" and embedding "<br>"
+   -- will cause new lines
 
    function New_Button (Row : Positive := 1; Column : Positive := 1; Text : String := ""; Break_Before : Boolean := False)
    return Widget_ID With Pre => Set_Up;
    -- Creates a Button with button label Text.
    -- Left clicks on buttons generate events
-   -- Button text may contain HTML text attributes such as "<b>...</b>" and embedding "<br>" will cause new lines
+   -- In the sample implementation, button text may contain HTML text attributes such as "<b>...</b>" and embedding "<br>" will
+   -- cause new lines
 
    function New_Check_Box (Row          : Positive := 1;
                            Column       : Positive := 1;
@@ -103,7 +107,8 @@ package Ada_GUI is
    return Widget_ID with Pre => Set_Up;
    -- Creates a new Check_Box with label Label
    -- If Active, the box will be checked; otherwise, it will be unchecked
-   -- A check-box label may contain HTML text attributes such as "<b>...</b>" and embedding "<br>" will cause new lines
+   -- In the sample implementation, a check-box label may contain HTML text attributes such as "<b>...</b>" and embedding "<br>"
+   -- will cause new lines
 
    function New_Graphic_Area
       (Row : Positive := 1; Column : Positive := 1; Width : Positive; Height : Positive; Break_Before : Boolean := False)
@@ -118,7 +123,7 @@ package Ada_GUI is
                               Label        : String   := "";
                               Width        : Positive := 20)
    return Widget_ID with Pre => Set_Up;
-   -- Same as New_Text_Box, but the result box does not echo the characters in it
+   -- Same as New_Text_Box, but the resulting box does not echo the characters in it
 
    function New_Progress_Bar (Row          : Positive :=   1;
                               Column       : Positive :=   1;
@@ -145,7 +150,8 @@ package Ada_GUI is
    --             = Vertical   has each button after the 1st below the preceding buttons
    -- The button for Label'First will be active
    -- The operations Set_Active and Active for radio buttons take an Index; Index will refer to the button for Label (Index)
-   -- Radio-button labels may contain HTML text attributes such as "<b>...</b>" and embedding "<br>" will cause new lines
+   -- In the sample implementation, radio-button labels may contain HTML text attributes such as "<b>...</b>" and embedding "<br>"
+   -- will cause new lines
 
    function New_Selection_List (Row             : Positive  := 1;
                                 Column          : Positive  := 1;
@@ -170,7 +176,8 @@ package Ada_GUI is
    -- Creates a new Text_Area with initial content of Text.
    -- Width is width of area in characters
    -- Height is height of area in lines
-   -- Text-area text may contain HTML text attributes such as "<b>...</b>" and embedding "<br>" will cause new lines
+   -- In the sample implementation, text-area text may contain HTML text attributes such as "<b>...</b>" and embedding "<br>" will
+   -- cause new lines
 
    function New_Text_Box (Row          : Positive := 1;
                           Column       : Positive := 1;
@@ -212,7 +219,7 @@ package Ada_GUI is
 
    type Event_Info (Kind : Event_Kind_ID := Left_Click) is record
       ID   : Widget_ID; -- ID for Window (Kind => Window_Closed) is invalid for all operations
-      Data : Ada.Strings.Unbounded.Unbounded_String; -- Event data that was parsed to give Mouse or Key
+      Data : Ada.Strings.Unbounded.Unbounded_String; -- Implementation-defined event data that was parsed to give Mouse or Key
 
       case Kind is
       when Left_Click | Right_Click | Double_Click =>
@@ -304,7 +311,8 @@ package Ada_GUI is
 
    function Ready (ID : Widget_ID) return Boolean with Pre => Set_Up and ID.Kind = Audio_Player;
    -- Returns True if ID is ready to play its source; False otherwise
-   -- There is a perceptible (to a computer) delay between a call to Set_Source and Ready returning True
+   -- In the sample implementation, there is a perceptible (to a computer) delay between a call to Set_Source and Ready returning
+   -- True
 
    procedure Play (ID : in Widget_ID) with Pre => Set_Up and ID.Kind = Audio_Player;
    -- Plays the current source from the current position for ID
@@ -331,12 +339,12 @@ package Ada_GUI is
    procedure Set_Text (ID : in Widget_ID; Text : in String) with
       Pre => Set_Up and ID.Kind in Background_Text | Button | Password_Box | Text_Area | Text_Box;
    -- Sets the text for ID to Text
-   -- All kinds except Password_Box and Text_Box may contain HTML text attributes such as "<b>...</b>" and embedding "<br>" will
-   -- cause new lines
+   -- In the sample implementation, all kinds except Password_Box and Text_Box may contain HTML text attributes such as
+   -- "<b>...</b>" and embedding "<br>" will cause new lines
 
    procedure Set_Text_Alignment (ID : in Widget_ID; Alignment : in Alignment_ID) with
       Pre => Set_Up and ID.Kind in Background_Text | Button | Password_Box | Selection_List | Text_Area | Text_Box;
-   -- Sets the text aligbnmanet for ID to Alignment
+   -- Sets the text alignment for ID to Alignment
 
    type Font_Kind_ID is (Proportional, Monospaced);
 
@@ -348,7 +356,8 @@ package Ada_GUI is
    procedure Set_Label (ID : in Widget_ID; Text : in String) with
       Pre => Set_Up and Id.Kind in Check_Box | Password_Box | Text_Box;
    -- Sets the label text for ID to Text
-   -- A label may contain HTML text attributes such as "<b>...</b>" and embedding "<br>" will cause new lines
+   -- In the sample implementation, a label may contain HTML text attributes such as "<b>...</b>" and embedding "<br>" will cause
+   -- new lines
 
    procedure Set_Read_Only (ID : in Widget_ID; Read_Only : in Boolean := True) with
       Pre => Set_Up and ID.Kind in Text_Area | Text_Box;
@@ -432,11 +441,13 @@ package Ada_GUI is
    -- Sets the foreground color for ID to Color
    -- For text widgets, this is the text color
 
-   -- Graphic_Area operations for which any part of the drawn element is outside the drawing area work; the extra part is not drawn
+   -- In the sample implementation, Graphic_Area operations for which any part of the drawn element is outside the drawing area
+   -- work; the extra part is not drawn
 
    procedure Set_Pixel (ID : in Widget_ID; X : in Integer; Y : in Integer; Color : in Color_Info := To_Color (Black) ) with
       Pre => Set_Up and ID.Kind = Graphic_Area;
    -- If (X, Y) is in the drawing area, sets it to Color
+   -- In the sample implementation, if (X, Y) is not in the drawing area, has no effect
 
    function Pixel (ID : Widget_ID; X : Integer; Y : Integer) return Color_Info with
       Pre => Set_Up and ID.Kind = Graphic_Area;
@@ -542,7 +553,8 @@ package Ada_GUI is
 
    procedure Set_Label (ID : in Widget_ID; Index : in Positive; Text : in String) with
       Pre => Set_Up and ID.Kind = Radio_Buttons and Index in 1 .. ID.Num_Buttons;
-   -- A label may contain HTML text attributes such as "<b>...</b>" and embedding "<br>" will cause new lines
+   -- In the sample implementation, a label may contain HTML text attributes such as "<b>...</b>" and embedding "<br>" will cause
+   -- new lines
 
    function Length (ID : Widget_ID) return Natural with Pre => Set_Up and ID.Kind = Selection_List;
    -- Returns the number of options in ID
