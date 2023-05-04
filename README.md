@@ -33,4 +33,4 @@ If you keep the Ada-GUI source files in a single directory, including the Simple
 
 ## Compiler Errors
 
-Note that GNAT 12[.1] and 13[.1] have an error that prevents it from compiling GNAT.Sockets.Server. Remaining with GNAT 11 is recommended until this error is corrected. Those who prefer to word around the error rather than wait for a correct compiler can replace `'Unchecked_Access` with `'Unrestriced_Access` on the offending line.
+Note that GNAT 12[.1] and 13[.1] have an error that prevents it from compiling GNAT.Sockets.Server. Remaining with GNAT 11 is recommended until this error is corrected. Those who prefer to work around the error rather than wait for a correct compiler can replace `'Unchecked_Access` with `'Unrestriced_Access` on the offending line.
