@@ -7,26 +7,30 @@ In a concurrent language like Ada, a better design for a GUI is for the GUI to h
 
 Ada_GUI is such a GUI.
 
-The implementation of Ada_GUI is derived from Gnoga, but simplified, reorganized, and converted to put events on a protected queue rather than call callbacks. The name Gnoga has been retained for the name of the implementation hierarchy, located at Ada_GUI.Gnoga, in recognition. Those parts of Kazakov's Simple Components used by the implementation are provided as well, with some minor modifications. If you have your own version of the Simple Components, you may use it instead: Delete all Ada source files that do not begin with ada_gui.
+The purpose of Ada_GUI is to provide the specification, in hopes that multiple implementations will be created. Note that some of the comments in the specification are specific to the sample implementation, and should be removed or modified for other implementations. Especially interesting would be an implementation that is not GNAT specific.
 
-Ada GUI is reasonably full-featured and useful. The implementation is more responsive than the former proof-of-concept directly on full Gnoga.
+## Sample Implementation
+
+A sample implementation of Ada_GUI is supplied, derived from Gnoga, but simplified, reorganized, and converted to put events on a protected queue rather than call callbacks. The name Gnoga has been retained for the name of the implementation hierarchy, located at Ada_GUI.Gnoga, in recognition. Those parts of Kazakov's Simple Components used by the implementation are provided as well, with some minor modifications. If you have your own version of the Simple Components, you may use it instead: Delete all Ada source files that do not begin with ada_gui.
+
+The sample implementation is reasonably full-featured and useful. The implementation is more responsive than the former proof-of-concept directly on full Gnoga.
 
 The Test directory contains boot.html, boot.js, and jquery.min.js. These files must be available to every Ada-GUI program. It also contains favicon.ico, an icon of Ada.
 
-Show_All creates at least one of each widget. Visibility, playing audio, and responding to key-press events is demonstrated. Changing this program is the easiest way to experiment with Ada GUI. The audio file glass.ogg is used by Show_All.
+Show_All creates at least one of each widget. Visibility, playing audio, and responding to key-press events is demonstrated. Changing this program is the easiest way to experiment with the sample implementation. The audio file glass.ogg is used by Show_All.
 
 Luhn_Gen calculates Luhn checksum digits. Enter the first 15 digits of your credit-card number and it will generate the 16th.
 
 Random_Int is a Gnoga program that has been revised to use Ada GUI instead. It will generate random integers in a desired range.
 
-## Installation
+## Installation of the Sample Implementation
 
 Gnoga and the Simple Components require a recent GNAT compiler, so Ada_GUI cannot be compiled with another compiler. The file gnat.adc is needed to compile the Simple Components extensions to GNAT.Sockets. The use of gnatmake is recommended, as gprbuild is for mixed-language or complicated builds, which this is not. After compiling, it is recommended that you write-protect the .ali files. Typically, you can use a command such as
 
-gnatmake -m -j0 -gnatan -gnato2 -O2 -fstack-check show_all.adb
+gnatmake -m -j0 -gnatan -gnato2 -O2 -fstack-check Test/show_all.adb
 
 If you keep the Ada-GUI source files in a single directory, including the Simple Components source files, and have the compiler put the object and .ali files in that directory, then you need only add -I/path/to/Ada_GUI/ to your program's gnatmake command to use Ada_GUI.
 
 ## Compiler Errors
 
-Note that GNAT 12[.1] has an error that prevents it from compiling GNAT.Sockets.Server. Remaining with GNAT 11 is recommended until this error is corrected.
+Note that GNAT 12[.1] and 13[.1] have an error that prevents it from compiling GNAT.Sockets.Server. Remaining with GNAT 11 is recommended until this error is corrected. Those who prefer to word around the error rather than wait for a correct compiler can replace `'Unchecked_Access` with `'Unrestriced_Access` on the offending line.
