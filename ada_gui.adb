@@ -77,6 +77,10 @@ package body Ada_GUI is
       Setup := True;
    end Set_Up;
 
+   function Window_Height return Positive is (Window.Inner_Height);
+
+   function Window_Width return Positive is (Window.Inner_Width);
+
    type Radio_Info is record
       Button : Gnoga.Gui.Element.Form.Radio_Button_Type;
       Label  : Gnoga.Gui.Element.Form.Label_Type;
@@ -98,6 +102,8 @@ package body Ada_GUI is
          Check_Label : Gnoga.Gui.Element.Form.Label_Access;
       when Graphic_Area =>
          Canvas : Gnoga.Gui.Element.Canvas.Canvas_Access;
+         Width  : Positive;
+         Height : Positive;
       when Password_Box =>
          Password       : Gnoga.Gui.Element.Form.Password_Access;
          Password_Label : Gnoga.Gui.Element.Form.Label_Access;
@@ -230,6 +236,8 @@ package body Ada_GUI is
       Break (Desired => Break_Before, Row => Row, Column => Adjusted (Row, Column) );
       Widget.Canvas := new Gnoga.Gui.Element.Canvas.Canvas_Type;
       Widget.Canvas.Create (Parent => Form (Row, Adjusted (Row, Column) ), Width => Width, Height => Height, ID => ID.Value'Image);
+      Widget.Width := Width;
+      Widget.Height := Height;
       Widget_List.Append (New_Item => Widget);
 
       return ID;
@@ -1086,4 +1094,6 @@ package body Ada_GUI is
       Gnoga.Application.End_Application;
       Setup := False;
    end End_GUI;
+
+   package body Plotting is separate;
 end Ada_Gui;

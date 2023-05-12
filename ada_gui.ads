@@ -63,6 +63,10 @@ package Ada_GUI is
    -- 2 |  |     |
    --   +--+-----+
 
+   function Window_Height return Positive with Pre => Set_Up;
+   function Window_Width  return Positive with Pre => Set_Up;
+   -- Returns the window dimensions
+
    procedure End_GUI with Pre => Set_Up, Post => not Set_Up;
    -- Destroys the GUI
 
@@ -586,6 +590,73 @@ package Ada_GUI is
    procedure Delete (ID : in Widget_ID; Index : in Positive) with
       Pre => Set_Up and ID.Kind = Selection_List and Index in 1 .. ID.Length;
    -- Deletes the option at Index, moving down the options previously at Index + 1 .. ID.Length
+
+   package Plotting is
+      type Plot_Info (<>) is private;
+
+      function New_Plot (ID : in Widget_ID; X_Min : in Float; X_Max : in Float; Y_Min : in Float; Y_Max : in Float)
+      return Plot_Info with
+         Pre => Set_Up and ID.Kind = Graphic_Area and X_Min < X_Max and Y_Min < Y_Max;
+      -- Associates ID with the result and establishes scale values for the left (X_Min), right (X_Max), top (Y_Max), and bottom
+      -- (Y_Min) edges of ID
+      -- Note that the Y scale is reversed from that of a Graphic_Area
+
+      function Scale_X (Plot : Plot_Info; X : Float) return Integer;
+      -- Returns the pixel-X coordinate corresponding to X
+
+      function Scale_Y (Plot : Plot_Info; Y : Float) return Integer;
+      -- Returns the pixel-Y coordinate corresponding to Y
+
+      procedure Draw_Point (Plot : in Plot_Info; X : in Float; Y : in Float; Color : in Color_Info := To_Color (Black) ) with
+         Pre => Set_Up;
+      -- Draws a point (filled circle with radius of 2 pixels) at (X, Y) in color Color
+
+      procedure Draw_Line (Plot   : in Plot_Info;
+                           From_X : in Float;
+                           From_Y : in Float;
+                           To_X   : in Float;
+                           To_Y   : in Float;
+                           Color  : in Color_Info := To_Color (Black) )
+      with Pre => Set_Up;
+      -- Draws a line (width 1 pixel) from (From_X, From_Y) to (To_X, To_Y) in color Color
+
+      subtype Positive_Float is Float range Float'Succ (0.0) .. Float'Last;
+
+      procedure Draw_X_Axis
+         (Plot : in Plot_Info; Interval : in Positive_Float; Length : in Positive; Color : in Color_Info := To_Color (Black) )
+      with Pre => Set_Up;
+      -- Draws the X axis with ticks every Interval away from zero
+      -- Ticks extend Length pixels from the axis on both sides
+      -- Ticks that are for integer values are labeled
+      -- The axis and ticks will be in color Color
+      -- If X = 0.0 is not in X_Min .. X_Max for Plot, has no effect
+
+      procedure Draw_Y_Axis
+         (Plot : in Plot_Info; Interval : in Positive_Float; Length : in Positive; Color : in Color_Info := To_Color (Black) )
+      with Pre => Set_Up;
+      -- Draws the Y axis with ticks every Interval away from zero
+      -- Ticks extend Length pixels from the axis on both sides
+      -- Ticks that are for integer values are labeled
+      -- The axis and ticks will be in color Color
+      -- If Y = 0.0 is not in Y_Min .. Y_Max for Plot, has no effect
+
+      procedure Draw_Axes
+         (Plot : in Plot_Info; Interval : in Positive_Float; Length : in Positive; Color : in Color_Info := To_Color (Black) )
+      with Pre => Set_Up;
+      -- Draws both the X and Y axes with ticks every Interval away from zero
+      -- Ticks extend Length pixels from the axes on both sides
+      -- The axes and ticks will be in color Color
+   private -- Plotting
+      type Plot_Info is record
+         ID      : Widget_ID;
+         X_Min   : Float;
+         X_Max   : Float;
+         Y_Min   : Float;
+         Y_Max   : Float;
+         X_Scale : Float;
+         Y_Scale : Float;
+      end record;
+   end Plotting;
 private -- Ada_Gui
    type Widget_ID is tagged record
       Value : Natural := 0;
