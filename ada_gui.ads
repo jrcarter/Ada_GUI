@@ -636,11 +636,11 @@ package Ada_GUI is
       -- No tick or label is drawn for 0.0, since that is usually crossed by the Y axis, which labels it
       -- The axis has a Y of 0.0 unless that is off the plot, in which case it is on the edge of the plot nearest to 0.0
 
-   procedure Draw_Y_Axis (Plot     : in Plot_Info;
-                          Interval : in Positive_Float;
-                          Length   : in Positive;
-                          Label    : in String     := "";
-                          Color    : in Color_Info := To_Color (Black) )
+      procedure Draw_Y_Axis (Plot     : in Plot_Info;
+                             Interval : in Positive_Float;
+                             Length   : in Positive;
+                             Label    : in String     := "";
+                             Color    : in Color_Info := To_Color (Black) )
       with Pre => Set_Up;
       -- Draws the Y axis with ticks every Interval away from zero
       -- The axis is labeled with Label
