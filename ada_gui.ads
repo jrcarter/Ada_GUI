@@ -591,8 +591,8 @@ package Ada_GUI is
       Pre => Set_Up and ID.Kind = Selection_List and Index in 1 .. ID.Length;
    -- Deletes the option at Index, moving down the options previously at Index + 1 .. ID.Length
 
-   package Plotting is
-      type Plot_Info (<>) is private;
+   package Plotting is -- Allows using Graphic_Areas as mathematical plotting areas, with real-valued Cartesian coordinates
+      type Plot_Info (<>) is tagged private;
 
       function New_Plot (ID : in Widget_ID; X_Min : in Float; X_Max : in Float; Y_Min : in Float; Y_Max : in Float)
       return Plot_Info with
@@ -622,23 +622,32 @@ package Ada_GUI is
 
       subtype Positive_Float is Float range Float'Succ (0.0) .. Float'Last;
 
-      procedure Draw_X_Axis
-         (Plot : in Plot_Info; Interval : in Positive_Float; Length : in Positive; Color : in Color_Info := To_Color (Black) )
+      procedure Draw_X_Axis (Plot     : in Plot_Info;
+                             Interval : in Positive_Float;
+                             Length   : in Positive;
+                             Label    : in String     := "";
+                             Color    : in Color_Info := To_Color (Black) )
       with Pre => Set_Up;
       -- Draws the X axis with ticks every Interval away from zero
+      -- The axis is labeled with Label
       -- Ticks extend Length pixels from the axis on both sides
-      -- Ticks that are for integer values are labeled
-      -- The axis and ticks will be in color Color
-      -- If X = 0.0 is not in X_Min .. X_Max for Plot, has no effect
+      -- Ticks that are for integer values are labeled with their values
+      -- The axis and labels will be in color Color
+      -- No tick or label is drawn for 0.0, since that is usually crossed by the Y axis, which labels it
+      -- The axis has a Y of 0.0 unless that is off the plot, in which case it is on the edge of the plot nearest to 0.0
 
-      procedure Draw_Y_Axis
-         (Plot : in Plot_Info; Interval : in Positive_Float; Length : in Positive; Color : in Color_Info := To_Color (Black) )
+   procedure Draw_Y_Axis (Plot     : in Plot_Info;
+                          Interval : in Positive_Float;
+                          Length   : in Positive;
+                          Label    : in String     := "";
+                          Color    : in Color_Info := To_Color (Black) )
       with Pre => Set_Up;
       -- Draws the Y axis with ticks every Interval away from zero
+      -- The axis is labeled with Label
       -- Ticks extend Length pixels from the axis on both sides
-      -- Ticks that are for integer values are labeled
+      -- Ticks that are for integer values are labeled with their values
       -- The axis and ticks will be in color Color
-      -- If Y = 0.0 is not in Y_Min .. Y_Max for Plot, has no effect
+      -- The axis has an X of 0.0 unless that is off the plot, in which case it is on the edge of the plot nearest to 0.0
 
       procedure Draw_Axes
          (Plot : in Plot_Info; Interval : in Positive_Float; Length : in Positive; Color : in Color_Info := To_Color (Black) )
@@ -646,8 +655,9 @@ package Ada_GUI is
       -- Draws both the X and Y axes with ticks every Interval away from zero
       -- Ticks extend Length pixels from the axes on both sides
       -- The axes and ticks will be in color Color
+      -- Only the Y label is drawn at the origin
    private -- Plotting
-      type Plot_Info is record
+      type Plot_Info is tagged record
          ID      : Widget_ID;
          X_Min   : Float;
          X_Max   : Float;
