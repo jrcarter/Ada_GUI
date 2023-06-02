@@ -27,6 +27,6 @@ Random_Int is a Gnoga program that has been revised to use Ada GUI instead. It w
 
 Gnoga and the Simple Components require a recent GNAT compiler, so Ada_GUI cannot be compiled with another compiler. The file gnat.adc is needed to compile the Simple Components extensions to GNAT.Sockets. The use of gnatmake is recommended, as gprbuild is for mixed-language or complicated builds, which this is not. After compiling, it is recommended that you write-protect the .ali files. Typically, you can use a command such as
 
-gnatmake -m -j0 -gnatan -gnato2 -O2 -fstack-check Test/show_all.adb
+gnatmake -m -j0 -gnat12 -gnatan -gnato2 -O2 -fstack-check Test/show_all.adb
 
 If you keep the Ada-GUI source files in a single directory, including the Simple Components source files, and have the compiler put the object and .ali files in that directory, then you need only add -I/path/to/Ada_GUI/ to your program's gnatmake command to use Ada_GUI.
