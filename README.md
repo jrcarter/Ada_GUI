@@ -30,7 +30,3 @@ Gnoga and the Simple Components require a recent GNAT compiler, so Ada_GUI canno
 gnatmake -m -j0 -gnatan -gnato2 -O2 -fstack-check Test/show_all.adb
 
 If you keep the Ada-GUI source files in a single directory, including the Simple Components source files, and have the compiler put the object and .ali files in that directory, then you need only add -I/path/to/Ada_GUI/ to your program's gnatmake command to use Ada_GUI.
-
-## Compiler Errors
-
-Note that GNAT 12[.1] and 13[.1] have an error that prevents it from compiling GNAT.Sockets.Server. Remaining with GNAT 11 is recommended until this error is corrected. Those who prefer to work around the error rather than wait for a correct compiler can replace `'Unchecked_Access` with `'Unrestriced_Access` on the offending line.
