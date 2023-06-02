@@ -126,7 +126,7 @@ package body Ada_GUI is
 
    Widget_List : Widget_Lists.Vector;
 
-   function Kind (ID : Widget_ID) return Widget_Kind_ID is (Widget_List (ID.Value).Kind);
+   function Kind (ID : Widget_ID) return Widget_Kind_ID is (Widget_List.Element (ID.Value).Kind);
 
    function Adjusted (Row : in Positive; Column : in Positive) return Positive;
    -- If (Row, Column) is an Extension, reduces Column until (Row, Column) is an Area
@@ -426,7 +426,7 @@ package body Ada_GUI is
    function Next_Event (Timeout : Duration := Duration'Last) return Next_Result_Info is separate;
 
    procedure Set_Hidden (ID : in Widget_ID; Hidden : in Boolean := True) is
-      Widget : Widget_Info renames Widget_List (ID.Value);
+      Widget : Widget_Info renames Widget_List.Element (ID.Value);
    begin -- Set_Hidden
       case Widget.Kind is
       when Audio_Player =>
@@ -461,7 +461,7 @@ package body Ada_GUI is
    end Set_Hidden;
 
    procedure Set_Visibility (ID : in Widget_ID; Visible : in Boolean := True) is
-      Widget : Widget_Info renames Widget_List (ID.Value);
+      Widget : Widget_Info renames Widget_List.Element (ID.Value);
    begin -- Set_Visibility
       case Widget.Kind is
       when Audio_Player =>
@@ -517,67 +517,67 @@ package body Ada_GUI is
 
 
    procedure Set_Source (ID : in Widget_ID; Source : in String) is
-      Widget : Widget_Info := Widget_List (ID.Value);
+      Widget : Widget_Info := Widget_List.Element (ID.Value);
    begin -- Set_Source
       Widget.Audio.Media_Source (Source => Source);
    end Set_Source;
 
    function Source (ID : Widget_ID) return String is
-      Widget : constant Widget_Info := Widget_List (ID.Value);
+      Widget : constant Widget_Info := Widget_List.Element (ID.Value);
    begin -- Source
       return Widget.Audio.Media_Source;
    end Source;
 
    function Ready (ID : Widget_ID) return Boolean is
-      Widget : constant Widget_Info := Widget_List (ID.Value);
+      Widget : constant Widget_Info := Widget_List.Element (ID.Value);
    begin -- Ready
       return Widget.Audio.Ready_To_Play;
    end Ready;
 
    procedure Play (ID : in Widget_ID) is
-      Widget : Widget_Info := Widget_List (ID.Value);
+      Widget : Widget_Info := Widget_List.Element (ID.Value);
    begin -- Play
       Widget.Audio.Play;
    end Play;
 
    procedure Pause (ID : in Widget_ID) is
-      Widget : Widget_Info := Widget_List (ID.Value);
+      Widget : Widget_Info := Widget_List.Element (ID.Value);
    begin -- Pause
       Widget.Audio.Pause;
    end Pause;
 
    function Paused (ID : Widget_ID) return Boolean is
-      Widget : constant Widget_Info := Widget_List (ID.Value);
+      Widget : constant Widget_Info := Widget_List.Element (ID.Value);
    begin -- Paused
       return Widget.Audio.Paused;
    end Paused;
 
    function Playback_Ended (ID : Widget_ID) return Boolean is
-      Widget : constant Widget_Info := Widget_List (ID.Value);
+      Widget : constant Widget_Info := Widget_List.Element (ID.Value);
    begin -- Playback_Ended
       return Widget.Audio.Playback_Ended;
    end Playback_Ended;
 
    function Length (ID : Widget_ID) return Float is
-      Widget : constant Widget_Info := Widget_List (ID.Value);
+      Widget : constant Widget_Info := Widget_List.Element (ID.Value);
    begin -- Length
       return Widget.Audio.Media_Duration;
    end Length;
 
    procedure Set_Position (ID : in Widget_ID; Position : in Float) is
-      Widget : Widget_Info := Widget_List (ID.Value);
+      Widget : Widget_Info := Widget_List.Element (ID.Value);
    begin -- Set_Position
       Widget.Audio.Media_Position (Seconds => Position);
    end Set_Position;
 
    function Position (ID : Widget_ID) return Float is
-      Widget : constant Widget_Info := Widget_List (ID.Value);
+      Widget : constant Widget_Info := Widget_List.Element (ID.Value);
    begin -- Position
       return Widget.Audio.Media_Position;
    end Position;
 
    procedure Set_Text (ID : in Widget_ID; Text : in String) is
-      Widget : Widget_Info := Widget_List (ID.Value);
+      Widget : Widget_Info := Widget_List.Element (ID.Value);
    begin -- Set_Text
       case Widget.Kind is
       when Background_Text =>
@@ -596,7 +596,7 @@ package body Ada_GUI is
    end Set_Text;
 
    procedure Set_Text_Alignment (ID : in Widget_ID; Alignment : in Alignment_ID) is
-      Widget : Widget_Info := Widget_List (ID.Value);
+      Widget : Widget_Info := Widget_List.Element (ID.Value);
    begin -- Set_Text_Alignment
       case Widget.Kind is
       when Background_Text =>
@@ -620,7 +620,7 @@ package body Ada_GUI is
       function Family return String is
          (if Kind = Proportional then "sans-serif" else "monospace");
 
-      Widget : Widget_Info := Widget_List (ID.Value);
+      Widget : Widget_Info := Widget_List.Element (ID.Value);
    begin -- Set_Text_Font_Kind
       case Widget.Kind is
       when Background_Text =>
@@ -641,7 +641,7 @@ package body Ada_GUI is
    end Set_Text_Font_Kind;
 
    procedure Set_Label (ID : in Widget_ID; Text : in String) is
-      Widget : constant Widget_Info := Widget_List (ID.Value);
+      Widget : constant Widget_Info := Widget_List.Element (ID.Value);
    begin -- Set_Label
       case Widget.Kind is
       when Check_Box =>
@@ -656,7 +656,7 @@ package body Ada_GUI is
    end Set_Label;
 
    procedure Set_Read_Only (ID : in Widget_ID; Read_Only : in Boolean := True) is
-      Widget : constant Widget_Info := Widget_List (ID.Value);
+      Widget : constant Widget_Info := Widget_List.Element (ID.Value);
    begin -- Set_Read_Only
       case Widget.Kind is
       when Text_Area =>
@@ -668,10 +668,10 @@ package body Ada_GUI is
       end case;
    end Set_Read_Only;
 
-   function Multiple_Select (ID : Widget_ID) return Boolean is (Widget_List (ID.Value).Element.Multi);
+   function Multiple_Select (ID : Widget_ID) return Boolean is (Widget_List.Element (ID.Value).Multi);
 
    function Text (ID : Widget_ID) return String is
-      Widget : constant Widget_Info := Widget_List (ID.Value);
+      Widget : constant Widget_Info := Widget_List.Element (ID.Value);
    begin -- Text
       case Widget.Kind is
       when Background_Text =>
@@ -692,13 +692,13 @@ package body Ada_GUI is
    end Text;
 
    procedure Set_Active (ID : in Widget_ID; Active : in Boolean) is
-      Widget : Widget_Info := Widget_List (ID.Value);
+      Widget : Widget_Info := Widget_List.Element (ID.Value);
    begin -- Set_Active
       Widget.Check.Checked (Value => Active);
    end Set_Active;
 
    function Active (ID : Widget_ID) return Boolean is
-      Widget : constant Widget_Info := Widget_List (ID.Value);
+      Widget : constant Widget_Info := Widget_List.Element (ID.Value);
    begin -- Active
       return Widget.Check.Checked;
    end Active;
@@ -742,7 +742,7 @@ package body Ada_GUI is
    end Set_Background_Color;
 
    procedure Set_Background_Color (ID : Widget_ID; Color : in Color_Info := To_Color (Black) ) is
-     Widget  : Widget_Info := Widget_List (ID.Value);
+     Widget  : Widget_Info := Widget_List.Element (ID.Value);
    begin -- Set_Background_Color
       case Widget.Kind is
       when Audio_Player =>
@@ -777,7 +777,7 @@ package body Ada_GUI is
    end Set_Background_Color;
 
    procedure Set_Foreground_Color (ID : Widget_ID; Color : in Color_Info := To_Color (Black) ) is
-     Widget  : Widget_Info := Widget_List (ID.Value);
+     Widget  : Widget_Info := Widget_List.Element (ID.Value);
    begin -- Set_Foreground_Color
       case Widget.Kind is
       when Audio_Player =>
@@ -814,7 +814,7 @@ package body Ada_GUI is
    procedure Set_Pixel (ID : in Widget_ID; X : in Integer; Y : in Integer; Color : in Color_Info := To_Color (Black) ) is
       G_Color : constant Gnoga.Pixel_Type := Gnoga_Pixel (Color);
 
-      Widget  : Widget_Info := Widget_List (ID.Value);
+      Widget  : Widget_Info := Widget_List.Element (ID.Value);
       Context : Gnoga.Gui.Element.Canvas.Context_2D.Context_2D_Type;
    begin -- Set_Pixel
       Context.Get_Drawing_Context_2D (Canvas => Widget.Canvas.all);
@@ -828,7 +828,7 @@ package body Ada_GUI is
        Alpha => Float (Color.Alpha) / 255.0);
 
    function Pixel (ID : Widget_ID; X : Integer; Y : Integer) return Color_Info is
-      Widget : constant Widget_Info := Widget_List (ID.Value);
+      Widget : constant Widget_Info := Widget_List.Element (ID.Value);
 
       Context : Gnoga.Gui.Element.Canvas.Context_2D.Context_2D_Type;
       G_Color : Gnoga.Pixel_Type;
@@ -849,7 +849,7 @@ package body Ada_GUI is
    is
       G_Color : constant Gnoga.RGBA_Type := Gnoga_Color (Color);
 
-      Widget  : Widget_Info := Widget_List (ID.Value);
+      Widget  : Widget_Info := Widget_List.Element (ID.Value);
       Context : Gnoga.Gui.Element.Canvas.Context_2D.Context_2D_Type;
    begin -- Draw_Line
       Context.Get_Drawing_Context_2D (Canvas => Widget.Canvas.all);
@@ -869,7 +869,7 @@ package body Ada_GUI is
                              Line_Color : in Optional_Color := (None => False, Color => To_Color (Black) );
                              Fill_Color : in Optional_Color := (None => True) )
    is
-      Widget  : Widget_Info := Widget_List (ID.Value);
+      Widget  : Widget_Info := Widget_List.Element (ID.Value);
       Context : Gnoga.Gui.Element.Canvas.Context_2D.Context_2D_Type;
    begin -- Draw_Rectangle
       Context.Get_Drawing_Context_2D (Canvas => Widget.Canvas.all);
@@ -909,7 +909,7 @@ package body Ada_GUI is
                        Line_Color        : in Optional_Color := (None => False, Color => To_Color (Black) );
                        Fill_Color        : in Optional_Color := (None => True) )
    is
-      Widget  : Widget_Info := Widget_List (ID.Value);
+      Widget  : Widget_Info := Widget_List.Element (ID.Value);
       Context : Gnoga.Gui.Element.Canvas.Context_2D.Context_2D_Type;
    begin -- Draw_Arc
       Context.Get_Drawing_Context_2D (Canvas => Widget.Canvas.all);
@@ -953,7 +953,7 @@ package body Ada_GUI is
                         Line_Color : in Optional_Color := (None => True);
                         Fill_Color : in Optional_Color := (None => False, Color => To_Color (Black) ) )
    is
-      Widget  : Widget_Info := Widget_List (ID.Value);
+      Widget  : Widget_Info := Widget_List.Element (ID.Value);
       Context : Gnoga.Gui.Element.Canvas.Context_2D.Context_2D_Type;
    begin -- Draw_Text
       Context.Get_Drawing_Context_2D (Canvas => Widget.Canvas.all);
@@ -980,48 +980,48 @@ package body Ada_GUI is
    end Draw_Text;
 
    procedure Replace_Pixels (ID : in Widget_ID; Image : in Widget_ID; X : in Integer; Y : in Integer) is
-      Widget  : Widget_Info := Widget_List (ID.Value);
+      Widget  : Widget_Info := Widget_List.Element (ID.Value);
       Context : Gnoga.Gui.Element.Canvas.Context_2D.Context_2D_Type;
    begin -- Replace_Pixels
       Context.Get_Drawing_Context_2D (Canvas => Widget.Canvas.all);
-      Context.Draw_Image (Image => Widget_List (Image.Value).Canvas.all, X => X, Y => Y);
+      Context.Draw_Image (Image => Widget_List.Element (Image.Value).Canvas.all, X => X, Y => Y);
    end Replace_Pixels;
 
    function Maximum (ID : Widget_ID) return Natural is
-      (Widget_List (ID.Value).Progress.Maximum);
+      (Widget_List.Element (ID.Value).Progress.Maximum);
 
    function Value (ID : Widget_ID) return Natural is
-      (Widget_List (ID.Value).Progress.Value);
+      (Widget_List.Element (ID.Value).Progress.Value);
 
    procedure Set_Value (ID : in Widget_ID; Value : in Natural) is
-      Widget : Widget_Info := Widget_List (ID.Value);
+      Widget : Widget_Info := Widget_List.Element (ID.Value);
    begin -- Set_Value
       Widget.Progress.Value (Value => Value);
    end Set_Value;
 
    procedure Set_Maximum (ID : in Widget_ID; Maximum : in Natural) is
-      Widget : Widget_Info := Widget_List (ID.Value);
+      Widget : Widget_Info := Widget_List.Element (ID.Value);
    begin -- Set_Maximum
       Widget.Progress.Maximum (Value => Maximum);
    end Set_Maximum;
 
    function Num_Buttons (ID : Widget_ID) return Positive is
-      (Widget_List (ID.Value).Radio'Length);
+      (Widget_List.Element (ID.Value).Radio'Length);
 
    procedure Set_Active (ID : in Widget_ID; Index : in Positive; Active : in Boolean) is
-      Widget : Widget_Info := Widget_List (ID.Value);
+      Widget : Widget_Info := Widget_List.Element (ID.Value);
    begin -- Set_Active
       Widget.Radio (Index).Button.Checked (Value => Active);
    end Set_Active;
 
    function Active (ID : Widget_ID; Index : Positive) return Boolean is
-      Widget : constant Widget_Info := Widget_List (ID.Value);
+      Widget : constant Widget_Info := Widget_List.Element (ID.Value);
    begin -- Active
       return Widget.Radio (Index).Button.Checked;
    end Active;
 
    function Active (ID : Widget_ID) return Positive is
-      Widget : constant Widget_Info := Widget_List (ID.Value);
+      Widget : constant Widget_Info := Widget_List.Element (ID.Value);
    begin -- Active
       Check : for I in Widget.Radio'Range loop
          if Widget.Radio (I).Button.Checked then
@@ -1033,49 +1033,49 @@ package body Ada_GUI is
    end Active;
 
    procedure Set_Label (ID : in Widget_ID; Index : in Positive; Text : in String) is
-      Widget : constant Widget_Info := Widget_List (ID.Value);
+      Widget : constant Widget_Info := Widget_List.Element (ID.Value);
    begin -- Set_Label
       Widget.Radio (Index).Label.Inner_HTML (Value => Text);
    end Set_Label;
 
    function Length (ID : Widget_ID) return Natural is
-      Widget : Widget_Info := Widget_List (ID.Value);
+      Widget : Widget_Info := Widget_List.Element (ID.Value);
    begin -- Length
       return Widget.Selector.Length;
    end Length;
 
    procedure Clear (ID : in Widget_ID) is
-      Widget : Widget_Info := Widget_List (ID.Value);
+      Widget : Widget_Info := Widget_List.Element (ID.Value);
    begin -- Clear
       Widget.Selector.Empty_Options;
    end Clear;
 
    procedure Set_Selected (ID : in Widget_ID; Index : in Positive; Selected : in Boolean := True) is
-      Widget : Widget_Info := Widget_List (ID.Value);
+      Widget : Widget_Info := Widget_List.Element (ID.Value);
    begin -- Set_Selected
       Widget.Selector.Selected (Index => Index, Value => Selected);
    end Set_Selected;
 
    function Selected (ID : Widget_ID) return Natural is
-      Widget : Widget_Info := Widget_List (ID.Value);
+      Widget : Widget_Info := Widget_List.Element (ID.Value);
    begin -- Selected
       return Widget.Selector.Selected_Index;
    end Selected;
 
    function Selected (ID : Widget_ID; Index : Positive) return Boolean is
-      Widget : Widget_Info := Widget_List (ID.Value);
+      Widget : Widget_Info := Widget_List.Element (ID.Value);
    begin -- Selected
       return Widget.Selector.Selected (Index);
    end Selected;
 
    function Text (ID : Widget_ID; Index : Positive) return String is
-      Widget : Widget_Info := Widget_List (ID.Value);
+      Widget : Widget_Info := Widget_List.Element (ID.Value);
    begin -- Text
       return Widget.Selector.all.Value (Index);
    end Text;
 
    procedure Insert (ID : in Widget_ID; Text : in String; Before : in Positive := Integer'Last) is
-      Widget : Widget_Info := Widget_List (ID.Value);
+      Widget : Widget_Info := Widget_List.Element (ID.Value);
 
       Index : constant Natural := (if Before > Widget.Selector.Length then 0 else Before);
    begin -- Insert
@@ -1083,7 +1083,7 @@ package body Ada_GUI is
    end Insert;
 
    procedure Delete (ID : in Widget_ID; Index : in Positive) is
-      Widget : Widget_Info := Widget_List (ID.Value);
+      Widget : Widget_Info := Widget_List.Element (ID.Value);
    begin -- Delete
       Widget.Selector.Remove_Option (Index => Index);
    end Delete;
@@ -1091,6 +1091,10 @@ package body Ada_GUI is
    procedure End_GUI is
       -- Empty
    begin -- End_GUI
+      if not Setup then
+         Gnoga.Application.Initialize (Main_Window => Window);
+      end if;
+
       Gnoga.Application.End_Application;
       Setup := False;
    end End_GUI;

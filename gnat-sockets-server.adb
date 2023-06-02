@@ -31,7 +31,6 @@ with Ada.IO_Exceptions;        use Ada.IO_Exceptions;
 with Strings_Edit;             use Strings_Edit;
 with Strings_Edit.Integers;    use Strings_Edit.Integers;
 
-with Ada.Unchecked_Conversion;
 with Ada.Unchecked_Deallocation;
 
 package body GNAT.Sockets.Server is
@@ -317,7 +316,7 @@ package body GNAT.Sockets.Server is
          (  Socket   => Client.Socket,
             Server   => Client.Client_Address,
             Timeout  => 0.0,
-            Selector => Listener.Selector'Unchecked_Access,
+            Selector => Listener.Selector'Unrestricted_Access,
             Status   => Status
          );
          if Status = Completed then
@@ -1776,29 +1775,16 @@ package body GNAT.Sockets.Server is
          end;
       end if;
       if Client.Client then -- Try to reconnect
-         if (  Reconnect
-            and then
-               not Listener.Finalizing
-            and then
-               Client.Try_To_Reconnect
-            and then
-               Client.Session /= Session_Down
-            and then
-               Client.Action_Request /= Shutdown_Connection
-            )
+         if Reconnect                      and then
+            not Listener.Finalizing        and then
+            Client.Try_To_Reconnect        and then
+            Client.Session /= Session_Down and then
+            Client.Action_Request /= Shutdown_Connection
          then
             begin
                Close (Client.Socket);
-               declare
-                  Option : Request_Type := (Non_Blocking_IO, True);
-               begin
-                  Create_Socket (Client.Socket);
-                  Set_Socket_Option
-                  (  Client.Socket,
-                     Socket_Level,
-                     (Reuse_Address, True)
-                  );
-               end;
+               Create_Socket (Client.Socket);
+               Set_Socket_Option (Client.Socket, Socket_Level, (Reuse_Address, True) );
                if Old_Socket /= Client.Socket then -- Move client
                   Put (Listener.Connections, Client.Socket, Client);
                   Put (Listener.Connections, Old_Socket,    null);

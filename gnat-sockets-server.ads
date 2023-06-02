@@ -1624,7 +1624,7 @@ private
 
    package Connection_Handles is
       new Object.Handle (Connection, Connection_Ptr);
-   use Connection_Handles;
+   --  use Connection_Handles;
 
    package Connection_Arrays is
       new Connection_Handles.Generic_Unbounded_Array

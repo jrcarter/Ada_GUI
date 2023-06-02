@@ -67,8 +67,10 @@ package Ada_GUI is
    function Window_Width  return Positive with Pre => Set_Up;
    -- Returns the window dimensions
 
-   procedure End_GUI with Pre => Set_Up, Post => not Set_Up;
+   procedure End_GUI with Post => not Set_Up;
    -- Destroys the GUI
+   -- For the sample implementation, this must called by any program that withs Ada_GUI, even if procedure Set_Up has not been
+   -- called, to terminate the event-handling task
 
    -- For the New_[Widget] functions below, if Break_Before, the button appears below any existing widgets;
    -- otherwise, it appears to the right of the most recent widget
@@ -271,7 +273,7 @@ package Ada_GUI is
    -- A hidden widget does not show and does not take up space
    -- Making a widget hidden may change the poisition of other widgets
 
-   procedure Log (Message : in String) with Pre => Set_Up;
+   procedure Log (Message : in String);
    -- Writes Message with a time stamp to standard output
 
    package Dialogs is

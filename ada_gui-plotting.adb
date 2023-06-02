@@ -11,7 +11,7 @@ separate (Ada_GUI)
 package body Plotting is
    function New_Plot (ID : in Widget_ID; X_Min : in Float; X_Max : in Float; Y_Min : in Float; Y_Max : in Float)
    return Plot_Info is
-      Widget : constant Widget_Info := Widget_List (ID.Value);
+      Widget : constant Widget_Info := Widget_List.Element (ID.Value);
 
       Result : Plot_Info;
    begin -- New_Plot
@@ -30,7 +30,7 @@ package body Plotting is
    function Scale_X (Plot : Plot_Info; X : Float) return Integer is (Integer (Plot.X_Scale * (X - Plot.X_Min) ) );
 
    function Scale_Y (Plot : Plot_Info; Y : Float) return Integer is
-      Widget : constant Widget_Info := Widget_List (Plot.ID.Value);
+      Widget : constant Widget_Info := Widget_List.Element (Plot.ID.Value);
    begin -- Scale_Y
       return Widget.Height - Integer (Plot.Y_Scale * (Y - Plot.Y_Min) );
    end Scale_Y;
@@ -63,7 +63,7 @@ package body Plotting is
                          Color  => Color);
    end Draw_Line;
 
-   function Width (Plot : in Plot_Info; Text : in String) return Natural;
+   function Width (Plot : in Plot_Info; Text : in String) return Natural with Pre => Plot.ID.Kind = Graphic_Area;
    -- Returns the width of Text in pixels if drawn in Plot
    -- Doesn't seem to be very accurate
 
@@ -79,7 +79,7 @@ package body Plotting is
       procedure Label_Tick (X : in Integer; Value : in Float);
       -- If Value is an integer, draws its image next to its tick at horizontal pixel X
 
-      Widget : constant Widget_Info := Widget_List (Plot.ID.Value);
+      Widget : constant Widget_Info := Widget_List.Element (Plot.ID.Value);
       Axis_Y : constant Float       := (if 0.0 < Plot.Y_Min then Plot.Y_Min elsif 0.0 > Plot.Y_Max then Plot.Y_Max else 0.0);
       Y      : constant Integer     := Scale_Y (Plot, Axis_Y);
 
@@ -152,7 +152,7 @@ package body Plotting is
       procedure Label_Tick (Y : in Integer; Value : in Float);
       -- If Value is an integer, draws its image next to its tick at vertical pixel Y
 
-      Widget : constant Widget_Info := Widget_List (Plot.ID.Value);
+      Widget : constant Widget_Info := Widget_List.Element (Plot.ID.Value);
       Axis_X : constant Float       := (if 0.0 < Plot.X_Min then Plot.X_Min elsif 0.0 > Plot.X_Max then Plot.X_Max else 0.0);
       X      : constant Integer     := Scale_X (Plot, Axis_X);
 
@@ -237,7 +237,7 @@ package body Plotting is
    end Draw_Axes;
 
    function Width (Plot : in Plot_Info; Text : in String) return Natural is
-      Widget : constant Widget_Info := Widget_List (Plot.ID.Value);
+      Widget : constant Widget_Info := Widget_List.Element (Plot.ID.Value);
 
       Context : Gnoga.Gui.Element.Canvas.Context_2D.Context_2D_Type;
    begin -- Width
