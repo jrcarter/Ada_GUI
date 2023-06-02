@@ -29,6 +29,7 @@ procedure Show_All is
    Two        : Ada_GUI.Widget_ID;
    Three      : Ada_GUI.Widget_ID;
    Hider      : Ada_GUI.Widget_ID;
+   Curve      : Ada_GUI.Widget_ID;
    Event      : Ada_GUI.Next_Result_Info;
    File_Info  : Ada_GUI.Dialogs.File_Result_Info;
    Value      : Natural := 0;
@@ -113,6 +114,29 @@ begin -- Show_All
                                                  To_Unbounded_String ("Hidden") ),
                                        Break_Before => True,
                                        Orientation  => Ada_GUI.Horizontal);
+   Curve := Ada_GUI.New_Graphic_Area (Width => 100, Height => 100, Break_Before => True);
+
+   Plot_Graph : declare
+      Plot : constant Ada_GUI.Plotting.Plot_Info :=
+         Ada_GUI.Plotting.New_Plot (ID => Curve, X_Min => -2.5, X_Max => 2.5, Y_Min => -0.5, Y_Max => 4.5);
+
+      Prev_X : Float := -2.5;
+      Prev_Y : Float := Prev_X ** 2;
+      X      : Float;
+      Y      : Float;
+   begin -- Plot_Graph
+      Plot.Draw_Axes (Interval => 2.0, Length => 5);
+
+      Draw_Lines : loop
+         exit Draw_Lines when Prev_X > 2.5;
+
+         X := Prev_X + 0.5;
+         Y := X ** 2;
+         Plot.Draw_Line (From_X => Prev_X, From_Y => Prev_Y, To_X => X, To_Y => Y, Color => Ada_GUI.To_Color (Ada_GUI.Red) );
+         Prev_X := X;
+         Prev_Y := Y;
+      end loop Draw_Lines;
+   end Plot_Graph;
 
    Wait_To_Quit : loop
       Event := Ada_GUI.Next_Event (Timeout => 0.1);
@@ -165,7 +189,7 @@ begin -- Show_All
                   Two.Set_Visibility (Visible => False);
                when 3 => -- Hidden
                   Two.Set_Hidden (Hidden => True);
-                  Two.Set_Visibility (Visible => True);
+                  Two.Set_Visibility (Visible => False);
                when others =>
                   raise Program_Error with "Invalid Hider button index";
                end case;
