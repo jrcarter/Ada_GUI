@@ -196,8 +196,7 @@ package body Ada_GUI.Gnoga.Application is
       Gnoga.Activate_Exception_Handler (ID => Ada.Task_Identification.Current_Task);
       Gnoga.Server.Connection.Initialize (Host => "localhost", Port => ID, Boot => "boot.html", Verbose => True);
 
-      Gnoga.Write_To_Console (Message => "Singleton application.");
-      Gnoga.Write_To_Console (Message => "Press Ctrl-C to close server.");
+      Gnoga.Write_To_Console (Message => "If closing the browser or browser tab does not end the program, press Ctrl-C");
 
       Gnoga.Server.Connection.On_Connect_Handler (Event => On_Connect'Access);
 

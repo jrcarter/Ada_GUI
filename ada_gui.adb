@@ -22,8 +22,8 @@ with Ada_GUI.Gnoga.Gui.Window;
 with Ada_GUI.Gnoga.Colors;
 
 package body Ada_GUI is
-   type Form_Set     is array (Positive range <>, Positive range <>) of Gnoga.Gui.Element.Form.Form_Type;
-   type Form_Ptr     is access Form_Set; -- Extensive use of access due to nature of Gnoga
+   type Form_Set is array (Positive range <>, Positive range <>) of Gnoga.Gui.Element.Form.Form_Type;
+   type Form_Ptr is access Form_Set; -- Extensive use of access due to nature of Gnoga
 
    package Column_Maps is new Ada.Containers.Vectors (Index_Type => Positive, Element_Type => Boolean);
    package Row_Maps    is new Ada.Containers.Vectors
@@ -811,6 +811,28 @@ package body Ada_GUI is
       end case;
    end Set_Foreground_Color;
 
+   procedure Set_Size (ID: in Widget_ID; Width : in Positive; Height : in Positive) is
+      Widget : Widget_Info := Widget_List.Element (ID.Value);
+   begin -- Set_Size
+      Widget.Width := Width;
+      Widget.Height := Height;
+      Widget.Canvas.Width (Value => Width);
+      Widget.Canvas.Height (Value => Height);
+      Widget_List.Replace_Element (Index => ID.Value, New_Item => Widget);
+   end Set_Size;
+
+   function Width (ID : in Widget_ID) return Positive is
+      Widget : constant Widget_Info := Widget_List.Element (ID.Value);
+   begin -- Width
+      return Widget.Width;
+   end Width;
+
+   function Height (ID : in Widget_ID) return Positive is
+      Widget : constant Widget_Info := Widget_List.Element (ID.Value);
+   begin -- Height
+      return Widget.Height;
+   end Height;
+
    procedure Set_Pixel (ID : in Widget_ID; X : in Integer; Y : in Integer; Color : in Color_Info := To_Color (Black) ) is
       G_Color : constant Gnoga.Pixel_Type := Gnoga_Pixel (Color);
 
@@ -844,8 +866,9 @@ package body Ada_GUI is
                         From_Y : in Integer;
                         To_X   : in Integer;
                         To_Y   : in Integer;
-                        Width  : in Positive := 1;
-                        Color  : in Color_Info := To_Color (Black) )
+                        Width  : in Positive      := 1;
+                        Color  : in Color_Info    := To_Color (Black);
+                        Style  : in Line_Style_ID := Normal)
    is
       G_Color : constant Gnoga.RGBA_Type := Gnoga_Color (Color);
 
@@ -855,6 +878,15 @@ package body Ada_GUI is
       Context.Get_Drawing_Context_2D (Canvas => Widget.Canvas.all);
       Context.Stroke_Color (Value => G_Color);
       Context.Line_Width (Value => Width);
+      Context.Set_Line_Dash (Dash_List => (case Style is
+                                           when Normal =>
+                                              Gnoga.Gui.Element.Canvas.Context_2D.Empty_Dash_List,
+                                           when Dashed =>
+                                              Gnoga.Gui.Element.Canvas.Context_2D.Dashed_Dash_List,
+                                           when Dotted =>
+                                              Gnoga.Gui.Element.Canvas.Context_2D.Dotted_Dash_List,
+                                           when Dot_Dash =>
+                                              Gnoga.Gui.Element.Canvas.Context_2D.Center_Dash_List) );
       Context.Begin_Path;
       Context.Move_To (X => From_X, Y => From_Y);
       Context.Line_To (X => To_X, Y => To_Y);
@@ -979,13 +1011,42 @@ package body Ada_GUI is
       end if;
    end Draw_Text;
 
-   procedure Replace_Pixels (ID : in Widget_ID; Image : in Widget_ID; X : in Integer; Y : in Integer) is
+   procedure Replace_Pixels (ID : in Widget_ID; Image : in Widget_ID; X : in Integer := 0; Y : in Integer := 0) is
       Widget  : Widget_Info := Widget_List.Element (ID.Value);
       Context : Gnoga.Gui.Element.Canvas.Context_2D.Context_2D_Type;
    begin -- Replace_Pixels
       Context.Get_Drawing_Context_2D (Canvas => Widget.Canvas.all);
       Context.Draw_Image (Image => Widget_List.Element (Image.Value).Canvas.all, X => X, Y => Y);
    end Replace_Pixels;
+
+   procedure Replace_Pixels (ID : in Widget_ID; Image : in Image_Data; X : in Integer := 0; Y : in Integer := 0) is
+      Widget  : Widget_Info := Widget_List.Element (ID.Value);
+      Context : Gnoga.Gui.Element.Canvas.Context_2D.Context_2D_Type;
+   begin -- Replace_Pixels
+      Context.Get_Drawing_Context_2D (Canvas => Widget.Canvas.all);
+
+      All_Rows : for R in Image'Range (1) loop
+         All_Columns : for C in Image'Range (2) loop
+            Context.Pixel (X => X + C, Y => Y + R, Color => Gnoga_Pixel (Image (R, C) ) );
+         end loop All_Columns;
+      end loop All_Rows;
+   end Replace_Pixels;
+
+   function Data (ID : in Widget_ID) return Image_Data is
+      Widget  : Widget_Info := Widget_List.Element (ID.Value);
+      Context : Gnoga.Gui.Element.Canvas.Context_2D.Context_2D_Type;
+      Result  : Image_Data (0 .. Widget.Height - 1, 0 .. Widget.Width - 1);
+   begin -- Data
+      Context.Get_Drawing_Context_2D (Canvas => Widget.Canvas.all);
+
+      All_Rows : for Y in Result'Range (1) loop
+         All_Columns : for X in Result'Range (2) loop
+            Result (Y, X) := AG_Color (Context.Pixel (X, Y) );
+         end loop All_Columns;
+      end loop All_Rows;
+
+      return Result;
+   end Data;
 
    function Maximum (ID : Widget_ID) return Natural is
       (Widget_List.Element (ID.Value).Progress.Maximum);

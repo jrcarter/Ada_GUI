@@ -119,8 +119,8 @@ package Ada_GUI is
    function New_Graphic_Area
       (Row : Positive := 1; Column : Positive := 1; Width : Positive; Height : Positive; Break_Before : Boolean := False)
    return Widget_ID with Pre => Set_Up;
-   -- Creates a new Graphic_Area of Width by Height pixels
-   -- (0, 0) is the upper-left corner (Width, Height) is the lower-right corner
+   -- Creates a new Graphic_Area with initial dimensions of Width by Height pixels
+   -- (0, 0) is the upper-left corner; (Width, Height) is the lower-right corner
 
    function New_Password_Box (Row          : Positive := 1;
                               Column       : Positive := 1;
@@ -450,6 +450,19 @@ package Ada_GUI is
    -- In the sample implementation, Graphic_Area operations for which any part of the drawn element is outside the drawing area
    -- work; the extra part is not drawn
 
+   procedure Set_Size (ID: in Widget_ID; Width : in Positive; Height : in Positive) with
+      Pre => Set_Up and ID.Kind = Graphic_Area;
+   -- Changes the dimensions of ID to Width x Height
+   -- The drawn image will be resized
+
+   function Width (ID : in Widget_ID) return Positive with
+      Pre => Set_Up and ID.Kind = Graphic_Area;
+   -- Returns the current width of ID
+
+   function Height (ID : in Widget_ID) return Positive with
+      Pre => Set_Up and ID.Kind = Graphic_Area;
+   -- Returns the current height of ID
+
    procedure Set_Pixel (ID : in Widget_ID; X : in Integer; Y : in Integer; Color : in Color_Info := To_Color (Black) ) with
       Pre => Set_Up and ID.Kind = Graphic_Area;
    -- If (X, Y) is in the drawing area, sets it to Color
@@ -459,15 +472,18 @@ package Ada_GUI is
       Pre => Set_Up and ID.Kind = Graphic_Area;
    -- Returns the color of the pixel at (X, Y)
 
+   type Line_Style_ID is (Normal, Dashed, Dotted, Dot_Dash);
+
    procedure Draw_Line (ID     : in Widget_ID;
                         From_X : in Integer;
                         From_Y : in Integer;
                         To_X   : in Integer;
                         To_Y   : in Integer;
-                        Width  : in Positive := 1;
-                        Color  : in Color_Info := To_Color (Black) )
+                        Width  : in Positive      := 1;
+                        Color  : in Color_Info    := To_Color (Black);
+                        Style  : in Line_Style_ID := Normal)
    with Pre => Set_Up and ID.Kind = Graphic_Area;
-   -- Draws a line from (From_X, From_Y) to (To_X, To_Y) in Color
+   -- Draws a line from (From_X, From_Y) to (To_X, To_Y) in Color using Style
    -- Width is width of line in pixels
 
    type Optional_Color (None : Boolean) is record
@@ -522,10 +538,25 @@ package Ada_GUI is
    -- If not Fill_Color.None, letters will be filled with Fill_Color.Color
    -- If (Line_Color.None and Fill_Color.None) or Text = "", does nothing
 
-   procedure Replace_Pixels (ID : in Widget_ID; Image : in Widget_ID; X : in Integer; Y : in Integer) with
+   procedure Replace_Pixels (ID : in Widget_ID; Image : in Widget_ID; X : in Integer := 0; Y : in Integer := 0) with
       Pre => Set_Up and ID.Kind = Graphic_Area and Image.Kind = Graphic_Area;
    -- Replaces pixels in ID starting at (X, Y) and extending to the right by the width of Image, and down by the height of Image,
    -- with the pixels in Image
+
+   type Image_Data is array (Natural range <>, Natural range <>) of Color_Info with
+      Dynamic_Predicate => Image_Data'First (1) = 0 and Image_Data'First (2) = 0;
+   -- First dimension is Y/rows; second is X/columns
+
+   procedure Replace_Pixels (ID : in Widget_ID; Image : in Image_Data; X : in Integer := 0; Y : in Integer := 0) with
+      Pre => Set_Up and ID.Kind = Graphic_Area;
+   -- Draws the pixels in Image in ID, starting at (X, Y) and extending to the right by the width of Image, and down by the height
+   -- of Image
+   -- In the sample implementation, this is faster than calling Set_Pixel repeatedly
+
+   function Data (ID : in Widget_ID) return Image_Data with
+      Pre => Set_Up and ID.Kind = Graphic_Area;
+   -- Extracts the pixels in ID and returns the image
+   -- In the sample implementation, this is faster than calling Pixel repeatedly
 
    function Maximum (ID : Widget_ID) return Natural with Pre => Set_Up and ID.Kind = Progress_Bar;
    -- Returns the current Maximum value for ID
@@ -618,7 +649,8 @@ package Ada_GUI is
                            From_Y : in Float;
                            To_X   : in Float;
                            To_Y   : in Float;
-                           Color  : in Color_Info := To_Color (Black) )
+                           Color  : in Color_Info    := To_Color (Black);
+                           Style  : in Line_Style_ID := Normal)
       with Pre => Set_Up;
       -- Draws a line (width 1 pixel) from (From_X, From_Y) to (To_X, To_Y) in color Color
 
