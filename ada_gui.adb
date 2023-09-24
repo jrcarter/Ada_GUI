@@ -101,9 +101,10 @@ package body Ada_GUI is
          Check       : Gnoga.Gui.Element.Form.Check_Box_Access;
          Check_Label : Gnoga.Gui.Element.Form.Label_Access;
       when Graphic_Area =>
-         Canvas : Gnoga.Gui.Element.Canvas.Canvas_Access;
-         Width  : Positive;
-         Height : Positive;
+         Canvas  : Gnoga.Gui.Element.Canvas.Canvas_Access;
+         Context : Ada_GUI.Gnoga.Gui.Element.Canvas.Context_2D.Context_2D_Access;
+         Width   : Positive;
+         Height  : Positive;
       when Password_Box =>
          Password       : Gnoga.Gui.Element.Form.Password_Access;
          Password_Label : Gnoga.Gui.Element.Form.Label_Access;
@@ -236,6 +237,8 @@ package body Ada_GUI is
       Break (Desired => Break_Before, Row => Row, Column => Adjusted (Row, Column) );
       Widget.Canvas := new Gnoga.Gui.Element.Canvas.Canvas_Type;
       Widget.Canvas.Create (Parent => Form (Row, Adjusted (Row, Column) ), Width => Width, Height => Height, ID => ID.Value'Image);
+      Widget.Context := new Gnoga.Gui.Element.Canvas.Context_2D.Context_2D_Type;
+      Widget.Context.Get_Drawing_Context_2D (Canvas => Widget.Canvas.all);
       Widget.Width := Width;
       Widget.Height := Height;
       Widget_List.Append (New_Item => Widget);
@@ -837,10 +840,8 @@ package body Ada_GUI is
       G_Color : constant Gnoga.Pixel_Type := Gnoga_Pixel (Color);
 
       Widget  : Widget_Info := Widget_List.Element (ID.Value);
-      Context : Gnoga.Gui.Element.Canvas.Context_2D.Context_2D_Type;
    begin -- Set_Pixel
-      Context.Get_Drawing_Context_2D (Canvas => Widget.Canvas.all);
-      Context.Pixel (X => X, Y => Y, Color => G_Color);
+      Widget.Context.Pixel (X => X, Y => Y, Color => G_Color);
    end Set_Pixel;
 
    function AG_Color (Color : Gnoga.Pixel_Type) return Color_Info is
@@ -852,11 +853,9 @@ package body Ada_GUI is
    function Pixel (ID : Widget_ID; X : Integer; Y : Integer) return Color_Info is
       Widget : constant Widget_Info := Widget_List.Element (ID.Value);
 
-      Context : Gnoga.Gui.Element.Canvas.Context_2D.Context_2D_Type;
       G_Color : Gnoga.Pixel_Type;
    begin -- Pixel_Type
-      Context.Get_Drawing_Context_2D (Canvas => Widget.Canvas.all);
-      G_Color := Context.Pixel (X, Y);
+      G_Color := Widget.Context.Pixel (X, Y);
 
       return AG_Color (G_Color);
    end Pixel;
@@ -873,24 +872,22 @@ package body Ada_GUI is
       G_Color : constant Gnoga.RGBA_Type := Gnoga_Color (Color);
 
       Widget  : Widget_Info := Widget_List.Element (ID.Value);
-      Context : Gnoga.Gui.Element.Canvas.Context_2D.Context_2D_Type;
    begin -- Draw_Line
-      Context.Get_Drawing_Context_2D (Canvas => Widget.Canvas.all);
-      Context.Stroke_Color (Value => G_Color);
-      Context.Line_Width (Value => Width);
-      Context.Set_Line_Dash (Dash_List => (case Style is
-                                           when Normal =>
-                                              Gnoga.Gui.Element.Canvas.Context_2D.Empty_Dash_List,
-                                           when Dashed =>
-                                              Gnoga.Gui.Element.Canvas.Context_2D.Dashed_Dash_List,
-                                           when Dotted =>
-                                              Gnoga.Gui.Element.Canvas.Context_2D.Dotted_Dash_List,
-                                           when Dot_Dash =>
-                                              Gnoga.Gui.Element.Canvas.Context_2D.Center_Dash_List) );
-      Context.Begin_Path;
-      Context.Move_To (X => From_X, Y => From_Y);
-      Context.Line_To (X => To_X, Y => To_Y);
-      Context.Stroke;
+      Widget.Context.Stroke_Color (Value => G_Color);
+      Widget.Context.Line_Width (Value => Width);
+      Widget.Context.Set_Line_Dash (Dash_List => (case Style is
+                                                  when Normal =>
+                                                     Gnoga.Gui.Element.Canvas.Context_2D.Empty_Dash_List,
+                                                  when Dashed   =>
+                                                     Gnoga.Gui.Element.Canvas.Context_2D.Dashed_Dash_List,
+                                                  when Dotted   =>
+                                                     Gnoga.Gui.Element.Canvas.Context_2D.Dotted_Dash_List,
+                                                  when Dot_Dash =>
+                                                     Gnoga.Gui.Element.Canvas.Context_2D.Center_Dash_List) );
+      Widget.Context.Begin_Path;
+      Widget.Context.Move_To (X => From_X, Y => From_Y);
+      Widget.Context.Line_To (X => To_X, Y => To_Y);
+      Widget.Context.Stroke;
    end Draw_Line;
 
    procedure Draw_Rectangle (ID         : in Widget_ID;
@@ -902,22 +899,20 @@ package body Ada_GUI is
                              Fill_Color : in Optional_Color := (None => True) )
    is
       Widget  : Widget_Info := Widget_List.Element (ID.Value);
-      Context : Gnoga.Gui.Element.Canvas.Context_2D.Context_2D_Type;
    begin -- Draw_Rectangle
-      Context.Get_Drawing_Context_2D (Canvas => Widget.Canvas.all);
-      Context.Line_Width (Value => 1);
-      Context.Begin_Path;
-      Context.Rectangle (Rectangle => (X      => Integer'Min (From_X, To_X),
-                                       Y      => Integer'Min (From_Y, To_Y),
-                                       Width  => abs (From_X - To_X) + 1,
-                                       Height => abs (From_Y - To_Y) + 1) );
+      Widget.Context.Line_Width (Value => 1);
+      Widget.Context.Begin_Path;
+      Widget.Context.Rectangle (Rectangle => (X      => Integer'Min (From_X, To_X),
+                                              Y      => Integer'Min (From_Y, To_Y),
+                                              Width  => abs (From_X - To_X) + 1,
+                                              Height => abs (From_Y - To_Y) + 1) );
 
       if not Fill_Color.None then
          Convert_Fill : declare
             F_Color : constant Gnoga.RGBA_Type := Gnoga_Color (Fill_Color.Color);
          begin -- Convert_Fill
-            Context.Fill_Color (Value => F_Color);
-            Context.Fill;
+            Widget.Context.Fill_Color (Value => F_Color);
+            Widget.Context.Fill;
          end Convert_Fill;
       end if;
 
@@ -925,8 +920,8 @@ package body Ada_GUI is
          Convert_Line : declare
             L_Color : constant Gnoga.RGBA_Type := Gnoga_Color (Line_Color.Color);
          begin -- Convert_Line
-            Context.Stroke_Color (Value => L_Color);
-            Context.Stroke;
+            Widget.Context.Stroke_Color (Value => L_Color);
+            Widget.Context.Stroke;
          end Convert_Line;
       end if;
    end Draw_Rectangle;
@@ -942,28 +937,26 @@ package body Ada_GUI is
                        Fill_Color        : in Optional_Color := (None => True) )
    is
       Widget  : Widget_Info := Widget_List.Element (ID.Value);
-      Context : Gnoga.Gui.Element.Canvas.Context_2D.Context_2D_Type;
    begin -- Draw_Arc
-      Context.Get_Drawing_Context_2D (Canvas => Widget.Canvas.all);
-      Context.Line_Width (Value => 1);
-      Context.Begin_Path;
+      Widget.Context.Line_Width (Value => 1);
+      Widget.Context.Begin_Path;
 
       if not Fill_Color.None then
-         Context.Move_To (X => X, Y => Y);
-         Context.Line_To (X => X + Integer (Float (Radius) * Ada.Numerics.Elementary_Functions.Cos (Start) ),
-                          Y => Y + Integer (Float (Radius) * Ada.Numerics.Elementary_Functions.Sin (Start) ) );
+         Widget.Context.Move_To (X => X, Y => Y);
+         Widget.Context.Line_To (X => X + Integer (Float (Radius) * Ada.Numerics.Elementary_Functions.Cos (Start) ),
+                                 Y => Y + Integer (Float (Radius) * Ada.Numerics.Elementary_Functions.Sin (Start) ) );
       end if;
 
-      Context.Arc_Radians
+      Widget.Context.Arc_Radians
          (X => X, Y => Y, Radius => Radius, Starting_Angle => Start, Ending_Angle => Stop, Counter_Clockwise => Counter_Clockwise);
 
       if not Fill_Color.None then
          Convert_Fill : declare
             F_Color : constant Gnoga.RGBA_Type := Gnoga_Color (Fill_Color.Color);
          begin -- Convert_Fill
-            Context.Close_Path;
-            Context.Fill_Color (Value => F_Color);
-            Context.Fill;
+            Widget.Context.Close_Path;
+            Widget.Context.Fill_Color (Value => F_Color);
+            Widget.Context.Fill;
          end Convert_Fill;
       end if;
 
@@ -971,8 +964,8 @@ package body Ada_GUI is
          Convert_Line : declare
             L_Color : constant Gnoga.RGBA_Type := Gnoga_Color (Line_Color.Color);
          begin -- Convert_Line
-            Context.Stroke_Color (Value => L_Color);
-            Context.Stroke;
+            Widget.Context.Stroke_Color (Value => L_Color);
+            Widget.Context.Stroke;
          end Convert_Line;
       end if;
    end Draw_Arc;
@@ -986,18 +979,16 @@ package body Ada_GUI is
                         Fill_Color : in Optional_Color := (None => False, Color => To_Color (Black) ) )
    is
       Widget  : Widget_Info := Widget_List.Element (ID.Value);
-      Context : Gnoga.Gui.Element.Canvas.Context_2D.Context_2D_Type;
    begin -- Draw_Text
-      Context.Get_Drawing_Context_2D (Canvas => Widget.Canvas.all);
-      Context.Font (Height => Height'Image & "px");
-      Context.Line_Width (Value => 1);
+      Widget.Context.Font (Height => Height'Image & "px");
+      Widget.Context.Line_Width (Value => 1);
 
       if not Fill_Color.None then
          Convert_Fill : declare
             F_Color : constant Gnoga.RGBA_Type := Gnoga_Color (Fill_Color.Color);
          begin -- Convert_Fill
-            Context.Fill_Color (Value => F_Color);
-            Context.Fill_Text (Text => Text, X => X, Y => Y);
+            Widget.Context.Fill_Color (Value => F_Color);
+            Widget.Context.Fill_Text (Text => Text, X => X, Y => Y);
          end Convert_Fill;
       end if;
 
@@ -1005,43 +996,35 @@ package body Ada_GUI is
          Convert_Line : declare
             L_Color : constant Gnoga.RGBA_Type := Gnoga_Color (Line_Color.Color);
          begin -- Convert_Line
-            Context.Stroke_Color (Value => L_Color);
-            Context.Stroke_Text (Text => Text, X => X, Y => Y);
+            Widget.Context.Stroke_Color (Value => L_Color);
+            Widget.Context.Stroke_Text (Text => Text, X => X, Y => Y);
          end Convert_Line;
       end if;
    end Draw_Text;
 
    procedure Replace_Pixels (ID : in Widget_ID; Image : in Widget_ID; X : in Integer := 0; Y : in Integer := 0) is
       Widget  : Widget_Info := Widget_List.Element (ID.Value);
-      Context : Gnoga.Gui.Element.Canvas.Context_2D.Context_2D_Type;
    begin -- Replace_Pixels
-      Context.Get_Drawing_Context_2D (Canvas => Widget.Canvas.all);
-      Context.Draw_Image (Image => Widget_List.Element (Image.Value).Canvas.all, X => X, Y => Y);
+      Widget.Context.Draw_Image (Image => Widget_List.Element (Image.Value).Canvas.all, X => X, Y => Y);
    end Replace_Pixels;
 
    procedure Replace_Pixels (ID : in Widget_ID; Image : in Image_Data; X : in Integer := 0; Y : in Integer := 0) is
       Widget  : Widget_Info := Widget_List.Element (ID.Value);
-      Context : Gnoga.Gui.Element.Canvas.Context_2D.Context_2D_Type;
    begin -- Replace_Pixels
-      Context.Get_Drawing_Context_2D (Canvas => Widget.Canvas.all);
-
       All_Rows : for R in Image'Range (1) loop
          All_Columns : for C in Image'Range (2) loop
-            Context.Pixel (X => X + C, Y => Y + R, Color => Gnoga_Pixel (Image (R, C) ) );
+            Widget.Context.Pixel (X => X + C, Y => Y + R, Color => Gnoga_Pixel (Image (R, C) ) );
          end loop All_Columns;
       end loop All_Rows;
    end Replace_Pixels;
 
    function Data (ID : in Widget_ID) return Image_Data is
       Widget  : Widget_Info := Widget_List.Element (ID.Value);
-      Context : Gnoga.Gui.Element.Canvas.Context_2D.Context_2D_Type;
       Result  : Image_Data (0 .. Widget.Height - 1, 0 .. Widget.Width - 1);
    begin -- Data
-      Context.Get_Drawing_Context_2D (Canvas => Widget.Canvas.all);
-
       All_Rows : for Y in Result'Range (1) loop
          All_Columns : for X in Result'Range (2) loop
-            Result (Y, X) := AG_Color (Context.Pixel (X, Y) );
+            Result (Y, X) := AG_Color (Widget.Context.Pixel (X, Y) );
          end loop All_Columns;
       end loop All_Rows;
 

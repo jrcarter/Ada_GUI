@@ -453,7 +453,7 @@ package Ada_GUI is
    procedure Set_Size (ID: in Widget_ID; Width : in Positive; Height : in Positive) with
       Pre => Set_Up and ID.Kind = Graphic_Area;
    -- Changes the dimensions of ID to Width x Height
-   -- The drawn image will be resized
+   -- In the sample implementation, the drawn image will be resized
 
    function Width (ID : in Widget_ID) return Positive with
       Pre => Set_Up and ID.Kind = Graphic_Area;
@@ -471,6 +471,7 @@ package Ada_GUI is
    function Pixel (ID : Widget_ID; X : Integer; Y : Integer) return Color_Info with
       Pre => Set_Up and ID.Kind = Graphic_Area;
    -- Returns the color of the pixel at (X, Y)
+   -- In the sample implementation, if (X, Y) is not in the drawing area, the returned value is valid but undefined
 
    type Line_Style_ID is (Normal, Dashed, Dotted, Dot_Dash);
 
@@ -551,12 +552,12 @@ package Ada_GUI is
       Pre => Set_Up and ID.Kind = Graphic_Area;
    -- Draws the pixels in Image in ID, starting at (X, Y) and extending to the right by the width of Image, and down by the height
    -- of Image
-   -- In the sample implementation, this is faster than calling Set_Pixel repeatedly
+   -- This may be faster than calling Set_Pixel repeatedly
 
    function Data (ID : in Widget_ID) return Image_Data with
       Pre => Set_Up and ID.Kind = Graphic_Area;
    -- Extracts the pixels in ID and returns the image
-   -- In the sample implementation, this is faster than calling Pixel repeatedly
+   -- This may be faster than calling Pixel repeatedly
 
    function Maximum (ID : Widget_ID) return Natural with Pre => Set_Up and ID.Kind = Progress_Bar;
    -- Returns the current Maximum value for ID

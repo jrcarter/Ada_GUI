@@ -52,7 +52,8 @@ package body Plotting is
                         From_Y : in Float;
                         To_X   : in Float;
                         To_Y   : in Float;
-                        Color  : in Color_Info := To_Color (Black) )
+                        Color  : in Color_Info    := To_Color (Black);
+                        Style  : in Line_Style_ID := Normal)
    is
       -- Empty
    begin -- Draw_Line
@@ -60,7 +61,8 @@ package body Plotting is
                          From_Y => Scale_Y (Plot, From_Y),
                          To_X   => Scale_X (Plot, To_X),
                          To_Y   => Scale_Y (Plot, To_Y),
-                         Color  => Color);
+                         Color  => Color,
+                         Style  => Style);
    end Draw_Line;
 
    function Width (Plot : in Plot_Info; Text : in String) return Natural with Pre => Plot.ID.Kind = Graphic_Area;
@@ -238,11 +240,7 @@ package body Plotting is
 
    function Width (Plot : in Plot_Info; Text : in String) return Natural is
       Widget : constant Widget_Info := Widget_List.Element (Plot.ID.Value);
-
-      Context : Gnoga.Gui.Element.Canvas.Context_2D.Context_2D_Type;
    begin -- Width
-      Context.Get_Drawing_Context_2D (Canvas => Widget.Canvas.all);
-
-      return Integer (Float'Ceiling (Context.Measure_Text_Width (Text) ) );
+      return Integer (Float'Ceiling (Widget.Context.Measure_Text_Width (Text) ) );
    end Width;
 end Plotting;
