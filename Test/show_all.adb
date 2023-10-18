@@ -15,6 +15,7 @@ procedure Show_All is
    Quit       : Ada_GUI.Widget_ID;
    Check      : Ada_GUI.Widget_ID;
    Graphic    : Ada_GUI.Widget_ID;
+   Change     : Ada_GUI.Widget_ID;
    Password   : Ada_GUI.Widget_ID;
    Radio      : Ada_GUI.Widget_ID;
    Selection  : Ada_GUI.Widget_ID;
@@ -32,6 +33,7 @@ procedure Show_All is
    Curve      : Ada_GUI.Widget_ID;
    Event      : Ada_GUI.Next_Result_Info;
    File_Info  : Ada_GUI.Dialogs.File_Result_Info;
+   Shrink     : Boolean := True;
    Value      : Natural := 0;
    Inc        : Boolean := True;
 
@@ -45,7 +47,8 @@ begin -- Show_All
    Audio.Set_Background_Color (Color => Ada_GUI.To_Color (Ada_GUI.Yellow) );
    Audio.Set_Foreground_Color (Color => Ada_GUI.To_Color (Ada_GUI.Red) );
    Background := Ada_GUI.New_Background_Text (Text => "Background_Text can <br><font color=" & '"' & "Green" & '"' &
-                                                      ">have</font> <b>at</b><i>tri</i><u>butes</u> &euro;",
+                                                      ">have</font> <b>at</b><i>tri</i><u>butes</u> &euro; " &
+                                                      Ada.Characters.Latin_1.LC_E_Acute,
                                               Break_Before => True);
    Background.Set_Background_Color (Color => Ada_GUI.To_Color (Ada_GUI.Yellow) );
    Background.Set_Foreground_Color (Color => Ada_GUI.To_Color (Ada_GUI.Red) );
@@ -57,14 +60,18 @@ begin -- Show_All
    Check.Set_Background_Color (Color => Ada_GUI.To_Color (Ada_GUI.Yellow) );
    Check.Set_Foreground_Color (Color => Ada_GUI.To_Color (Ada_GUI.Red) );
    Graphic := Ada_GUI.New_Graphic_Area (Width => 100, Height => 100, Break_Before => True);
-   Graphic.Set_Background_Color (Color => Ada_GUI.To_Color (Ada_GUI.Yellow) );
-   Graphic.Set_Foreground_Color (Color => Ada_GUI.To_Color (Ada_GUI.Red) );
+   Graphic.Draw_Rectangle (From_X     =>  0,
+                           From_Y     =>  0,
+                           To_X       => 99,
+                           To_Y       => 99,
+                           Line_Color => (None => True),
+                           Fill_Color => (None => False, Color => Ada_GUI.To_Color (Ada_GUI.Yellow) ) );
    Graphic.Draw_Rectangle (From_X     => 10,
                            From_Y     => 10,
                            To_X       => 90,
                            To_Y       => 90,
                            Fill_Color => (None => False, Color => Ada_GUI.To_Color (Ada_GUI.White) ) );
-   Graphic.Draw_Line (From_X => 0, From_Y => 0, To_X => 100, To_Y => 100, Width => 2);
+   Graphic.Draw_Line (From_X => 0, From_Y => 0, To_X => 100, To_Y => 100, Width => 2, Style => Ada_GUI.Dashed);
    Graphic.Draw_Line (From_X => 0, From_Y => 100, To_X => 100, To_Y => 0, Width => 2, Color => Ada_GUI.To_Color (Ada_GUI.Green) );
    Graphic.Set_Pixel (X => 75, Y => 25, Color => Ada_GUI.To_Color (Ada_GUI.Red) );
    Graphic.Set_Pixel (X => 76, Y => 25, Color => Ada_GUI.To_Color (Ada_GUI.Red) );
@@ -75,7 +82,8 @@ begin -- Show_All
                       Text       => "Texty",
                       Line_Color => (None => False, Color => Ada_GUI.To_Color (Ada_GUI.Yellow) ),
                       Fill_Color => (None => False, Color => Ada_GUI.To_Color (Ada_GUI.Blue) ) );
-   Graphic.Draw_Line (From_X => 0, From_Y => 75, To_X => 100, To_Y => 75);
+   Graphic.Draw_Line (From_X => 0, From_Y => 75, To_X => 100, To_Y => 75, Style => Ada_GUI.Dotted);
+   Change := Ada_GUI.New_Button (Text => "Change size");
    Password := Ada_GUI.New_Password_Box (Break_Before => True, Label => "<i>Password</i>_Box:");
    Password.Set_Background_Color (Color => Ada_GUI.To_Color (Ada_GUI.Yellow) );
    Password.Set_Foreground_Color (Color => Ada_GUI.To_Color (Ada_GUI.Red) );
@@ -115,6 +123,12 @@ begin -- Show_All
                                        Break_Before => True,
                                        Orientation  => Ada_GUI.Horizontal);
    Curve := Ada_GUI.New_Graphic_Area (Width => 100, Height => 100, Break_Before => True);
+   Curve.Draw_Rectangle (From_X     =>  0,
+                         From_Y     =>  0,
+                         To_X       => 99,
+                         To_Y       => 99,
+                         Line_Color => (None => True),
+                         Fill_Color => (None => False, Color => Ada_GUI.To_Color (Ada_GUI.Light_Blue) ) );
 
    Plot_Graph : declare
       Plot : constant Ada_GUI.Plotting.Plot_Info :=
@@ -132,7 +146,12 @@ begin -- Show_All
 
          X := Prev_X + 0.5;
          Y := X ** 2;
-         Plot.Draw_Line (From_X => Prev_X, From_Y => Prev_Y, To_X => X, To_Y => Y, Color => Ada_GUI.To_Color (Ada_GUI.Red) );
+         Plot.Draw_Line (From_X => Prev_X,
+                         From_Y => Prev_Y,
+                         To_X   => X,
+                         To_Y   => Y,
+                         Color  => Ada_GUI.To_Color (Ada_GUI.Red),
+                         Style  => Ada_GUI.Dot_Dash);
          Prev_X := X;
          Prev_Y := Y;
       end loop Draw_Lines;
@@ -193,6 +212,14 @@ begin -- Show_All
                when others =>
                   raise Program_Error with "Invalid Hider button index";
                end case;
+            elsif Event.Event.ID = Change then
+               if Shrink then
+                  Graphic.Set_Size (Width => Graphic.Width / 2, Height => Graphic.Height / 2);
+               else
+                  Graphic.Set_Size (Width => 2 * Graphic.Width, Height => 2 * Graphic.Height);
+               end if;
+
+               Shrink := not Shrink;
             else
                null;
             end if;
