@@ -558,6 +558,13 @@ package Ada_GUI is
       Pre => Set_Up and ID.Kind = Graphic_Area;
    -- Extracts the pixels in ID and returns the image
    -- This may be faster than calling Pixel repeatedly
+   -- In the sample implementation, this can take tens of ms/pixel, so even a small image can take minutes
+
+   procedure Write_BMP (Name : in String; Image : in Image_Data) with
+      Pre => Name'Length > 0;
+   -- Creates a file named Name and writes Image to it in BMP format
+   -- Alpha values are ignored
+   -- Raises Ada.IO_Exceptions.Name_Error if Name is not a valid file name
 
    function Maximum (ID : Widget_ID) return Natural with Pre => Set_Up and ID.Kind = Progress_Bar;
    -- Returns the current Maximum value for ID
