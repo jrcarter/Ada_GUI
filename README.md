@@ -17,7 +17,7 @@ The sample implementation is reasonably full-featured and useful. The implementa
 
 The Test directory contains boot.html, boot.js, and jquery.min.js. These files must be available to every Ada-GUI program. It also contains favicon.ico, an icon of Ada.
 
-Show_All creates at least one of each widget. Visibility, playing audio, and responding to key-press events is demonstrated. Changing this program is the easiest way to experiment with the sample implementation. The audio file glass.ogg is used by Show_All.
+Show_All creates at least one of each widget. Visibility, playing audio, and responding to key-press events is demonstrated. Changing this program is the easiest way to experiment with the sample implementation. The audio file glass.ogg and image file rgb.jpg are used by Show_All.
 
 Luhn_Gen calculates Luhn checksum digits. Enter the first 15 digits of your credit-card number and it will generate the 16th.
 
