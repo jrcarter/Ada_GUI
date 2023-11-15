@@ -31,6 +31,7 @@ procedure Show_All is
    Three      : Ada_GUI.Widget_ID;
    Hider      : Ada_GUI.Widget_ID;
    Curve      : Ada_GUI.Widget_ID;
+   Image      : Ada_GUI.Widget_ID;
    Event      : Ada_GUI.Next_Result_Info;
    File_Info  : Ada_GUI.Dialogs.File_Result_Info;
    Shrink     : Boolean := True;
@@ -156,6 +157,8 @@ begin -- Show_All
          Prev_Y := Y;
       end loop Draw_Lines;
    end Plot_Graph;
+
+   Image := Ada_GUI.New_Image (Source => "rgb.jpg", Description => "Your image here", Break_Before => True);
 
    Wait_To_Quit : loop
       Event := Ada_GUI.Next_Event (Timeout => 0.1);
