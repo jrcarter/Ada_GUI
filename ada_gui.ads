@@ -7,7 +7,7 @@
 with Ada.Strings.Unbounded;
 
 package Ada_GUI is
-   type Widget_Kind_ID is (Audio_Player,  Background_Text, Button,    Check_Box, Graphic_Area, Password_Box, Progress_Bar,
+   type Widget_Kind_ID is (Audio_Player,  Background_Text, Button,    Check_Box, Graphic_Area, Image, Password_Box, Progress_Bar,
                            Radio_Buttons, Selection_List,  Text_Area, Text_Box);
 
    type Widget_ID is tagged private;
@@ -87,6 +87,7 @@ package Ada_GUI is
    return Widget_ID with Pre => Set_Up;
    -- Creates an Audio_Player
    -- Source is the source of audio; if "", then no audio is loaded
+   -- The source may be changed with Set_Source
    -- In the sample implementation, Audio sources seem to be relative path names of audio files and URLs
    -- If Controls, then controls are displayed for the player and the user can use them to control the player
    -- Otherwise, no controls are displayed and control of the player must be done by the program
@@ -121,6 +122,18 @@ package Ada_GUI is
    return Widget_ID with Pre => Set_Up;
    -- Creates a new Graphic_Area with initial dimensions of Width by Height pixels
    -- (0, 0) is the upper-left corner; (Width, Height) is the lower-right corner
+
+   function New_Image (Row          : Positive := 1;
+                       Column       : Positive := 1;
+                       Source       : String   := "";
+                       Description  : String   := "";
+                       Break_Before : Boolean  := False)
+   return Widget_ID with Pre => Set_Up;
+   -- Creates a new Image with contents defined by Source
+   -- The source may be changed with Set_Source
+   -- In the sample implementation, Source may be an image URL or a file name relative to the working directory, and Description
+   -- (also called Alt Text) will be read by screen readers and displayed if Source is invalid. BMP, JPG, and PNG files have been
+   -- tested and work; PBM and PPM are not supported
 
    function New_Password_Box (Row          : Positive := 1;
                               Column       : Positive := 1;
@@ -309,8 +322,8 @@ package Ada_GUI is
       renames Selected_Button;
    end Dialogs;
 
-   procedure Set_Source (ID : in Widget_ID; Source : in String) with Pre => Set_Up and ID.Kind = Audio_Player;
-   -- Makes Source the audio source for ID
+   procedure Set_Source (ID : in Widget_ID; Source : in String) with Pre => Set_Up and ID.Kind in Audio_Player | Image;
+   -- Makes Source the source for ID
 
    function Source (ID : Widget_ID) return String with Pre => Set_Up and ID.Kind = Audio_Player;
    -- Returns the current audio source for ID
@@ -540,7 +553,7 @@ package Ada_GUI is
    -- If (Line_Color.None and Fill_Color.None) or Text = "", does nothing
 
    procedure Replace_Pixels (ID : in Widget_ID; Image : in Widget_ID; X : in Integer := 0; Y : in Integer := 0) with
-      Pre => Set_Up and ID.Kind = Graphic_Area and Image.Kind = Graphic_Area;
+      Pre => Set_Up and ID.Kind = Graphic_Area and Image.Kind in Graphic_Area | Ada_Gui.Image;
    -- Replaces pixels in ID starting at (X, Y) and extending to the right by the width of Image, and down by the height of Image,
    -- with the pixels in Image
 
@@ -558,7 +571,6 @@ package Ada_GUI is
       Pre => Set_Up and ID.Kind = Graphic_Area;
    -- Extracts the pixels in ID and returns the image
    -- This may be faster than calling Pixel repeatedly
-   -- In the sample implementation, this can take tens of ms/pixel, so even a small image can take minutes
 
    procedure Write_BMP (Name : in String; Image : in Image_Data) with
       Pre => Name'Length > 0;

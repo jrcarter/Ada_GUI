@@ -109,6 +109,8 @@ package body Ada_GUI is
          Context : Ada_GUI.Gnoga.Gui.Element.Canvas.Context_2D.Context_2D_Access;
          Width   : Positive;
          Height  : Positive;
+      when Image =>
+         Img : Gnoga.Gui.Element.Common.IMG_Access;
       when Password_Box =>
          Password       : Gnoga.Gui.Element.Form.Password_Access;
          Password_Label : Gnoga.Gui.Element.Form.Label_Access;
@@ -249,6 +251,24 @@ package body Ada_GUI is
 
       return ID;
    end New_Graphic_Area;
+
+   function New_Image (Row          : Positive := 1;
+                       Column       : Positive := 1;
+                       Source       : String   := "";
+                       Description  : String   := "";
+                       Break_Before : Boolean  := False)
+   return Widget_ID is
+      ID : constant Widget_ID := (Value => Widget_List.Last_Index + 1);
+
+      Widget : Widget_Info (Kind => Image);
+   begin -- New_Image
+      Break (Desired => Break_Before, Row => Row, Column => Adjusted (Row, Column) );
+      Widget.Img := new Gnoga.Gui.Element.Common.IMG_Type;
+      Widget.Img.Create (Parent => Form (Row, Adjusted (Row, Column) ), URl_Source => Source, Alternative_Text => Description);
+      Widget_List.Append (New_Item => Widget);
+
+      return ID;
+   end New_Image;
 
    function New_Password_Box (Row          : Positive := 1;
                               Column       : Positive := 1;
@@ -447,6 +467,8 @@ package body Ada_GUI is
          Widget.Check_Label.Hidden (Value => Hidden);
       when Graphic_Area =>
          Widget.Canvas.Hidden (Value => Hidden);
+      when Image =>
+         Widget.Img.Hidden (Value => Hidden);
       when Password_Box =>
          Widget.Password.Hidden (Value => Hidden);
          Widget.Password_Label.Hidden (Value => Hidden);
@@ -482,6 +504,8 @@ package body Ada_GUI is
          Widget.Check_Label.Visible (Value => Visible);
       when Graphic_Area =>
          Widget.Canvas.Visible (Value => Visible);
+      when Image =>
+         Widget.Img.Visible (Value => Visible);
       when Password_Box =>
          Widget.Password.Visible (Value => Visible);
          Widget.Password_Label.Visible (Value => Visible);
@@ -526,7 +550,11 @@ package body Ada_GUI is
    procedure Set_Source (ID : in Widget_ID; Source : in String) is
       Widget : Widget_Info := Widget_List.Element (ID.Value);
    begin -- Set_Source
-      Widget.Audio.Media_Source (Source => Source);
+      if ID.Kind = Audio_Player then
+         Widget.Audio.Media_Source (Source => Source);
+      else
+         Widget.Img.URL_Source (Value => Source);
+      end if;
    end Set_Source;
 
    function Source (ID : Widget_ID) return String is
@@ -763,6 +791,8 @@ package body Ada_GUI is
          Widget.Check_Label.Background_Color (RGBA => Gnoga_Color (Color) );
       when Graphic_Area =>
          Widget.Canvas.Background_Color (RGBA => Gnoga_Color (Color) );
+      when Image =>
+         Widget.Img.Background_Color (RGBA => Gnoga_Color (Color) );
       when Password_Box =>
          Widget.Password.Background_Color (RGBA => Gnoga_Color (Color) );
          Widget.Password_Label.Background_Color (RGBA => Gnoga_Color (Color) );
@@ -798,6 +828,8 @@ package body Ada_GUI is
          Widget.Check_Label.Color (RGBA => Gnoga_Color (Color) );
       when Graphic_Area =>
          Widget.Canvas.Color (RGBA => Gnoga_Color (Color) );
+      when Image =>
+         Widget.Img.Color (RGBA => Gnoga_Color (Color) );
       when Password_Box =>
          Widget.Password.Color (RGBA => Gnoga_Color (Color) );
          Widget.Password_Label.Color (RGBA => Gnoga_Color (Color) );
@@ -1009,30 +1041,49 @@ package body Ada_GUI is
    procedure Replace_Pixels (ID : in Widget_ID; Image : in Widget_ID; X : in Integer := 0; Y : in Integer := 0) is
       Widget  : Widget_Info := Widget_List.Element (ID.Value);
    begin -- Replace_Pixels
-      Widget.Context.Draw_Image (Image => Widget_List.Element (Image.Value).Canvas.all, X => X, Y => Y);
+      if Image.Kind = Graphic_Area then
+         Widget.Context.Draw_Image (Image => Widget_List.Element (Image.Value).Canvas.all, X => X, Y => Y);
+      else
+         Widget.Context.Draw_Image (Image => Widget_List.Element (Image.Value).Img.all, X => X, Y => Y);
+      end if;
    end Replace_Pixels;
 
    procedure Replace_Pixels (ID : in Widget_ID; Image : in Image_Data; X : in Integer := 0; Y : in Integer := 0) is
-      Widget  : Widget_Info := Widget_List.Element (ID.Value);
+      Widget : Widget_Info := Widget_List.Element (ID.Value);
+      Pixel  : Gnoga.Pixel_Data_Type (1 .. Image'Length (2), 1 .. Image'Length (1) );
+      Img    : Gnoga.Gui.Element.Canvas.Context_2D.Image_Data_Type;
    begin -- Replace_Pixels
-      All_Rows : for R in Image'Range (1) loop
-         All_Columns : for C in Image'Range (2) loop
-            Widget.Context.Pixel (X => X + C, Y => Y + R, Color => Gnoga_Pixel (Image (R, C) ) );
-         end loop All_Columns;
-      end loop All_Rows;
+      Pixel_Rows : for R in Image'Range (1) loop -- This is a three-step process: 1. Convert Image into Pixel
+         Pixel_Columns : for C in Image'Range (2) loop
+            Pixel (C + 1, R + 1) := Gnoga_Pixel (Image (R, C) );
+         end loop Pixel_Columns;
+      end loop Pixel_Rows;
+
+      Widget.Context.Create_Image_Data (Image_Data => Img, Width => Image'Length (2), Height => Image'Length (1) );
+      Img.Data (Value => Pixel); -- 2. Put Pixel into Img
+      Widget.Context.Put_Image_Data (Image_Data => Img, Left => X, Top => Y); -- 3. Display Img in Context at X, Y
    end Replace_Pixels;
 
    function Data (ID : in Widget_ID) return Image_Data is
-      Widget  : Widget_Info := Widget_List.Element (ID.Value);
-      Result  : Image_Data (0 .. Widget.Height - 1, 0 .. Widget.Width - 1);
+      Widget : Widget_Info := Widget_List.Element (ID.Value);
+      Img    : Gnoga.Gui.Element.Canvas.Context_2D.Image_Data_Type;
    begin -- Data
-      All_Rows : for Y in Result'Range (1) loop
-         All_Columns : for X in Result'Range (2) loop
-            Result (Y, X) := AG_Color (Widget.Context.Pixel (X, Y) );
-         end loop All_Columns;
-      end loop All_Rows;
+      -- This is a three-step process: 1. Extract the image in Context into Img
+      Widget.Context.Get_Image_Data (Image_Data => Img, Left => 0, Top => 0, Width => Widget.Width, Height => Widget.Height);
 
-      return Result;
+      Get_Data : declare -- 2. Get the data from Img into Pixel
+         Pixel : constant Gnoga.Pixel_Data_Type := Img.Data; -- 1st dimension X/columns; 2nd, Y/rows
+
+         Result : Image_Data (0 .. Widget.Height - 1, 0 .. Widget.Width - 1);
+      begin -- Get_Data
+         All_Rows : for Y in Result'Range (1) loop -- 3. Convert Pixel into Result and return it
+            All_Columns : for X in Result'Range (2) loop
+               Result (Y, X) := AG_Color (Pixel (X + 1, Y + 1) );
+            end loop All_Columns;
+         end loop All_Rows;
+
+         return Result;
+      end Get_Data;
    end Data;
 
    procedure Write_BMP (Name : in String; Image : in Image_Data) is

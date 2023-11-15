@@ -956,10 +956,13 @@ package body Ada_GUI.Gnoga.Gui.Element.Canvas.Context_2D is
    is
       use Ada.Strings.Fixed;
 
-      D : Gnoga.Pixel_Data_Type (1 .. Width, 1 .. Height);
-
-      S    : Integer   := Value'First;
-      F    : Integer   := Value'First - 1;
+      D     : Gnoga.Pixel_Data_Type (1 .. Width, 1 .. Height);
+      S     : Integer;
+      F     : Integer := Value'First - 1;
+      Red   : Color_Type;
+      Green : Color_Type;
+      Blue  : Color_Type;
+      Alpha : Color_Type;
 
       function Split return Color_Type;
       --  Split string and extract values
@@ -979,9 +982,13 @@ package body Ada_GUI.Gnoga.Gui.Element.Canvas.Context_2D is
          return Color_Type'Value (Value (S .. F - 1));
       end Split;
    begin
-      for X in 1 .. Width loop
-         for Y in 1 .. Height loop
-            D (X, Y) := (Split, Split, Split, Split);
+      for Y in 1 .. Height loop
+         for X in 1 .. Width loop
+            Red   := Split;
+            Green := Split;
+            Blue  := Split;
+            Alpha := Split;
+            D (X, Y) := (Red, Green, Blue, Alpha);
          end loop;
       end loop;
 
@@ -1115,8 +1122,8 @@ package body Ada_GUI.Gnoga.Gui.Element.Canvas.Context_2D is
       S : String (1 .. 16 * Value'Length (1) * Value'Length (2));
       P : Positive := 1;
    begin
-      for X in 1 .. Value'Length (1) loop
-         for Y in 1 .. Value'Length (2) loop
+      for Y in 1 .. Value'Length (2) loop
+         for X in 1 .. Value'Length (1) loop
             declare
                T : constant String :=
                  Gnoga.Left_Trim (Value (X, Y).Red'Img) & C &
