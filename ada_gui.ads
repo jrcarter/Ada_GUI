@@ -1,6 +1,6 @@
 -- An Ada-oriented GUI library specification. The included sample implementation uses a browser as its platform
 --
--- Copyright (C) 2023 by PragmAda Software Engineering
+-- Copyright (C) 2024 by PragmAda Software Engineering
 --
 -- Released under the terms of the 3-Clause BSD License. See https://opensource.org/licenses/BSD-3-Clause
 
@@ -131,9 +131,9 @@ package Ada_GUI is
    return Widget_ID with Pre => Set_Up;
    -- Creates a new Image with contents defined by Source
    -- The source may be changed with Set_Source
-   -- In the sample implementation, Source may be an image URL or a file name relative to the working directory, and Description
-   -- (also called Alt Text) will be read by screen readers and displayed if Source is invalid. BMP, JPG, and PNG files have been
-   -- tested and work; PBM and PPM are not supported
+   -- In the sample implementation, Source may be an image URL or a file name in the working directory, and Description
+   -- (also called Alt Text) will be read by screen readers and displayed if Source is invalid. BMP, JPG, PNG, and WEBP files have
+   -- been tested and work; PBM, PPM, and QOI are not supported
 
    function New_Password_Box (Row          : Positive := 1;
                               Column       : Positive := 1;
@@ -182,8 +182,10 @@ package Ada_GUI is
    -- Text contains the initial set of options; it may be empty
    -- Height is in lines; 1 results in a drop-down list; otherwise it scrolls if it has more than Height options
    -- If Multiple_Select, the user can select more than one option at a time; otherwise, only one option may be selected at a time
+   -- Specifying the options here may be faster than adding them individually with Insert
    -- The set of options may be modified later using Insert and Delete
    -- Left clicks on selection lists generate events
+   -- For the sample implementation, specifying the options here is much faster than adding them individually with Insert
 
    function New_Text_Area (Row          : Positive := 1;
                            Column       : Positive := 1;
@@ -333,6 +335,11 @@ package Ada_GUI is
    -- In the sample implementation, there is a perceptible (to a computer) delay between a call to Set_Source and Ready returning
    -- True
 
+   function Loaded (ID : Widget_ID) return Boolean with Pre => Set_Up and ID.Kind = Image;
+   -- Returns True if ID has completed loading its source; False otherwise
+   -- In the sample implementation, there is a perceptible (to a computer) delay between a call to Set_Source and Loaded returning
+   -- True
+
    procedure Play (ID : in Widget_ID) with Pre => Set_Up and ID.Kind = Audio_Player;
    -- Plays the current source from the current position for ID
 
@@ -463,17 +470,17 @@ package Ada_GUI is
    -- In the sample implementation, Graphic_Area operations for which any part of the drawn element is outside the drawing area
    -- work; the extra part is not drawn
 
-   procedure Set_Size (ID: in Widget_ID; Width : in Positive; Height : in Positive) with
-      Pre => Set_Up and ID.Kind = Graphic_Area;
+   procedure Set_Size (ID: in Widget_ID; Width : in Natural; Height : in Natural) with
+      Pre => Set_Up and ID.Kind in Graphic_Area | Image;
    -- Changes the dimensions of ID to Width x Height
-   -- In the sample implementation, the drawn image will be resized
+   -- In the sample implementation, the drawn image in a Graphic_Area will be resized
 
-   function Width (ID : in Widget_ID) return Positive with
-      Pre => Set_Up and ID.Kind = Graphic_Area;
+   function Width (ID : in Widget_ID) return Natural with
+      Pre => Set_Up and ID.Kind in Graphic_Area | Image;
    -- Returns the current width of ID
 
-   function Height (ID : in Widget_ID) return Positive with
-      Pre => Set_Up and ID.Kind = Graphic_Area;
+   function Height (ID : in Widget_ID) return Natural with
+      Pre => Set_Up and ID.Kind in Graphic_Area | Image;
    -- Returns the current height of ID
 
    procedure Set_Pixel (ID : in Widget_ID; X : in Integer; Y : in Integer; Color : in Color_Info := To_Color (Black) ) with
@@ -534,8 +541,8 @@ package Ada_GUI is
    with Pre => Set_Up and ID.Kind = Graphic_Area;
    -- Draws an arc with center at (X, Y) and radius Radius (in pixels) from angle Start to angle Stop; angles are in radians
    -- If Counter_Clockwise, draws an arc counter-clockwise from Start to Stop; otherwise, draws clockwise
-   -- If not Line_Color.None, the arc will have a line along it in Line_Color.Color; if not Fill_Color.None as well, there will also
-   -- be lines between the ends of the arc and the center point
+   -- If not Line_Color.None, the arc will have a line along it in Line_Color.Color; if not Fill_Color.None as well, there will
+   -- also be lines between the ends of the arc and the center point
    -- If not Fill_Color.None, the arc will be filled with Fill_Color.Color
 
    procedure Draw_Text (ID         : in Widget_ID;
@@ -552,10 +559,18 @@ package Ada_GUI is
    -- If not Fill_Color.None, letters will be filled with Fill_Color.Color
    -- If (Line_Color.None and Fill_Color.None) or Text = "", does nothing
 
-   procedure Replace_Pixels (ID : in Widget_ID; Image : in Widget_ID; X : in Integer := 0; Y : in Integer := 0) with
-      Pre => Set_Up and ID.Kind = Graphic_Area and Image.Kind in Graphic_Area | Ada_Gui.Image;
+   procedure Replace_Pixels (ID : in Widget_ID; Image : in Widget_ID; X : in Integer := 0; Y : in Integer := 0)
+   with Pre => Set_Up and ID.Kind = Graphic_Area and Image.Kind in Graphic_Area | Ada_GUI.Image;
    -- Replaces pixels in ID starting at (X, Y) and extending to the right by the width of Image, and down by the height of Image,
    -- with the pixels in Image
+   -- If Fill, will fill the Graphic_Area right and below (X, Y) with Image; otherwise, only the width and height of Image will
+   -- be affected
+
+   procedure Fill (ID : in Widget_ID; Image : in Widget_ID)
+   with Pre => Set_Up and ID.Kind = Graphic_Area and Image.Kind = Ada_GUI.Image;
+   -- Fills ID with Image, replacing any existing content
+   -- ID should have been created with an intial width and height at least those of Image, and resized to the width and height of
+   -- Image
 
    type Image_Data is array (Natural range <>, Natural range <>) of Color_Info with
       Dynamic_Predicate => Image_Data'First (1) = 0 and Image_Data'First (2) = 0;
@@ -634,6 +649,12 @@ package Ada_GUI is
    function Text (ID : Widget_ID; Index : Positive) return String with
       Pre => Set_Up and ID.Kind = Selection_List and Index in 1 .. ID.Length;
    -- Returns the text of option Index
+
+   procedure Append (ID : in Widget_ID; Text : in Text_List) with
+      Pre => Set_Up and ID.Kind = Selection_List;
+   -- Appends the options in Text to the end of ID
+   -- This may be faster than appending them individually with Insert
+   -- In the sample implementation, Append is much faster than appending the values individually with Insert
 
    procedure Insert (ID : in Widget_ID; Text : in String; Before : in Positive := Integer'Last) with
       Pre => Set_Up and ID.Kind = Selection_List;

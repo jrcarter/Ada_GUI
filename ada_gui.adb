@@ -1,7 +1,7 @@
 -- An Ada-oriented GUI library
 -- Implementation derived from Gnoga
 --
--- Copyright (C) 2023 by PragmAda Software Engineering
+-- Copyright (C) 2024 by PragmAda Software Engineering
 --
 -- Released under the terms of the 3-Clause BSD License. See https://opensource.org/licenses/BSD-3-Clause
 
@@ -105,10 +105,12 @@ package body Ada_GUI is
          Check       : Gnoga.Gui.Element.Form.Check_Box_Access;
          Check_Label : Gnoga.Gui.Element.Form.Label_Access;
       when Graphic_Area =>
-         Canvas  : Gnoga.Gui.Element.Canvas.Canvas_Access;
-         Context : Ada_GUI.Gnoga.Gui.Element.Canvas.Context_2D.Context_2D_Access;
-         Width   : Positive;
-         Height  : Positive;
+         Canvas          : Gnoga.Gui.Element.Canvas.Canvas_Access;
+         Context         : Ada_GUI.Gnoga.Gui.Element.Canvas.Context_2D.Context_2D_Access;
+         Width           : Natural;
+         Height          : Natural;
+         Original_Width  : Positive;
+         Original_Height : Positive;
       when Image =>
          Img : Gnoga.Gui.Element.Common.IMG_Access;
       when Password_Box =>
@@ -247,6 +249,8 @@ package body Ada_GUI is
       Widget.Context.Get_Drawing_Context_2D (Canvas => Widget.Canvas.all);
       Widget.Width := Width;
       Widget.Height := Height;
+      Widget.Original_Width := Width;
+      Widget.Original_Height := Height;
       Widget_List.Append (New_Item => Widget);
 
       return ID;
@@ -569,6 +573,12 @@ package body Ada_GUI is
       return Widget.Audio.Ready_To_Play;
    end Ready;
 
+   function Loaded (ID : Widget_ID) return Boolean is
+      Widget : constant Widget_Info := Widget_List.Element (ID.Value);
+   begin -- Loaded
+      return Widget.Img.all.Property ("complete");
+   end Loaded;
+
    procedure Play (ID : in Widget_ID) is
       Widget : Widget_Info := Widget_List.Element (ID.Value);
    begin -- Play
@@ -850,25 +860,38 @@ package body Ada_GUI is
       end case;
    end Set_Foreground_Color;
 
-   procedure Set_Size (ID: in Widget_ID; Width : in Positive; Height : in Positive) is
+   procedure Set_Size (ID: in Widget_ID; Width : in Natural; Height : in Natural) is
       Widget : Widget_Info := Widget_List.Element (ID.Value);
    begin -- Set_Size
-      Widget.Width := Width;
-      Widget.Height := Height;
-      Widget.Canvas.Width (Value => Width);
-      Widget.Canvas.Height (Value => Height);
-      Widget_List.Replace_Element (Index => ID.Value, New_Item => Widget);
+      if ID.Kind = Image then
+         Widget.Img.Width (Value => Width);
+         Widget.Img.Height (Value => Height);
+      else
+         Widget.Width := Width;
+         Widget.Height := Height;
+         Widget.Canvas.Width (Value => Width);
+         Widget.Canvas.Height (Value => Height);
+         Widget_List.Replace_Element (Index => ID.Value, New_Item => Widget);
+      end if;
    end Set_Size;
 
-   function Width (ID : in Widget_ID) return Positive is
+   function Width (ID : in Widget_ID) return Natural is
       Widget : constant Widget_Info := Widget_List.Element (ID.Value);
    begin -- Width
+      if ID.Kind = Image then
+         return Widget.Img.Width;
+      end if;
+
       return Widget.Width;
    end Width;
 
-   function Height (ID : in Widget_ID) return Positive is
+   function Height (ID : in Widget_ID) return Natural is
       Widget : constant Widget_Info := Widget_List.Element (ID.Value);
    begin -- Height
+      if ID.Kind = Image then
+         return Widget.Img.Height;
+      end if;
+
       return Widget.Height;
    end Height;
 
@@ -1039,7 +1062,7 @@ package body Ada_GUI is
    end Draw_Text;
 
    procedure Replace_Pixels (ID : in Widget_ID; Image : in Widget_ID; X : in Integer := 0; Y : in Integer := 0) is
-      Widget  : Widget_Info := Widget_List.Element (ID.Value);
+      Widget : Widget_Info := Widget_List.Element (ID.Value);
    begin -- Replace_Pixels
       if Image.Kind = Graphic_Area then
          Widget.Context.Draw_Image (Image => Widget_List.Element (Image.Value).Canvas.all, X => X, Y => Y);
@@ -1047,6 +1070,16 @@ package body Ada_GUI is
          Widget.Context.Draw_Image (Image => Widget_List.Element (Image.Value).Img.all, X => X, Y => Y);
       end if;
    end Replace_Pixels;
+
+   procedure Fill (ID : in Widget_ID; Image : in Widget_ID) is
+      Widget : Widget_Info := Widget_List.Element (ID.Value);
+   begin -- Fill
+      Widget.Context.Draw_Image (Image  => Widget_List.Element (Image.Value).Img.all,
+                                 X      => 0,
+                                 Y      => 0,
+                                 Width  => Widget.Original_Width,
+                                 Height => Widget.Original_Height);
+   end Fill;
 
    procedure Replace_Pixels (ID : in Widget_ID; Image : in Image_Data; X : in Integer := 0; Y : in Integer := 0) is
       Widget : Widget_Info := Widget_List.Element (ID.Value);
@@ -1289,6 +1322,14 @@ package body Ada_GUI is
    begin -- Text
       return Widget.Selector.all.Value (Index);
    end Text;
+
+   procedure Append (ID : in Widget_ID; Text : in Text_List) is
+      Widget : Widget_Info := Widget_List.Element (ID.Value);
+   begin -- Append
+      Add_Options : for I in Text'Range loop
+         Widget.Selector.Add_Option (Value => To_String (Text (I) ), Text => To_String (Text (I) ) );
+      end loop Add_Options;
+   end Append;
 
    procedure Insert (ID : in Widget_ID; Text : in String; Before : in Positive := Integer'Last) is
       Widget : Widget_Info := Widget_List.Element (ID.Value);
