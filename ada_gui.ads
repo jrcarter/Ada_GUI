@@ -88,11 +88,12 @@ package Ada_GUI is
    -- Creates an Audio_Player
    -- Source is the source of audio; if "", then no audio is loaded
    -- The source may be changed with Set_Source
-   -- In the sample implementation, Audio sources seem to be relative path names of audio files and URLs
+   -- In the sample implementation, Audio sources are path names of audio files relative to the working directory and URLs
    -- If Controls, then controls are displayed for the player and the user can use them to control the player
    -- Otherwise, no controls are displayed and control of the player must be done by the program
 
-   function New_Background_Text (Row : Positive := 1; Column : Positive := 1; Text : String := ""; Break_Before : Boolean := False)
+   function New_Background_Text
+      (Row : Positive := 1; Column : Positive := 1; Text : String := ""; Break_Before : Boolean := False)
    return Widget_ID with Pre => Set_Up;
    -- Creates a new Background_Text with contents Text
    -- Like a label, background text is not in any visible widget; unlike a label, background text is not associated with a widget
@@ -131,7 +132,7 @@ package Ada_GUI is
    return Widget_ID with Pre => Set_Up;
    -- Creates a new Image with contents defined by Source
    -- The source may be changed with Set_Source
-   -- In the sample implementation, Source may be an image URL or a file name in the working directory, and Description
+   -- In the sample implementation, Source may be an image URL or a path name relative to the working directory, and Description
    -- (also called Alt Text) will be read by screen readers and displayed if Source is invalid. BMP, JPG, PNG, and WEBP files have
    -- been tested and work; PBM, PPM, and QOI are not supported
 

@@ -63,6 +63,8 @@ package Ada_GUI.Gnoga.Server is
    function Directory_Separator return String;
    --  Return the Directory Separator using for the OS Gnoga is compiled on.
 
+   -- For Ada_GUI, these all usually return the current working directory
+
    function Application_Directory return String;
    --  This is the root directory for the application.
 

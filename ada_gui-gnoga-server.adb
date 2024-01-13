@@ -41,11 +41,6 @@ with Ada.Command_Line;
 with GNAT.OS_Lib;
 
 package body Ada_GUI.Gnoga.Server is
-   Exec_Loc : constant GNAT.OS_Lib.String_Access :=
-                GNAT.OS_Lib.Locate_Exec_On_Path
-                  (Ada.Command_Line.Command_Name);
-   Exec_Dir : constant String := Exec_Loc.all;
-
    function Find_Subdirectory (Sub : String) return String;
    --  Return the path to the given subdirectory or return "";
 
@@ -98,8 +93,7 @@ package body Ada_GUI.Gnoga.Server is
 
    function Executable_Directory return String is
    begin
-      return Ada.Directories.Containing_Directory (Exec_Dir) &
-        GNAT.OS_Lib.Directory_Separator;
+      return Ada.Directories.Current_Directory & GNAT.OS_Lib.Directory_Separator;
    end Executable_Directory;
 
    --------------------
