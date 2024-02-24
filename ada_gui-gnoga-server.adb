@@ -36,7 +36,6 @@
 ------------------------------------------------------------------------------
 
 with Ada.Directories;
-with Ada.Command_Line;
 
 with GNAT.OS_Lib;
 

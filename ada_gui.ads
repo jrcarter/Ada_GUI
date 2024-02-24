@@ -564,8 +564,6 @@ package Ada_GUI is
    with Pre => Set_Up and ID.Kind = Graphic_Area and Image.Kind in Graphic_Area | Ada_GUI.Image;
    -- Replaces pixels in ID starting at (X, Y) and extending to the right by the width of Image, and down by the height of Image,
    -- with the pixels in Image
-   -- If Fill, will fill the Graphic_Area right and below (X, Y) with Image; otherwise, only the width and height of Image will
-   -- be affected
 
    procedure Fill (ID : in Widget_ID; Image : in Widget_ID)
    with Pre => Set_Up and ID.Kind = Graphic_Area and Image.Kind = Ada_GUI.Image;
@@ -587,12 +585,6 @@ package Ada_GUI is
       Pre => Set_Up and ID.Kind = Graphic_Area;
    -- Extracts the pixels in ID and returns the image
    -- This may be faster than calling Pixel repeatedly
-
-   procedure Write_BMP (Name : in String; Image : in Image_Data) with
-      Pre => Name'Length > 0;
-   -- Creates a file named Name and writes Image to it in BMP format
-   -- Alpha values are ignored
-   -- Raises Ada.IO_Exceptions.Name_Error if Name is not a valid file name
 
    function Maximum (ID : Widget_ID) return Natural with Pre => Set_Up and ID.Kind = Progress_Bar;
    -- Returns the current Maximum value for ID

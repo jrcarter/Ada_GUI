@@ -9,7 +9,6 @@ with Ada.Containers.Vectors;
 with Ada.Exceptions;
 with Ada.Numerics.Elementary_Functions;
 with Ada.Real_Time;
-with Ada.Sequential_IO;
 with Ada.Strings.Fixed;
 with Ada.Unchecked_Conversion;
 
@@ -22,8 +21,6 @@ with Ada_GUI.Gnoga.Gui.View.Console;
 with Ada_GUI.Gnoga.Gui.View.Grid;
 with Ada_GUI.Gnoga.Gui.Window;
 with Ada_GUI.Gnoga.Colors;
-
-with System;
 
 package body Ada_GUI is
    type Form_Set is array (Positive range <>, Positive range <>) of Gnoga.Gui.Element.Form.Form_Type;
@@ -1118,123 +1115,6 @@ package body Ada_GUI is
          return Result;
       end Get_Data;
    end Data;
-
-   procedure Write_BMP (Name : in String; Image : in Image_Data) is
-      type Byte_List is array (Positive range <>) of RGB_Value;
-
-      type Word  is mod 2 ** 16;
-      type Dword is mod 2 ** 32;
-
-      subtype Word_As_Bytes  is Byte_List (1 .. 2);
-      subtype Dword_As_Bytes is Byte_List (1 .. 4);
-
-      function C2B (Color : in Color_Info) return Byte_List is
-         (Color.Blue, Color.Green, Color.Red);
-
-      procedure Make_Little_Endian (List : in out Byte_List) with
-         Pre => List'First = 1;
-      -- If System.Default_Bit_Order /= System.Low_Order_First, reverses the bytes of List
-
-      function W2B (Value : in Word) return Word_As_Bytes;
-      -- Returns the bytes of Value in little-endian order
-
-      function D2B (Value : in Dword) return Dword_As_Bytes;
-      -- Returns the bytes of Value in little-endian order
-
-      package Byte_IO is new Ada.Sequential_IO (Element_Type => RGB_Value);
-
-      procedure Write (File : in Byte_IO.File_Type; List : in Byte_List);
-      -- Writes the bytes of List to File
-
-      Pixel_Bytes_Per_Row : constant Natural := 3 * Image'Length (2);
-      Bytes_Per_Row       : constant Natural := 4 * ( (24 * Image'Length (2) + 31) / 32); -- Includes padding bytes
-      Image_Bytes         : constant Natural := Image'Length (1) * Bytes_Per_Row;
-      Padding_Bytes       : constant Natural := Bytes_Per_Row - Pixel_Bytes_Per_Row;
-
-      procedure Make_Little_Endian (List : in out Byte_List) is
-         procedure Swap (Left : in out RGB_Value; Right : in out RGB_Value) with
-            Post => Left = Right'Old and Right = Left'Old;
-
-         procedure Swap (Left : in out RGB_Value; Right : in out RGB_Value) is
-            Temp : RGB_Value := Left;
-         begin -- Swap
-            Left := Right;
-            Right := Temp;
-         end Swap;
-
-         use type System.Bit_Order;
-
-         Last : Natural := List'Last;
-      begin -- Make_Little_Endian
-         if System.Default_Bit_Order = System.Low_Order_First then
-            return;
-         end if;
-
-         Backwards : for I in 1 .. List'Last / 2 loop
-            Swap (List (I), List (Last) );
-            Last := Last - 1;
-         end loop Backwards;
-      end Make_Little_Endian;
-
-      function W2B (Value : in Word) return Word_As_Bytes is
-         function Converted is new Ada.Unchecked_Conversion (Source => Word, Target => Word_As_Bytes);
-
-         Result : Word_As_Bytes := Converted (Value);
-      begin -- W2B
-         Make_Little_Endian (List => Result);
-
-         return Result;
-      end W2B;
-
-      function D2B (Value : in Dword) return Dword_As_Bytes is
-         function Converted is new Ada.Unchecked_Conversion (Source => Dword, Target => Dword_As_Bytes);
-
-         Result : Dword_As_Bytes := Converted (Value);
-      begin -- D2B
-         Make_Little_Endian (List => Result);
-
-         return Result;
-      end D2B;
-
-      procedure Write (File : in Byte_IO.File_Type; List : in Byte_List) is
-         -- Empty
-      begin -- Write
-         All_Bytes : for B of List loop
-            Byte_IO.Write (File => File, Item => B);
-         end loop All_Bytes;
-      end Write;
-
-      Padding : constant Byte_List := (1 .. Padding_Bytes => 0);
-      DPM     : constant Byte_List := D2B (2835); -- Dots per meter (about 72 DPI)
-      Zero    : constant Byte_List := (1 .. 4 => 0);
-
-      File : Byte_IO.File_Type;
-   begin -- Write_BMP
-      Byte_IO.Create (File => File, Name => Name);
-      Write (File => File, List => (Character'Pos ('B') & Character'Pos ('M') ) ); -- BMP header
-      Write (File => File, List => D2B (54 + Dword (Image_Bytes) ) );              -- File size
-      Write (File => File, List => Zero);                                          -- Unused
-      Write (File => File, List => D2B (54) );                                     -- Offset of image data
-      Write (File => File, List => D2B (40) );                   -- DIB header of 40 bytes
-      Write (File => File, List => D2B (Image'Length (2) ) );    -- Image width
-      Write (File => File, List => D2B (Image'Length (1) ) );    -- Image height
-      Write (File => File, List => W2B (1) );                    -- # of planes
-      Write (File => File, List => W2B (24) );                   -- Bits/pixel
-      Write (File => File, List => Zero);                        -- No compression
-      Write (File => File, List => D2B (Dword (Image_Bytes) ) ); -- Image size
-      Write (File => File, List => DPM & DPM);                   -- X & Y resolutions
-      Write (File => File, List => Zero & Zero);                 -- # of palette colors & all colors important
-
-      All_Rows : for Y in reverse Image'Range (1) loop -- Write image data
-         All_Columns : for X in Image'Range (2) loop
-            Write (File => File, List => C2B (Image (Y, X) ) );
-         end loop All_Columns;
-
-         Write (File => File, List => Padding);
-      end loop All_Rows;
-
-      Byte_IO.Close (File => File);
-   end Write_BMP;
 
    function Maximum (ID : Widget_ID) return Natural is
       (Widget_List.Element (ID.Value).Progress.Maximum);
