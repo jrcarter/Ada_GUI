@@ -34,7 +34,6 @@ package Ada_GUI is
    type Grid_Set is array (Positive range <>, Positive range <>) of Grid_Info;
 
    procedure Set_Up (Grid  : in Grid_Set := (1 => (1 => (others => <>) ) );
-                     ID    : in Positive := 8080;
                      Title : in String   := "Ada-GUI Application";
                      Icon  : in String   := "favicon.ico")
    with Pre => not Set_Up          and
@@ -48,10 +47,12 @@ package Ada_GUI is
    -- Each display area has the alignment given by Grid for its row and column
    -- A display area is either a new Area, or an Extension of the area to its left
    -- Title is the initial window title
-   -- In the sample implementation, each application has an Ada-GUI ID; two applications with the same ID cannot run at the same
-   -- time
-   -- (The ID is used as the port for talking to the browser, hence the restriction)
-   -- Other implementations may ignore or remove ID
+   -- In the sample implementation, each application uses a port to communicate with the browser; a port not in use by another
+   -- Ada-GUI application is chosen during elaboration; this port is made available when End_GUI is called
+   -- If no port is available, the hidden exception No_Free_Port will be raised during elaboration
+   -- If two programs call Set_Up at the same time, or one calls Set_Up and another End_GUI at the same time, a race condition is
+   -- possible
+   -- If a non-Ada-GUI is using the port chosen for an Ada-GUI application, Set_Up will fail with a log message
    --
    -- Grid example: if Grid = (1 => (1 => (Area, Left), 2 => (Extension),  3 => (Area, Left) )
    --                          2 => (1 => (Area, Left), 2 => (Area, Left), 3 => (Extension) ) )

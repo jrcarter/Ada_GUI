@@ -40,7 +40,9 @@
 
 with GNAT.OS_Lib;
 
+with Ada.Direct_IO;
 with Ada.Directories;
+with Ada.Environment_Variables;
 with Ada.Task_Identification;
 
 with Ada_GUI.Gnoga.Server.Connection;
@@ -53,6 +55,21 @@ package body Ada_GUI.Gnoga.Application is
    procedure Open_URL (URL : in String);
 
    procedure Set_Favicon (Name : in String);
+
+   type Port_Number is range 8080 .. 8080 + 99; -- 100 posible port #s
+   type Port_Set is array (Port_Number) of Boolean;
+
+   No_Free_Port : exception;
+
+   function Next_Port return Port_Number;
+   -- Tries to find an unused port
+   -- Raises No_Free_Port if there is no unused port
+   -- Note: if two programs call Next_Port at the same time, or one calls Next_Port and another Free_Port at the same time, then
+   --       there is a possible race condition
+   -- If a non-Ada-GUI program is using a port in Port_Number, then an Ada-GUI program may get the same port # and fail
+
+   procedure Free_Port (Port : in Port_Number);
+   -- Makes Port available for another Ada-GUI program to use
 
    App_Name : Ada.Strings.Unbounded.Unbounded_String := Ada.Strings.Unbounded.To_Unbounded_String ("Ada GUI - An Ada-oriented GUI");
 
@@ -91,15 +108,23 @@ package body Ada_GUI.Gnoga.Application is
    Open_Unix    : constant String := "/usr/bin/xdg-open";
    Open_Windows : constant String := "cmd /c start";
 
+   type OS_ID is (Mac, Unix, Windows);
+   OS_Kind : constant OS_ID := (if    Ada.Directories.Current_Directory (1) /= '/' then Windows
+                                elsif Ada.Directories.Exists (Open_Unix)           then Unix
+                                elsif Ada.Directories.Exists (Open_Mac)            then Mac
+                                else raise Program_Error with "Operating system cannot be determined");
+   Home_Dir : constant String := (if OS_Kind = Windows then Ada.Environment_Variables.Value ("userprofile") & '\'
+                                  else "/home/" & Ada.Environment_Variables.Value ("USER") & '/');
+
    procedure Open_URL (URL : in String) is
       Args : GNAT.OS_Lib.Argument_List_Access;
       PID  : GNAT.OS_Lib.Process_Id;
    begin
       Args := GNAT.OS_Lib.Argument_String_To_List
-         ( (if    Ada.Directories.Current_Directory (1) /= '/' then Open_Windows
-            elsif Ada.Directories.Exists (Open_Unix)           then Open_Unix
-            elsif Ada.Directories.Exists (Open_Mac)            then Open_Mac
-            else raise Program_Error with "Operating system cannot be determined") &
+         ( (case OS_Kind is
+            when Mac     => Open_Mac,
+            when Unix    => Open_Unix,
+            when Windows => Open_Windows) &
           ' ' & URL);
       PID := GNAT.OS_Lib.Non_Blocking_Spawn
         (Program_Name => Args (Args'First).all,
@@ -178,23 +203,56 @@ package body Ada_GUI.Gnoga.Application is
       end if;
    end On_Connect;
 
+   package PS_IO is new Ada.Direct_IO (Element_Type => Port_Set);
+
+   Port_File : constant String := Home_Dir & "Ada_GUI_Ports";
+
+   function Next_Port return Port_Number is
+      Set  : Port_Set := (others => False);
+      File : PS_IO.File_Type;
+   begin -- Next_Port
+      if not Ada.Directories.Exists (Port_File) then
+         PS_IO.Create (File => File, Name => Port_File);
+      else
+         PS_IO.Open (File => File, Mode => PS_IO.Inout_File, Name => Port_File);
+         PS_IO.Read (File => File, Item => Set);
+      end if;
+
+      Find : for I in Set'Range loop
+         if not Set (I) then -- I is free
+            Set (I) := True;
+            PS_IO.Write (File => File, Item => Set, To => 1);
+            PS_IO.Close (File => File);
+
+            return I;
+         end if;
+      end loop Find;
+
+      -- No free port found
+      PS_IO.Write (File => File, Item => Set, To => 1);
+      PS_IO.Close (File => File);
+
+      raise No_Free_Port;
+   end Next_Port;
+
+   Port : constant Port_Number := Next_Port;
+
    ----------------
    -- Initialize --
    ----------------
 
    procedure Initialize
      (Main_Window : in out Gnoga.Gui.Window.Window_Type'Class;
-      ID          : in     Positive := 8080;
-      Title       : in     String   := "Ada-GUI Application";
-      Icon        : in     String   := "favicon.ico")
+      Title       : in     String := "Ada-GUI Application";
+      Icon        : in     String := "favicon.ico")
    is
    begin
       Set_Title (Name => Title);
       Set_End_Text (Text => Title & " ended");
       Set_Favicon (Name => Icon);
-      Open_URL (URL => "http://127.0.0.1:" & Left_Trim (ID'Image) );
+      Open_URL (URL => "http://127.0.0.1:" & Left_Trim (Port'Image) );
       Gnoga.Activate_Exception_Handler (ID => Ada.Task_Identification.Current_Task);
-      Gnoga.Server.Connection.Initialize (Host => "localhost", Port => ID, Boot => "boot.html", Verbose => True);
+      Gnoga.Server.Connection.Initialize (Host => "localhost", Port => Integer (Port), Boot => "boot.html", Verbose => True);
 
       Gnoga.Write_To_Console (Message => "If closing the browser or browser tab does not end the program, press Ctrl-C");
 
@@ -219,5 +277,19 @@ package body Ada_GUI.Gnoga.Application is
    procedure End_Application is
    begin
       Gnoga.Server.Connection.Close (Connection_ID);
+      Free_Port (Port => Port);
    end End_Application;
+
+   procedure Free_Port (Port : in Port_Number) is
+      File : PS_IO.File_Type;
+      Set  : Port_Set;
+   begin -- Free_Port
+      if Ada.Directories.Exists (Port_File) then
+         PS_IO.Open (File => File, Mode => PS_IO.Inout_File, Name => Port_File);
+         PS_IO.Read (File => File, Item => Set);
+         Set (Port) := False;
+         PS_IO.Write (File => File, Item => Set, To => 1);
+         PS_IO.Close (File => File);
+      end if;
+   end Free_Port;
 end Ada_GUI.Gnoga.Application;
