@@ -1,9 +1,12 @@
 -- An Ada-oriented GUI library
 -- Implementation derived from Gnoga
 --
--- Copyright (C) 2023 by PragmAda Software Engineering
+-- Copyright (C) by PragmAda Software Engineering
 --
--- Released under the terms of the 3-Clause BSD License. See https://opensource.org/licenses/BSD-3-Clause
+-- SPDX-License-Identifier: BSD-3-Clause
+-- See https://spdx.org/licenses/
+-- If you find this software useful, please let me know, either through
+-- github.com/jrcarter or directly to pragmada@pragmada.x10hosting.com
 
 with Ada.Numerics;
 
@@ -11,7 +14,7 @@ separate (Ada_GUI)
 package body Plotting is
    function New_Plot (ID : in Widget_ID; X_Min : in Float; X_Max : in Float; Y_Min : in Float; Y_Max : in Float)
    return Plot_Info is
-      Widget : constant Widget_Info := Widget_List.Element (ID.Value);
+      Widget : Widget_Info renames Widget_List.Element (ID.Value);
 
       Result : Plot_Info;
    begin -- New_Plot
@@ -30,7 +33,7 @@ package body Plotting is
    function Scale_X (Plot : Plot_Info; X : Float) return Integer is (Integer (Plot.X_Scale * (X - Plot.X_Min) ) );
 
    function Scale_Y (Plot : Plot_Info; Y : Float) return Integer is
-      Widget : constant Widget_Info := Widget_List.Element (Plot.ID.Value);
+      Widget : Widget_Info renames Widget_List.Element (Plot.ID.Value);
    begin -- Scale_Y
       return Widget.Height - Integer (Plot.Y_Scale * (Y - Plot.Y_Min) );
    end Scale_Y;
@@ -81,9 +84,10 @@ package body Plotting is
       procedure Label_Tick (X : in Integer; Value : in Float);
       -- If Value is an integer, draws its image next to its tick at horizontal pixel X
 
-      Widget : constant Widget_Info := Widget_List.Element (Plot.ID.Value);
-      Axis_Y : constant Float       := (if 0.0 < Plot.Y_Min then Plot.Y_Min elsif 0.0 > Plot.Y_Max then Plot.Y_Max else 0.0);
-      Y      : constant Integer     := Scale_Y (Plot, Axis_Y);
+      Widget : Widget_Info renames Widget_List.Element (Plot.ID.Value);
+
+      Axis_Y : constant Float   := (if 0.0 < Plot.Y_Min then Plot.Y_Min elsif 0.0 > Plot.Y_Max then Plot.Y_Max else 0.0);
+      Y      : constant Integer := Scale_Y (Plot, Axis_Y);
 
       procedure Label_Axis is
          X : constant Integer := (Widget.Width - Width (Plot, Label) ) / 2;
@@ -154,9 +158,10 @@ package body Plotting is
       procedure Label_Tick (Y : in Integer; Value : in Float);
       -- If Value is an integer, draws its image next to its tick at vertical pixel Y
 
-      Widget : constant Widget_Info := Widget_List.Element (Plot.ID.Value);
-      Axis_X : constant Float       := (if 0.0 < Plot.X_Min then Plot.X_Min elsif 0.0 > Plot.X_Max then Plot.X_Max else 0.0);
-      X      : constant Integer     := Scale_X (Plot, Axis_X);
+      Widget : Widget_Info renames Widget_List.Element (Plot.ID.Value);
+
+      Axis_X : constant Float   := (if 0.0 < Plot.X_Min then Plot.X_Min elsif 0.0 > Plot.X_Max then Plot.X_Max else 0.0);
+      X      : constant Integer := Scale_X (Plot, Axis_X);
 
       Max_Label : Integer := -1; -- Max width of a tick label
 
@@ -239,7 +244,7 @@ package body Plotting is
    end Draw_Axes;
 
    function Width (Plot : in Plot_Info; Text : in String) return Natural is
-      Widget : constant Widget_Info := Widget_List.Element (Plot.ID.Value);
+      Widget : Widget_Info renames Widget_List.Element (Plot.ID.Value);
    begin -- Width
       return Integer (Float'Ceiling (Widget.Context.Measure_Text_Width (Text) ) );
    end Width;
