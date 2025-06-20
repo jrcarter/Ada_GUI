@@ -1,8 +1,11 @@
 -- An Ada-oriented GUI library specification. The included sample implementation uses a browser as its platform
 --
--- Copyright (C) 2025 by PragmAda Software Engineering
+-- Copyright (C) by PragmAda Software Engineering
 --
--- Released under the terms of the 3-Clause BSD License. See https://opensource.org/licenses/BSD-3-Clause
+-- SPDX-License-Identifier: BSD-3-Clause
+-- See https://spdx.org/licenses/
+-- If you find this software useful, please let me know, either through
+-- github.com/jrcarter or directly to pragmada@pragmada.x10hosting.com
 
 with Ada.Strings.Unbounded;
 
