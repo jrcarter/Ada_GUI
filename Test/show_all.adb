@@ -1,8 +1,12 @@
 -- A program to show all of the Ada_GUI widgets
 -- An Ada_GUI demo program
 --
--- Copyright (C) 2023 by PragmAda Software Engineering
--- Released under the terms of the BSD 3-Clause license; see https://opensource.org/licenses
+-- Copyright (C) by PragmAda Software Engineering
+--
+-- SPDX-License-Identifier: BSD-3-Clause
+-- See https://spdx.org/licenses/
+-- If you find this software useful, please let me know, either through
+-- github.com/jrcarter or directly to pragmada@pragmada.x10hosting.com
 --
 with Ada.Characters.Latin_1;
 with Ada.Strings.Unbounded;
@@ -104,6 +108,7 @@ begin -- Show_All
    Area := Ada_GUI.New_Text_Area (Text => "Some text" & Ada.Characters.Latin_1.LF & "Another line", Break_Before => True);
    Area.Set_Background_Color (Color => Ada_GUI.To_Color (Ada_GUI.Yellow) );
    Area.Set_Foreground_Color (Color => Ada_GUI.To_Color (Ada_GUI.Red) );
+   Area.Set_Text_Font_Kind (Kind => Ada_GUI.Monospaced, Height => Ada_GUI.Large, Weight => Ada_GUI.Bold);
    Box := Ada_GUI.New_Text_Box (Break_Before => True, Label => "Text_Box:", Placeholder => "Placeholder");
    Box.Set_Background_Color (Color => Ada_GUI.To_Color (Ada_GUI.Yellow) );
    Box.Set_Foreground_Color (Color => Ada_GUI.To_Color (Ada_GUI.Red) );
