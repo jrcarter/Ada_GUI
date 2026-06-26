@@ -659,25 +659,111 @@ package body Ada_GUI is
       end case;
    end Set_Text_Alignment;
 
-   procedure Set_Text_Font_Kind (ID : in Widget_ID; Kind : in Font_Kind_ID) is
-      function Family return String is
-         (if Kind = Proportional then "sans-serif" else "monospace");
+   function Family (Kind : in Font_Kind_ID) return String is
+      (if Kind = Proportional then "sans-serif" else "monospace");
+
+   function Italic_Name (Italic : in Boolean) return Ada_GUI.Gnoga.Gui.Element.Font_Style_Type is
+      (if Italic then Ada_GUI.Gnoga.Gui.Element.Italic else Ada_GUI.Gnoga.Gui.Element.Normal);
+
+   function Weight_Name (Weight : in Font_Weight_ID) return Ada_GUI.Gnoga.Gui.Element.Font_Weight_Type is
+      (case Weight is
+       when Light  => Ada_GUI.Gnoga.Gui.Element.Weight_200,
+       when Normal => Ada_GUI.Gnoga.Gui.Element.Weight_Normal,
+       when Bold   => Ada_GUI.Gnoga.Gui.Element.Weight_Bold);
+
+   procedure Set_Text_Font_Kind (ID     : in Widget_ID;
+                                 Kind   : in Font_Kind_ID   := Proportional;
+                                 Height : in Font_Height_ID := Medium;
+                                 Italic : in Boolean        := False;
+                                 Weight : in Font_Weight_ID := Normal)
+   is
+      function Height_Name return String is
+         (case	Height is
+          when Extra_Small => "xx-small",
+          when Very_Small  => "x-small",
+          when Small       => "small",
+          when Medium      => "medium",
+          when Large       => "large",
+          when Very_Large  => "x-large",
+          when Extra_Large => "xx-large");
 
       Widget : Widget_Info renames Widget_List.Element (ID.Value);
    begin -- Set_Text_Font_Kind
       case Widget.Kind is
       when Background_Text =>
-         Widget.Background.Font (Family => Family);
+         Widget.Background.Font (Family => Family (Kind),
+                                 Height => Height_Name,
+                                 Style  => Italic_Name (Italic),
+                                 Weight => Weight_Name (Weight) );
       when Button =>
-         Widget.Switch.Font (Family => Family);
+         Widget.Switch.Font (Family => Family (Kind),
+                             Height => Height_Name,
+                             Style  => Italic_Name (Italic),
+                             Weight => Weight_Name (Weight) );
       when Password_Box =>
-         Widget.Password.Font (Family => Family);
+         Widget.Password.Font (Family => Family (Kind),
+                               Height => Height_Name,
+                               Style  => Italic_Name (Italic),
+                               Weight => Weight_Name (Weight) );
       when Selection_List =>
-         Widget.Selector.Font (Family => Family);
+         Widget.Selector.Font (Family => Family (Kind),
+                               Height => Height_Name,
+                               Style  => Italic_Name (Italic),
+                               Weight => Weight_Name (Weight) );
       when Text_Area =>
-         Widget.Area.Font (Family => Family);
+         Widget.Area.Font (Family => Family (Kind),
+                           Height => Height_Name,
+                           Style  => Italic_Name (Italic),
+                           Weight => Weight_Name (Weight) );
       when Text_Box =>
-         Widget.Box.Font (Family => Family);
+         Widget.Box.Font (Family => Family (Kind),
+                          Height => Height_Name,
+                          Style  => Italic_Name (Italic),
+                          Weight => Weight_Name (Weight) );
+      when others =>
+         raise Program_Error;
+      end case;
+   end Set_Text_Font_Kind;
+
+   procedure Set_Text_Font_Kind (ID     : in Widget_ID;
+                                 Kind   : in Font_Kind_ID   := Proportional;
+                                 Height : in Positive       := 12;
+                                 Italic : in Boolean        := False;
+                                 Weight : in Font_Weight_ID := Normal)
+   is
+      Widget : Widget_Info renames Widget_List.Element (ID.Value);
+   begin -- Set_Text_Font_Kind
+      case Widget.Kind is
+      when Background_Text =>
+         Widget.Background.Font (Family => Family (Kind),
+                                 Height => Height'Image & "px",
+                                 Style  => Italic_Name (Italic),
+                                 Weight => Weight_Name (Weight) );
+      when Button =>
+         Widget.Switch.Font (Family => Family (Kind),
+                             Height => Height'Image & "px",
+                             Style  => Italic_Name (Italic),
+                             Weight => Weight_Name (Weight) );
+      when Password_Box =>
+         Widget.Password.Font (Family => Family (Kind),
+                               Height => Height'Image & "px",
+                               Style  => Italic_Name (Italic),
+                               Weight => Weight_Name (Weight) );
+      when Selection_List =>
+         Widget.Selector.Font (Family => Family (Kind),
+                               Height => Height'Image & "px",
+                               Style  => Italic_Name (Italic),
+                               Weight => Weight_Name (Weight) );
+      when Text_Area =>
+         Widget.Area.Font (Family => Family (Kind),
+                           Height => Height'Image & "px",
+                           Style  => Italic_Name (Italic),
+                           Weight => Weight_Name (Weight) );
+      when Text_Box =>
+         Widget.Box.Font (Family => Family (Kind),
+                          Height => Height'Image & "px",
+                          Style  => Italic_Name (Italic),
+                          Weight => Weight_Name (Weight) );
       when others =>
          raise Program_Error;
       end case;

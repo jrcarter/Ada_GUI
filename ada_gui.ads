@@ -378,11 +378,27 @@ package Ada_GUI is
    -- Sets the text alignment for ID to Alignment
 
    type Font_Kind_ID is (Proportional, Monospaced);
+   type Font_Height_ID is (Extra_Small, Very_Small, Small, Medium, Large, Very_Large, Extra_Large);
+   type Font_Weight_ID is (Light, Normal, Bold);
 
-   procedure Set_Text_Font_Kind (ID : in Widget_ID; Kind : in Font_Kind_ID) with
+   procedure Set_Text_Font_Kind (ID     : in Widget_ID;
+                                 Kind   : in Font_Kind_ID   := Proportional;
+                                 Height : in Font_Height_ID := Medium;
+                                 Italic : in Boolean        := False;
+                                 Weight : in Font_Weight_ID := Normal)
+   with
       Pre => Set_Up and ID.Kind in Background_Text | Button | Password_Box | Selection_List | Text_Area | Text_Box;
-   -- Sets the text font kind for ID to Kind
-   -- Default is Proportional
+   -- Sets the text font kind for ID
+
+   procedure Set_Text_Font_Kind (ID     : in Widget_ID;
+                                 Kind   : in Font_Kind_ID   := Proportional;
+                                 Height : in Positive       := 12;
+                                 Italic : in Boolean        := False;
+                                 Weight : in Font_Weight_ID := Normal)
+   with
+      Pre => Set_Up and ID.Kind in Background_Text | Button | Password_Box | Selection_List | Text_Area | Text_Box;
+   -- Sets the text font kind for ID
+   -- Height is in pixels
 
    procedure Set_Label (ID : in Widget_ID; Text : in String) with
       Pre => Set_Up and Id.Kind in Check_Box | Password_Box | Text_Box;
