@@ -391,8 +391,8 @@ package Ada_GUI is
    -- Sets the text font kind for ID
 
    procedure Set_Text_Font_Kind (ID     : in Widget_ID;
-                                 Kind   : in Font_Kind_ID   := Proportional;
-                                 Height : in Positive       := 12;
+                                 Kind   : in Font_Kind_ID := Proportional;
+                                 Height : in Positive;
                                  Italic : in Boolean        := False;
                                  Weight : in Font_Weight_ID := Normal)
    with
